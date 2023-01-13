@@ -3,14 +3,17 @@
 //
 
 #include <sys_req.h>
-#include "comhand.h"
+#include "stdio.h"
+#include "mpx/comhand.h"
 
 void comhand(void)
 {
         for(;;)
         {
-                char buf[100] = {0};
+                //100 + 1 for the null terminator.
+                char buf[101] = {0};
 
+                print(">> ");
                 sys_req(READ, COM1, buf, 100);
 
                 sys_req(WRITE, COM1, "You wrote: ", 10);
