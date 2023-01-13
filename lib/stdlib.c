@@ -29,11 +29,12 @@ int atoi(const char *s)
 	return res;
 }
 
-double atof(const char *s)
+double atod(const char *s)
 {
-	double res = 0;
+	double res = 0.0;
 	char sign = ' ';
-	char decimal = ' ';
+        int length = 0;
+	double decimal = 0.0;
 
 	while (isspace(*s)) {
 		s++;
@@ -44,22 +45,31 @@ double atof(const char *s)
 		s++;
 	}
 
-	if (*s == '.'){
-		decimal = *s;
-		s++;
-	}
-
 	while ('0' <= *s && *s <= '9') {
 		res = res * 10 + (*s - '0');
 		s++;
 
 	}
 
-	if (sign == '-') {
-		res = res * -1;
-	}
+	
+        if(*s == '.'){
+                s++;
+        }
+        length = strlen(s);
 
-	return res;
+        while ('0' <= *s && *s <= '9') {
+		decimal = decimal * 10 + (*s - '0');
+		s++;
+	}
+        if (sign == '-') {
+		res = res * -1;
+                decimal = decimal * -1;
+	}
+        for(int i = 0; i < length; i++){
+                decimal = decimal/10;
+        }
+
+	return res+decimal;
 }
 
 char *itoa(int i, char *str_buf, int buf_len)
