@@ -92,4 +92,6 @@ void kmain(void)
 
 	// System shutdown -- Nothing remains to change below here.
 	klogv(COM1, "Shutdown complete.");
+
+	
 }
