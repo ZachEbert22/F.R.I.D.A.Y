@@ -1,4 +1,5 @@
 1/13/2023
     -Testing to see if Commiting Works
     - use ./mpx.sh to run OS
+    - Jared Initial Change Log
     
