@@ -29,6 +29,39 @@ int atoi(const char *s)
 	return res;
 }
 
+double atof(const char *s)
+{
+	double res = 0;
+	char sign = ' ';
+	char decimal = ' ';
+
+	while (isspace(*s)) {
+		s++;
+	}
+
+	if (*s == '-' || *s == '+') {
+		sign = *s;
+		s++;
+	}
+
+	if (*s == '.'){
+		decimal = *s;
+		s++;
+	}
+
+	while ('0' <= *s && *s <= '9') {
+		res = res * 10 + (*s - '0');
+		s++;
+
+	}
+
+	if (sign == '-') {
+		res = res * -1;
+	}
+
+	return res;
+}
+
 char *itoa(int i, char *str_buf, int buf_len)
 {
         if(buf_len == 0)
