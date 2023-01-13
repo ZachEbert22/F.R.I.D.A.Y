@@ -32,6 +32,7 @@ void kmain(void)
 	// Note that here, you should call the function *before* the output via klogv(),
 	// or the message won't print. In all other cases, the output should come first
 	// as it describes what is about to happen.
+	serial_init(COM1);
 	klogv(COM1, "Initialized serial I/O on COM1 device...");
 
 	// 1) Global Descriptor Table -- mpx/gdt.h
