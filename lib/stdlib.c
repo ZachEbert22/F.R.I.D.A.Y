@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stddef.h>
+#include <string.h>
 
 int atoi(const char *s)
 {
