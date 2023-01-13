@@ -1,6 +1,13 @@
 #include <mpx/io.h>
 #include <mpx/serial.h>
 #include <sys_req.h>
+#include "stdlib.h"
+#include "string.h"
+
+enum key_code {
+        ENTER = 13,
+        BACKSPACE = 127,
+};
 
 enum uart_registers {
 	RBR = 0,	// Receive Buffer
@@ -66,11 +73,29 @@ int serial_poll(device dev, char *buffer, size_t len)
 	// You must validate each key and handle special keys such as delete, back space, and
 	// arrow keys
 
-	// REMOVE THIS -- IT ONLY EXISTS TO AVOID UNUSED PARAMETER WARNINGS
-	// Failure to remove this comment and the following line *will* result in
-	// losing points for inattention to detail
-	(void)dev; (void)buffer;
+        size_t bytes_read = 0;
+        while(bytes_read < len)
+        {
+                //Check the LSR.
+                if((inb(dev + LSR) & 1) == 0)
+                        continue;
+
+                char read = inb(dev);
+
+                int keycode = (int) read;
+                if(keycode == ENTER)
+                {
+                        sys_req(WRITE, COM1, "\n", 1);
+                        return (int) bytes_read;
+                }
+
+                buffer[bytes_read++] = read;
+                sys_req(WRITE, COM1, "\r", 1);
+                sys_req(WRITE, COM1, buffer, len);
+        }
+
+        sys_req(WRITE, COM1, "\n", 1);
 
 	// THIS MUST BE CHANGED TO RETURN THE CORRECT VALUE
-	return (int)len;
+	return (int) bytes_read;
 }

@@ -67,6 +67,12 @@ char *itoa(int i, char *str_buf, int buf_len)
         if(buf_len == 0)
                 return NULL;
 
+        if(i == 0)
+        {
+                str_buf[0] = '0';
+                return str_buf;
+        }
+
         int num_pos = 0;
 
         //Check for a sign.
