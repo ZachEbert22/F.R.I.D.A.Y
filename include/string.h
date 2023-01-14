@@ -2,6 +2,7 @@
 #define MPX_STRING_H
 
 #include <stddef.h>
+#include "stdarg.h"
 
 /**
  @file string.h
@@ -46,5 +47,25 @@ size_t strlen(const char *s);
  TODO
 */
 char* strtok(char * restrict s1, const char * restrict s2);
+
+/**
+ * @brief Formats the string with normal C formatting options.
+ * @param format the string format.
+ * @param str the buffer to store the resulting string in.
+ * @param buf_len the length of the provided string buffer.
+ * @param ... the formatting values.
+ * @return the formatted string.
+ */
+char *sprintf(const char *format, char *str, size_t buf_len, ...);
+
+/**
+ * @brief Formats the string with normal C formatting options.
+ * @param format the string format.
+ * @param str the buffer to store the resulting string in.
+ * @param buf_len the length of the provided string buffer.
+ * @param ... the formatting values.
+ * @return the formatted string.
+ */
+char *vsprintf(const char *format, char *str, size_t buf_len, va_list varargs);
 
 #endif

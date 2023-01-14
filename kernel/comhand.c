@@ -39,6 +39,7 @@ bool (*comm_funcs[])(const char *comm) = {
 
 void comhand(void)
 {
+        printf("Test %s %s %d %d %c %c!\n", "str1", "str2", 52, 54, 'a', 'b');
         for(;;)
         {
                 //100 + 1 for the null terminator.

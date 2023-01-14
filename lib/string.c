@@ -1,4 +1,7 @@
 #include <string.h>
+#include "stdarg.h"
+#include "stdlib.h"
+#include "stdio.h"
 
 void *memcpy(void * restrict s1, const void * restrict s2, size_t n)
 {
@@ -91,4 +94,207 @@ char *strtok(char * restrict s1, const char * restrict s2)
 	//end of string
 	tok_tmp = NULL;
 	return s1;
+}
+
+char *sprintf(const char *s, char *str, size_t buf_len, ...)
+{
+	va_list va;
+	va_start(va, buf_len);
+	char *result = vsprintf(s, str, buf_len, va);
+	va_end(va);
+
+	return result;
+}
+
+char *vsprintf(const char *s, char *str, size_t buf_len, va_list va)
+{
+	//Copy the arguments for the 2nd pass.
+	va_list copy;
+	va_copy(copy, va);
+
+	//Get the string length and try to format it.
+	int str_len = (int) strlen(s);
+
+	//Loop through the string, formatting each.
+	int net_str_len = 0;
+	for (int i = 0; i < str_len; ++i)
+	{
+		char at = s[i];
+
+		//If we've found the formatting symbol, try to format.
+		if(at != '%')
+		{
+			net_str_len++;
+			continue;
+		}
+
+		//Find the appropriate formatting
+		char arguments[5] = {0};
+		int arg_count = 0;
+		int found_any = 0;
+		for (int j = i + 1; j < str_len; ++j)
+		{
+			char f_code = s[j];
+			if(f_code == 's')
+			{
+				//Arguments not supported for strings.
+				if(arg_count > 0)
+					return NULL;
+
+				i = j;
+
+				int arg_len = (int) strlen(va_arg(va, char *));
+				net_str_len += arg_len;
+				found_any = 1;
+				break;
+			}
+			else if(f_code == 'd')
+			{
+				//Multi args not supported.
+				if(arg_count > 0)
+					return NULL;
+
+				i = j;
+
+				//Convert the argument.
+				int num = va_arg(va, int);
+				char buf[12] = {0};
+				itoa(num, buf, 12);
+
+				int arg_len = (int) strlen(buf);
+				net_str_len += arg_len;
+				found_any = 1;
+				break;
+			}
+			else if(f_code == 'c')
+			{
+				//Multi args not supported.
+				if(arg_count > 0)
+					return NULL;
+
+				i = j;
+				net_str_len++;
+				va_arg(va, int);
+				found_any = 1;
+				break;
+			}
+			else if(f_code == '%')
+			{
+				//Multiple arguments not supported.
+				if(arg_count > 0)
+					return NULL;
+
+				i = j;
+				net_str_len++;
+				found_any = 1;
+				break;
+			}
+
+			//If the argument was improperly defined, return.
+			if(arg_count >= 5)
+				return NULL;
+
+			arguments[arg_count++] = f_code;
+		}
+
+		if(!found_any)
+			return NULL;
+	}
+
+	//Check the string buffer length.
+	if((int) buf_len < net_str_len + 1)
+		return NULL;
+
+	//Now, build the actual string.
+	//The second loop is used to avoid using dynamically allocated
+	//memory. If freeing memory was possible, it would be easier
+	//to build the strings in one loop and place them in the 2nd.
+	int str_ind = 0;
+	for (int i = 0; i < str_len; ++i)
+	{
+		char at = s[i];
+
+		//If we've found the formatting symbol, try to format.
+		if(at != '%')
+		{
+			str[str_ind++] = at;
+			continue;
+		}
+
+		//Find the appropriate formatting
+		char arguments[5] = {0};
+		int arg_count = 0;
+		for (int j = i + 1; j < str_len; ++j)
+		{
+			char f_code = s[j];
+			if(f_code == 's')
+			{
+				//Arguments not supported for strings.
+				if(arg_count > 0)
+					return NULL;
+
+				i = j;
+
+				char *arg = va_arg(copy, char *);
+
+				int len = (int) strlen(arg);
+				for (int k = 0; k < len; ++k)
+				{
+					str[str_ind++] = arg[k];
+				}
+				break;
+			}
+			else if(f_code == 'd')
+			{
+				//Multi args not supported.
+				if(arg_count > 0)
+					return NULL;
+
+				i = j;
+
+				//Convert the argument.
+				int num = va_arg(copy, int);
+				char buf[12] = {0};
+				itoa(num, buf, 12);
+
+				int len = (int) strlen(buf);
+				for (int k = 0; k < len; ++k)
+				{
+					str[str_ind++] = buf[k];
+				}
+				break;
+			}
+			else if(f_code == 'c')
+			{
+				//Multi args not supported.
+				if(arg_count > 0)
+					return NULL;
+
+				i = j;
+				char val = va_arg(copy, int);
+
+				str[str_ind++] = val;
+				break;
+			}
+			else if(f_code == '%')
+			{
+				//Multiple arguments not supported.
+				if(arg_count > 0)
+					return NULL;
+
+				i = j;
+				str[str_ind++] = '%';
+				break;
+			}
+
+			//If the argument was improperly defined, return.
+			if(arg_count >= 5)
+				return NULL;
+
+			arguments[arg_count++] = f_code;
+		}
+	}
+
+	str[net_str_len] = '\0';
+	return str;
 }
