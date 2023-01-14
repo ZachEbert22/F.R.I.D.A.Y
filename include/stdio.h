@@ -12,6 +12,14 @@
 void print(const char *str);
 
 /**
+ * @brief Prints the string with formatting to standard outpu.
+ * @param str the string to print.
+ * @param ... the formatting objects.
+ * @return 0 if successful, -1 if there was a formatting error.
+ */
+int printf(const char *str, ...);
+
+/**
  * @brief Prints a null-terminated string, then a new line, to standard output.
  * @param str the string.
  */
