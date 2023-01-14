@@ -113,23 +113,10 @@ int serial_poll(device dev, char *buffer, size_t len)
 
                 int beginning_pos = line_pos;
 
-                char read_buf[10] = {0};
-                read_buf[0] = inb(dev);
-
-                //Check if there's any remaining data.
-                int sub_read = 1;
-                while(sub_read < 10 && (inb(dev + LSR) & 1) == 1)
-                {
-                        //Read the characters.
-                        char in = inb(dev);
-                        if(in == '\0')
-                                break;
-
-                        read_buf[sub_read++] = in;
-                }
+                char read_char = inb(dev);
 
                 //Get the keycode and check it against known characters.
-                int keycode = (int) read_buf[0];
+                int keycode = (int) read_char;
                 char k_str[20] = {0};
                 itoa(keycode, k_str, 20);
 
@@ -141,7 +128,7 @@ int serial_poll(device dev, char *buffer, size_t len)
                                 buffer[i] = buffer[i - 1];
                         }
 
-                        buffer[line_pos++] = read_buf[0];
+                        buffer[line_pos++] = read_char;
                         bytes_read++;
                 }
 
@@ -172,22 +159,60 @@ int serial_poll(device dev, char *buffer, size_t len)
                 //Handle the ASCII escape function.
                 if(keycode == ESCAPE)
                 {
-                        //Get the ascii action.
-                        char action = read_buf[2];
+                        //Get the ascii action_arr.
+                        char action_arr[15] = {0};
 
-                        if(action == 'C')
+                        //Continuously read until something matches.
+                        int matched = 0;
+                        int read_pos = 0;
+                        while(!matched)
                         {
-                                if(line_pos >= (int) bytes_read)
-                                        continue;
+                                //Check for more data.
+                                if(read_pos < 15 && (inb(dev + LSR) & 1) != 0)
+                                {
+                                        char in = inb(dev);
+                                        //If we get another escape, reset.
+                                        if(in == ESCAPE)
+                                        {
+                                                read_pos = 0;
+                                                memset(action_arr, 0, 15);
+                                        }
+                                        else
+                                        {
+                                                action_arr[read_pos++] = in;
+                                        }
+                                }
 
-                                line_pos++;
-                        }
-                        else if(action == 'D')
-                        {
-                                if(line_pos <= 0)
-                                        continue;
+                                //Movement right
+                                if(action_arr[1] == 'C' ||
+                                                action_arr[0] == 'f')
+                                {
+                                        matched = 1;
+                                        if(line_pos >= (int) bytes_read)
+                                                continue;
 
-                                line_pos--;
+                                        line_pos++;
+                                }
+                                //Movement left
+                                else if(action_arr[1] == 'D'
+                                                || action_arr[0] == 'b')
+                                {
+                                        matched = 1;
+                                        if(line_pos <= 0)
+                                                continue;
+
+                                        line_pos--;
+                                }
+                                //Movement up
+                                else if(action_arr[1] == 'A')
+                                {
+                                        matched = 1;
+                                }
+                                //Movement down
+                                else if(action_arr[1] == 'B')
+                                {
+                                        matched = 1;
+                                }
                         }
                 }
 
