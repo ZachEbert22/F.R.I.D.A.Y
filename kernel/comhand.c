@@ -47,6 +47,7 @@ void comhand(void)
 
                 print(CMD_PROMPT);
                 sys_req(READ, COM1, buf, 100);
+                println(buf);
 
                 //Handle all functions.
                 int comm_func_count = sizeof (comm_funcs) /

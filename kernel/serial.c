@@ -4,7 +4,32 @@
 #include "stdlib.h"
 #include "string.h"
 #include "stdio.h"
+#include "ctype.h"
+#include "linked_list.h"
+#include "memory.h"
 
+#define ANSI_CODE_READ_LEN 15
+
+//Set to 1 to enable CLI history, 0 to disable.
+#define DO_CLI_HISTORY 0
+
+/**
+ * Used to store a specific line previously entered.
+ */
+struct line_entry {
+        /**
+         * The line that was entered. Does not include null terminator.
+         */
+        char *line;
+        /**
+         * The line's length, not including the null terminator.
+         */
+        size_t line_length;
+};
+
+/**
+ * Useful keycodes.
+ */
 enum key_code {
         BACKSPACE = 8,
         CARRIAGE_RETURN = 13,
@@ -14,6 +39,9 @@ enum key_code {
         DELETE = 127,
 };
 
+/**
+ * A direction registry for line navigation
+ */
 enum direction {
         LEFT = 0,
         RIGHT = 1,
@@ -79,10 +107,10 @@ int serial_out(device dev, const char *buffer, size_t len)
 
 /**
  * @brief Moves the text cursor back the given amount of spaces.
- * @param right 1 if we should move it right, 0 if left.
+ * @param direc 1 if we should move it direc, 0 if left.
  * @param spaces the amount to move the cursor back.
  */
-void move_cursor(enum direction right, int spaces)
+void move_cursor(enum direction direc, int spaces)
 {
         char full_len_str[20] = {0};
         itoa((int) spaces, full_len_str, 20);
@@ -94,15 +122,73 @@ void move_cursor(enum direction right, int spaces)
         };
         print(m_left_prefix);
         print(full_len_str);
-        print(right ? "C" : "D");
+        print(direc == RIGHT ? "C" : "D");
 }
+
+/**
+ * @brief Finds the next word index or the given direction.
+ * @param direc the direction to move.
+ * @param cursor_index the current cursor index.
+ * @param str the string to check in.
+ * @param str_len the length of the string.
+ * @return the index of the next word.
+ */
+int find_next_word(enum direction direc, int cursor_index, const char *str, int str_len)
+{
+        int characters_found = 0;
+        int move_dir = direc == RIGHT ? 1 : -1;
+
+        int index = cursor_index + move_dir;
+
+        //Iterate over the string and find the next word index.
+        for (; index >= 0 && index < str_len; index += move_dir)
+        {
+                char c = str[index];
+                if(isspace(c))
+                {
+                        if(characters_found > 0)
+                        {
+                                if(direc == LEFT && index > 0)
+                                        index++;
+                                break;
+                        }
+                }
+                else
+                {
+                        characters_found++;
+                }
+        }
+
+        //Coerce the number.
+        index = index < 0 ? 0 : index;
+        index = index > str_len ? str_len : index;
+
+        return index;
+}
+
+///The CLI history from the serial_poll function.
+static linked_list *cli_history = NULL;
 
 int serial_poll(device dev, char *buffer, size_t len)
 {
 	// insert your code to gather keyboard input via the technique of polling.
 	// You must validate each key and handle special keys such as delete, back-space, and
 	// arrow keys
+        if(cli_history == NULL && DO_CLI_HISTORY)
+        {
+                cli_history = nl_unbounded();
+        }
 
+        //Keeps track of the current line entry. Used when command line
+        //history needs to swap.
+        char swap[len];
+        memset(swap, 0, len);
+        struct line_entry current_entry = {
+                .line = swap,
+                .line_length = len
+        };
+
+        int cli_index = cli_history != NULL ? list_size(cli_history) : 0;
         size_t bytes_read = 0;
         int line_pos = 0;
         while(bytes_read < len)
@@ -160,7 +246,7 @@ int serial_poll(device dev, char *buffer, size_t len)
                 if(keycode == ESCAPE)
                 {
                         //Get the ascii action_arr.
-                        char action_arr[15] = {0};
+                        char action_arr[ANSI_CODE_READ_LEN] = {0};
 
                         //Continuously read until something matches.
                         int matched = 0;
@@ -168,14 +254,14 @@ int serial_poll(device dev, char *buffer, size_t len)
                         while(!matched)
                         {
                                 //Check for more data.
-                                if(read_pos < 15 && (inb(dev + LSR) & 1) != 0)
+                                if(read_pos < ANSI_CODE_READ_LEN && (inb(dev + LSR) & 1) != 0)
                                 {
                                         char in = inb(dev);
                                         //If we get another escape, reset.
                                         if(in == ESCAPE)
                                         {
                                                 read_pos = 0;
-                                                memset(action_arr, 0, 15);
+                                                memset(action_arr, 0, ANSI_CODE_READ_LEN);
                                         }
                                         else
                                         {
@@ -183,35 +269,84 @@ int serial_poll(device dev, char *buffer, size_t len)
                                         }
                                 }
 
-                                //Movement right
-                                if(action_arr[1] == 'C' ||
-                                                action_arr[0] == 'f')
+                                //Movement right or left
+                                if(action_arr[1] == 'C' || action_arr[1] == 'D')
                                 {
                                         matched = 1;
-                                        if(line_pos >= (int) bytes_read)
+
+                                        //Adjust value then coerce.
+                                        line_pos += action_arr[1] == 'C' ? 1 : -1;
+                                        line_pos = line_pos < 0 ? 0 : line_pos;
+                                        line_pos = line_pos > (int) bytes_read ? (int) bytes_read : line_pos;
+                                }
+                                //Word movement right or left
+                                else if(action_arr[0] == 'f' ||
+                                                action_arr[0] == 'b')
+                                {
+                                        matched = 1;
+                                        int next_index =
+                                                find_next_word(action_arr[0] == 'b' ? LEFT : RIGHT,
+                                                               line_pos,
+                                                               buffer,
+                                                               (int) bytes_read);
+
+                                        line_pos = next_index;
+                                }
+                                //Movement up and down
+                                else if(action_arr[1] == 'A' || action_arr[1] == 'B')
+                                {
+                                        matched = 1;
+
+                                        int l_size = list_size(cli_history);
+                                        //Check if we can move in the history.
+                                        if(cli_history == NULL || (cli_index <= 0 && action_arr[1] == 'A')
+                                                        || (cli_index >= l_size && action_arr[1] == 'B'))
                                                 continue;
 
-                                        line_pos++;
-                                }
-                                //Movement left
-                                else if(action_arr[1] == 'D'
-                                                || action_arr[0] == 'b')
-                                {
-                                        matched = 1;
-                                        if(line_pos <= 0)
-                                                continue;
+                                        //Get previous or future line.
+                                        int delta = action_arr[1] == 'A' ? -1 : 1;
+                                        cli_index += delta;
+                                        struct line_entry *l_entry = cli_index >= l_size ?
+                                                &current_entry :
+                                                get_item(cli_history, cli_index);
+                                        size_t copy_len = l_entry->line_length > len
+                                                ? len :
+                                                l_entry->line_length;
 
-                                        line_pos--;
+                                        //Save current, load old line.
+                                        if(cli_index == l_size - 1 && delta == -1)
+                                        {
+                                                memcpy(current_entry.line, buffer, len);
+                                                current_entry.line_length = bytes_read;
+                                        }
+
+                                        //Zero out buffer, then copy in new string.
+                                        memset(buffer, 0, len);
+                                        memcpy(buffer, l_entry->line, copy_len);
+                                        buffer[copy_len] = '\0';
+                                        line_pos = (int) copy_len;
+                                        bytes_read = copy_len;
                                 }
-                                //Movement up
-                                else if(action_arr[1] == 'A')
+                                //Word deletion
+                                else if(action_arr[0] == DELETE)
                                 {
                                         matched = 1;
-                                }
-                                //Movement down
-                                else if(action_arr[1] == 'B')
-                                {
-                                        matched = 1;
+
+                                        int delete_index = find_next_word(LEFT,
+                                                                          line_pos,
+                                                                          buffer,
+                                                                          (int)bytes_read);
+                                        int deleted = line_pos - delete_index;
+
+                                        //Copy the string down.
+                                        for (int i = delete_index; i < (int) line_pos; ++i)
+                                        {
+                                                buffer[i] = buffer[i + deleted];
+                                                buffer[i + deleted] = '\0';
+                                        }
+
+                                        line_pos -= deleted;
+                                        bytes_read -= deleted;
                                 }
                         }
                 }
@@ -238,6 +373,19 @@ int serial_poll(device dev, char *buffer, size_t len)
                 //Get the string amount to move the cursor.
                 if(line_pos > 0)
                         move_cursor(RIGHT, line_pos);
+        }
+
+        //Allocate the line for storage.
+        if(cli_history != NULL)
+        {
+                //Allocate memory and store string.
+                struct line_entry *to_store = sys_alloc_mem(sizeof (struct line_entry));
+                char *store_line = sys_alloc_mem(bytes_read);
+                memcpy(store_line, buffer, bytes_read);
+
+                to_store->line = store_line;
+                to_store->line_length = bytes_read;
+                add_item_index(cli_history, list_size(cli_history), to_store);
         }
 
         sys_req(WRITE, COM1, "\n", 1);
