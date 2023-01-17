@@ -73,11 +73,26 @@ void comhand(void)
                 //Handle all functions.
                 int comm_func_count = sizeof (comm_funcs) /
                         sizeof (comm_funcs[0]);
+
+                if (strcmp(buf, "shutdown\0") == 0){
+                        println("Are you sure you want to shutdown? enter y for yes or N for no");
+                        memset(buf,'\0', 101);
+                        sys_req(READ, COM1, buf, 5); 
+                        if (strcmp(buf, "y\0") == 0){
+                                shutdown("shutdown\0");
+                                break;
+                        }else{
+                                continue;
+                        }
+                }
+
                 for (int i = 0; i < comm_func_count; ++i)
                 {
                         bool result = comm_funcs[i](buf);
                         if(result)
                                 break;
                 }
+
+
         }
 }
