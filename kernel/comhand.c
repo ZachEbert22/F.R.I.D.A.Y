@@ -88,13 +88,11 @@ bool help(const char *comm)
         if(cmp != 0)
                 return false;
 
-        println("If You want to set the Time for the OS, enter 'Set Time'");
-        println("if You want to get the Time for the OS, enter 'Get Time'");
-        println("If you need this screen reprompted, re-enter 'help'");
-        println("if you want to shutdown, enter 'shutdown' down below");
-        println("if you need help in your actual class, dont use Stack Overflow");
-        println("Hope this helps!");
-        
+        println("Set Time Will set the Time In the Operating System");
+        println("Get Time Will display the Current Time ETC");
+        println("Version will Display the Version and the Compilation Date");
+        println("Shutdown will turn the Operating System Off");
+        println("Stack Overflow will answer a different question than the one you actually asked");      
         return true;
 }
 /**
