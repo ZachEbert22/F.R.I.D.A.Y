@@ -30,16 +30,37 @@ bool shutdown(const char *comm)
 }
 
 /**
+ * The version command, used to handle when the user asks for a version number. Must Include Compilation date
+ * @param comm_version the command string.
+ * @return true if the command was handled, false if not.
+ */
+bool version(const char *comm)
+{
+        //The command's label.
+        const char *label = "version";
+
+        //Check if it matched.
+        int cmp = strcmp(comm, label);
+        if(cmp != 0)
+                return false;
+
+        println("Module: R1");
+        return true;
+}
+
+/**
  * @brief An array of pointers to command functions. These functions
  * will return true if the command was handled by them, or false if not.
  */
 bool (*comm_funcs[])(const char *comm) = {
-        &shutdown
+        &shutdown,
+        &version
+
 };
 
 void comhand(void)
 {
-        printf("Welcome to MPX. Please select an option \n 1)Help\n 2)Set Time\n 3)Get Time\n Enter Choice:    ");
+        printf("Welcome to MPX. Please select an option \n 1)Help\n 2)Set Time\n 3)Get Time\n Enter Choice:    \n");
         for(;;)
         {
                 //100 + 1 for the null terminator.
