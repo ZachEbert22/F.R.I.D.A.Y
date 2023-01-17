@@ -39,7 +39,7 @@ bool (*comm_funcs[])(const char *comm) = {
 
 void comhand(void)
 {
-        printf("Test %s %s %d %d %c %c!\n", "str1", "str2", 52, 54, 'a', 'b');
+        printf("Welcome to MPX. Please select an option \n 1)Help\n 2)Set Time\n 3)Get Time\n Enter Choice:    ");
         for(;;)
         {
                 //100 + 1 for the null terminator.
