@@ -128,4 +128,13 @@ const char* splitOnceAfter(const char* string, const char* splitAt);
 * @return if string starts with startsWith string
 */
 bool startsWith(const char* string, const char* startsWith);
+
+/**
+ * @brief Returns true if the string starts with the given prefix.
+ *        Case is ignored.
+ * @param string the string to be tested.
+ * @param prefix the prefix of the string.
+ * @return true if the string starts with the prefix.
+ */
+bool ci_starts_with(const char *string, const char *prefix);
 #endif

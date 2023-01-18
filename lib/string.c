@@ -56,10 +56,23 @@ char *s_changecase(char *str, char *buffer, int buf_len, int letter_case)
 
 void *memcpy(void * restrict s1, const void * restrict s2, size_t n)
 {
-	unsigned char *dst = s1;
-	const unsigned char *src = s2;
+        unsigned char *dst = s1;
+        const unsigned char *src = s2;
+
+        //Keep a temporary buffer to store the bytes.
+        //Doing this allows us to do 'in place' copies.
+        //i.e. An array {'a', 'b', 'c', '0'} copied to itself one step forward
+        //goes to {'a', 'a', 'b', 'c'}
+        unsigned char tmpbuf[n];
+        memset(tmpbuf, 0, n);
+        for (size_t i = 0; i < n; ++i)
+        {
+                tmpbuf[i] = src[i];
+        }
+
+        //Then copy from the temporary buffer.
 	for (size_t i = 0; i < n; i++) {
-		dst[i] = src[i];
+		dst[i] = tmpbuf[i];
 	}
 	return s1;
 }
@@ -209,6 +222,55 @@ char *strtok(char * restrict s1, const char * restrict s2)
 	return s1;
 }
 
+/**
+ * @brief Formats a decimal for a string. Returns a pointer to the formatted number,
+ *        or NULL if the formatting was invalid.
+ *        TODO When dynamically freeing RAM works, use that instead of passed buffers.
+ * @param num the number to format.
+ * @param args the arguments of formatting.
+ * @param arg_len the length of the arguments.
+ * @param buf the buffer to store the resulting string.
+ * @param buf_len the length of this buffer.
+ * @return a pointer to the resulting string, or NULL.
+ */
+char *f_decimal(int num, const char *args, size_t arg_len, char *buf, size_t buf_len)
+{
+        //Check the extra data.
+        bool fill_zeros = arg_len > 1 ? args[0] == '0' : false;
+        int arg_start_pos = fill_zeros ? 1 : 0;
+        int fill_count = fill_zeros && arg_len > 1 ? atoi(args + arg_start_pos) : 0;
+        if(fill_count < 0)
+                return NULL;
+
+        //Convert the argument.
+        size_t total_possible_count = fill_count >= 12 ? fill_count : 12;
+
+        //Check bounds.
+        if(total_possible_count + 1 > buf_len)
+                return NULL;
+
+        //Convert the number.
+        memset(buf, 0, total_possible_count + 1);
+        itoa(num, buf, 12);
+        int len = (int) strlen(buf);
+        int total_fill_amount = fill_count - len;
+
+        //Check if we need to fill zeros.
+        if(fill_zeros && total_fill_amount > 0)
+        {
+                bool negative = buf[0] == '-';
+
+                int start_pos = negative ? 1 : 0;
+                memcpy(buf + start_pos + total_fill_amount, buf, 12);
+
+                for (int k = 0; k < total_fill_amount; ++k)
+                {
+                        buf[k + start_pos] = '0';
+                }
+        }
+        return buf;
+}
+
 char *sprintf(const char *s, char *str, size_t buf_len, ...)
 {
 	va_list va;
@@ -242,7 +304,7 @@ char *vsprintf(const char *s, char *str, size_t buf_len, va_list va)
 		}
 
 		//Find the appropriate formatting
-		char arguments[5] = {0};
+		char arguments[10] = {0};
 		int arg_count = 0;
 		int found_any = 0;
 		for (int j = i + 1; j < str_len; ++j)
@@ -263,18 +325,19 @@ char *vsprintf(const char *s, char *str, size_t buf_len, va_list va)
 			}
 			else if(f_code == 'd')
 			{
-				//Multi args not supported.
-				if(arg_count > 0)
-					return NULL;
-
 				i = j;
 
-				//Convert the argument.
-				int num = va_arg(va, int);
-				char buf[12] = {0};
-				itoa(num, buf, 12);
+                                char fbuffer[50] = {0};
+                                char *result = f_decimal(va_arg(va, int),
+                                                         arguments,
+                                                         arg_count,
+                                                         fbuffer,
+                                                         50);
+                                if(result == NULL)
+                                        return NULL;
 
-				int arg_len = (int) strlen(buf);
+                                //Calculate the total length.
+				int arg_len = (int) strlen(result);
 				net_str_len += arg_len;
 				found_any = 1;
 				break;
@@ -304,7 +367,7 @@ char *vsprintf(const char *s, char *str, size_t buf_len, va_list va)
 			}
 
 			//If the argument was improperly defined, return.
-			if(arg_count >= 5)
+			if(arg_count >= 9)
 				return NULL;
 
 			arguments[arg_count++] = f_code;
@@ -359,21 +422,25 @@ char *vsprintf(const char *s, char *str, size_t buf_len, va_list va)
 			}
 			else if(f_code == 'd')
 			{
-				//Multi args not supported.
-				if(arg_count > 0)
-					return NULL;
-
 				i = j;
 
-				//Convert the argument.
-				int num = va_arg(copy, int);
-				char buf[12] = {0};
-				itoa(num, buf, 12);
+                                //Check the extra data.
+                                char fbuffer[50] = {0};
+                                char *result = f_decimal(va_arg(copy, int),
+                                          arguments,
+                                          arg_count,
+                                          fbuffer,
+                                          50);
+                                size_t len = strlen(fbuffer);
+                                if(result == NULL)
+                                {
+                                        return NULL;
+                                }
 
-				int len = (int) strlen(buf);
-				for (int k = 0; k < len; ++k)
+                                //Insert string.
+				for (size_t k = 0; k < len; ++k)
 				{
-					str[str_ind++] = buf[k];
+					str[str_ind++] = fbuffer[k];
 				}
 				break;
 			}
@@ -415,12 +482,31 @@ char *vsprintf(const char *s, char *str, size_t buf_len, va_list va)
 bool startsWith(const char* string, const char* startingString)
 {
 	while(*string == *startingString){
-		if(*string == '\0' && *startingString == '\0') return true;
+		if(*string == '\0' && *startingString == '\0')
+                        return true;
+
 		string++;
 		startingString++;
 	}
-	if(*startingString) return false;
+        //Check if the prefix reached its end.
+	if(*startingString)
+                return false;
 	return true;
+}
+
+bool ci_starts_with(const char* string, const char* prefix)
+{
+        while(tolower(*string) == tolower(*prefix)){
+                if(*string == '\0' && *prefix == '\0')
+                        return true;
+
+                string++;
+                prefix++;
+        }
+        //Check if the prefix reached its end.
+        if(*prefix)
+                return false;
+        return true;
 }
 
 const char* splitOnceAfter(const char *string, const char* splitAfter)
@@ -432,7 +518,7 @@ const char* splitOnceAfter(const char *string, const char* splitAfter)
 			if(size > 0) return string;
 			return temp;
 
-		} 
+		}
 		if(*string == *splitAfter) {
 			string++;
 			splitAfter++;
