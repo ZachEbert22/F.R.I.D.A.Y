@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include "stdarg.h"
+#include "stdbool.h"
 
 /**
  @file string.h
@@ -112,4 +113,19 @@ char *sprintf(const char *format, char *str, size_t buf_len, ...);
  */
 char *vsprintf(const char *format, char *str, size_t buf_len, va_list varargs);
 
+/** 
+* @brief Returns string located after where to split, orginal string returned if not split
+* @param string string to be split
+* @param splitAt string that chooses where to split
+* @return the string split or not
+*/
+const char* splitOnceAfter(const char* string, const char* splitAt);
+
+/** 
+* @brief Returns true if string starts with given string 
+* @param string string to be tested
+* @param startsWith given string to start with
+* @return if string starts with startsWith string
+*/
+bool startsWith(const char* string, const char* startsWith);
 #endif

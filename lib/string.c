@@ -411,3 +411,38 @@ char *vsprintf(const char *s, char *str, size_t buf_len, va_list va)
 	str[net_str_len] = '\0';
 	return str;
 }
+
+bool startsWith(const char* string, const char* startingString)
+{
+	while(*string == *startingString){
+		if(*string == '\0' && *startingString == '\0') return true;
+		string++;
+		startingString++;
+	}
+	if(*startingString) return false;
+	return true;
+}
+
+const char* splitOnceAfter(const char *string, const char* splitAfter)
+{
+	int size = 0;
+	const char* temp = string;
+	while(*string){
+		if(*splitAfter == '\0'){
+			if(size > 0) return string;
+			return temp;
+
+		} 
+		if(*string == *splitAfter) {
+			string++;
+			splitAfter++;
+			size++;
+		} else {
+			string++;
+			splitAfter = splitAfter - size;
+			size = 0;
+		}
+	}
+	if(*string == '\0' && * splitAfter == '\0') return "";
+	return temp;
+}

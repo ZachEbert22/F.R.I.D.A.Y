@@ -14,6 +14,19 @@
 int isspace(int c);
 
 /**
+ Determine if a character is a digit.
+ @param c Character to check
+ @return Non-zero if digit, 0 if not digit
+*/
+int isdigit(int c);
+/**
+ Return int value of character if is digit
+ @param c Character to check
+ @return Negative not digit, value of digit otherwise
+*/
+int todigit(int c);
+
+/**
  * Determine if a character is uppercase. If the character is not
  * alphabetical, 0 is returned.
  * @param c Character to check.

@@ -18,15 +18,17 @@
 bool (*comm_funcs[])(const char *comm) = {
         &version,
         &help,
-        &get_time_menu
+        &get_time_menu,
+        &set_time,
+        &set_date
 };
 
 void comhand(void)
 {
         println("Welcome to MPX. Please select an option");
-
         println("=> Help");
         println("=> Set Time");
+        println("=> Set Date");
         println("=> Get Time");
         println("=> version");
         println("=> shutdown");

@@ -5,6 +5,8 @@
 #include "mpx/comhand.h"
 #include "mpx/get_set_time.h"
 #include <mpx/io.h>
+#include <ctype.h>
+#include <mpx/interrupts.h>
 
 #define YEAR 0x09
 #define MONTH 0x08
@@ -38,7 +40,7 @@ int get_time(){
             date = date + 1;
         }
     }
-    printf("%d ", min_adj);
+    printf("%d ", minutes);
     int seconds = get_index(SECONDS);
     printf("%d\n", seconds);
    
@@ -59,7 +61,7 @@ int get_time(){
         week = "Saturday";
     }
     printf("%s\n", week);
-    printf("%s, %d/%d/%d @ %d:%d:%d\n", week, month, date, year, hour_adj, min_adj, seconds);
+    printf("%s, %d/%d/%d @ %d:%d:%d\n", week, month, date, year, hours, minutes, seconds);
     return 0;
 }
    
@@ -72,4 +74,95 @@ int get_index(int a){
     fixed = fixed + (bits & 0xF);
 
     return fixed;
+}
+int getDaysInMonth(int month, int year){
+        switch(month){
+                case 1:
+                        return 0x31;
+                case 2:
+                        if(year % 4 == 0) return 0x29;
+                        return 0x28;
+                case 3: 
+                        return 0x31;
+                case 4: 
+                        return 0x30;
+                case 5:
+                        return 0x31;
+                case 6:
+                        return 0x30;
+                case 7: 
+                        return 0x31;
+                case 8:
+                        return 0x31;
+                case 9: 
+                        return 0x30;
+                case 0x10:
+                        return 0x31;
+                case 0x11:
+                        return 0x30;
+                case 0x12: 
+                        return 0x31;
+        }
+        return 0x00;
+}
+
+bool isValidTimeOrDate(const char* date, unsigned int buf[], int buf_len, char c){
+    int index = 0;
+    int colonCount = 0;
+    int count = 0;
+    while(isspace(*date)) date++;
+    while(*date != '\0') {
+    if(index >= buf_len) return false;
+    if(isdigit(*date)) {
+    buf[index++] = todigit(*date);
+    count++;
+    date++;
+    continue; 
+    }
+    if(*date == c && count == 2) {
+    count = 0;
+    colonCount++;
+    date++;
+    continue;
+    }
+    if(isspace(*date)){
+        break;
+    }
+    return false;
+}
+
+    buf[index+1] = '\0';
+    if(index == 6 && colonCount < 3) return true;
+    return false;
+}
+
+bool set_time_clock(unsigned int hr, unsigned int min, unsigned int sec){
+    cli();
+    outb(0x70,0x04);
+    outb(0x71,hr);
+    outb(0x70,0x02);
+    outb(0x71,min);
+    outb(0x70,0x00);
+    outb(0x71,sec);
+    sti();
+    return true;
+}
+bool set_date_clock(unsigned int month, unsigned int day, unsigned int year){
+    cli();
+
+    outb(0x70,0x07);
+    outb(0x71,day); 
+    outb(0x70,0x08);
+    outb(0x71,month);
+    outb(0x70,0x09);
+    outb(0x71,year);
+
+    sti();
+    return true;
+}
+
+
+
+unsigned char decimalToBCD(unsigned int first, unsigned int second){
+    return first + second;
 }
