@@ -5,6 +5,7 @@
 #include "commands.h"
 #include "string.h"
 #include "stdio.h"
+#include "mpx/get_set_time.h"
 
 bool version(const char *comm)
 {
@@ -32,7 +33,7 @@ bool get_time_menu(const char *comm)
         if(cmp != 0)
                 return false;
 
-//        get_time();
+        get_time();
         //println(__TIME__);
         return true;
 }
