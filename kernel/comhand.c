@@ -55,6 +55,7 @@ bool version(const char *comm)
  * The version command, used to handle when the user asks for a version number. Must Include Compilation date
  * @param comm_version the command string.
  * @return true if the command was handled, false if not.
+ * Created By Zachary Ebert
  */
 bool get_time_menu(const char *comm)
 {
@@ -76,6 +77,7 @@ bool get_time_menu(const char *comm)
  * The help command, used to help the user when they are struggling.
  * @param comm_version the command string.
  * @return help true if it was handled, false if not.
+ * Created By Zachary Ebert
  */
 bool help(const char *comm)
 {
