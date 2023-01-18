@@ -31,6 +31,16 @@ void signal_shutdown(void)
 
 void comhand(void)
 {
+        println("*********      **********      **      ****                  **         **      **");
+        println("**             **     **       **      **   **             **  **         **   **");
+        println("**             **    **        **      **    **           **     **         ****");
+        println("*****          **  **          **      **     **         **       **         **");
+        println("**             ****            **      **     **        *************        **");
+        println("**             **  **          **      **     **       **           **       ** ");
+        println("**             **    **        **      **    **       **             **      **");
+        println("**             **     **       **      **   **       **               **     **");
+        println("**             **      **      **      ******       **                 **    **");
+        
         println("Welcome to MPX. Please select an option");
         println("=> Help");
         println("=> Set Time");
