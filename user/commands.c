@@ -12,7 +12,7 @@
 bool cmd_version(const char *comm)
 {
         //The command's label.
-        const char *label = "version";
+        const char *label = "Version";
 
         //Check if it matched.
         int cmp = strcicmp(comm, label);
@@ -71,11 +71,12 @@ bool cmd_help(const char *comm)
         if(cmp != 0)
                 return false;
 
-        println("If You want to set the Time for the OS, enter 'Set Time'");
-        println("if You want to get the Time for the OS, enter 'Get Time'");
+        println("If you want to set the Time for the OS, enter 'Set Time'");
+        println("If you want to get the Time for the OS, enter 'Get Time'");
         println("If you need this screen reprompted, re-enter 'help'");
-        println("if you want to shutdown, enter 'shutdown' down below");
-        println("if you need help in your actual class, dont use Stack Overflow");
+        println("If you want to get the version history, enter 'Version'");
+        println("If you want to shutdown, enter 'shutdown' down below");
+        println("If you need help in your actual class, dont use Stack Overflow");
         println("Hope this helps!");
 
         return true;
