@@ -18,7 +18,8 @@ lib/stdio.o\
 lib/struct/linked_list.o
 
 USER_OBJECTS =\
-user/system.o
+user/system.o\
+user/commands.o
 
 ########################################################################
 ### Nothing below here needs to be changed

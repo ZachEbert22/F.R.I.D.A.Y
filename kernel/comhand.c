@@ -7,76 +7,10 @@
 #include "string.h"
 #include "stdbool.h"
 #include "mpx/comhand.h"
-#include "mpx/get_set_time.h"
+#include "commands.h"
 
 #define CMD_PROMPT ">> "
 
-/**
- * The version command, used to handle when the user asks for a version number. Must Include Compilation date
- * @param comm_version the command string.
- * @return true if the command was handled, false if not.
- */
-bool version(const char *comm)
-{
-        //The command's label.
-        const char *label = "version";
-
-        //Check if it matched.
-        int cmp = strcmp(comm, label);
-        if(cmp != 0)
-                return false;
-
-        println("Module: R1");
-        println(__DATE__);
-        //println(__TIME__);
-        return true;
-}
-
-/**
- * The version command, used to handle when the user asks for a version number. Must Include Compilation date
- * @param comm_version the command string.
- * @return true if the command was handled, false if not.
- * Created By Zachary Ebert
- */
-bool get_time_menu(const char *comm)
-{
-        //The command's label.
-        const char *label = "get time";
-
-        //Check if it matched.
-        int cmp = strcmp(comm, label);
-        if(cmp != 0)
-                return false;
-
-        get_time();
-        //println(__TIME__);
-        return true;
-}
-
-
-/**
- * The help command, used to help the user when they are struggling.
- * @param comm_version the command string.
- * @return help true if it was handled, false if not.
- * Created By Zachary Ebert
- */
-bool help(const char *comm)
-{
-        //The command's label.
-        const char *label = "help";
-
-        //Check if it matched.
-        int cmp = strcicmp(comm, label);
-        if(cmp != 0)
-                return false;
-
-        println("Set Time Will set the Time In the Operating System");
-        println("Get Time Will display the Current Time ETC");
-        println("Version will Display the Version and the Compilation Date");
-        println("Shutdown will turn the Operating System Off");
-        println("Stack Overflow will answer a different question than the one you actually asked");      
-        return true;
-}
 /**
  * @brief An array of pointers to command functions. These functions
  * will return true if the command was handled by them, or false if not.
@@ -108,11 +42,12 @@ void comhand(void)
                 int comm_func_count = sizeof (comm_funcs) /
                         sizeof (comm_funcs[0]);
 
-                if (strcmp(buf, "shutdown") == 0){
+                if (strcicmp(buf, "shutdown") == 0){
                         println("Are you sure you want to shutdown? enter y for yes or N for no");
                         memset(buf,'\0', 101);
-                        sys_req(READ, COM1, buf, 5); 
-                        if (strcmp(buf, "y") == 0 || strcmp(buf, "yes") == 0 || strcmp(buf, "Yes") == 0){
+                        print(CMD_PROMPT);
+                        sys_req(READ, COM1, buf, 5);
+                        if (strcicmp(buf, "y") == 0 || strcicmp(buf, "yes") == 0){
                                 return;
                         }else{
                                 continue;
