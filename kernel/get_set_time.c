@@ -27,10 +27,10 @@ int get_time(){
     int day_of_week = get_index(DAY);
     printf("%d ", day_of_week);
     int hours = get_index(HOURS);
-    int hour_adj = hours - 5;
+    int hour_adj = hours - 3;
     printf("%d ", hour_adj);
     int minutes = get_index(MINUTES);
-    int min_adj = minutes + 0;
+    int min_adj = minutes + 2;
     if (min_adj > 59){
         min_adj =min_adj-60;
         hour_adj = hour_adj + 1;
