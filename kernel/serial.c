@@ -11,7 +11,7 @@
 #define ANSI_CODE_READ_LEN 15
 
 //Set to 1 to enable CLI history, 0 to disable.
-#define DO_CLI_HISTORY 0
+#define DO_CLI_HISTORY 1
 
 /**
  * Used to store a specific line previously entered.
@@ -280,8 +280,7 @@ int serial_poll(device dev, char *buffer, size_t len)
                                         line_pos = line_pos > (int) bytes_read ? (int) bytes_read : line_pos;
                                 }
                                 //Word movement right or left
-                                else if(action_arr[0] == 'f' ||
-                                                action_arr[0] == 'b')
+                                else if(action_arr[0] == 'f' || action_arr[0] == 'b')
                                 {
                                         matched = 1;
                                         int next_index =

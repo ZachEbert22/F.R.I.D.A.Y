@@ -13,4 +13,34 @@
 */
 int isspace(int c);
 
+/**
+ * Determine if a character is uppercase. If the character is not
+ * alphabetical, 0 is returned.
+ * @param c Character to check.
+ * @return Non-zero if upper, 0 if not upper.
+ */
+int isupper(int c);
+
+/**
+ * Determine if a character is lowercase. If the character is not
+ * alphabetical, 0 is returned.
+ * @param c Character to check.
+ * @return Non-zero if lower, 0 if not lower.
+ */
+int islower(int c);
+
+/**
+ * @brief Converts the given character to lowercase.
+ * @param c the character to convert.
+ * @return the lowercase character.
+ */
+int tolower(int c);
+
+/**
+ * @brief Converts the given character to uppercase.
+ * @param c the character to convert.
+ * @return the uppercase character.
+ */
+int toupper(int c);
+
 #endif
