@@ -1,7 +1,58 @@
 #include <string.h>
 #include "stdarg.h"
 #include "stdlib.h"
+#include "ctype.h"
 #include "stdio.h"
+
+#define UPPER_CASE 1
+#define LOWER_CASE 0
+
+/**
+ * @brief An internal method used to change the case of a string.
+ * @param str the original string.
+ * @param buffer the buffer to store the resulting string in, or NULL if the
+ *               change should be done in place.
+ * @param buf_len the buffer's length.
+ * @param letter_case the case of the new string. 1 for upper, 0 for lower.
+ * @return
+ */
+char *s_changecase(char *str, char *buffer, int buf_len, int letter_case);
+
+char *s_changecase(char *str, char *buffer, int buf_len, int letter_case)
+{
+        const int upper_diff = 'a' - 'A';
+
+        //Check if we should do the work in place or on the buffer.
+        char *str_buf = NULL;
+        int str_len = (int) strlen(str);
+        if(buffer == NULL)
+        {
+                str_buf = str;
+        }
+        else
+        {
+                //Check bounds.
+                if(str_len + 1 > buf_len)
+                        return NULL;
+
+                str_buf = buffer;
+        }
+
+        for (int i = 0; i < str_len; ++i)
+        {
+                int uppercase = isupper(str[i]);
+                int lowercase = islower(str[i]);
+
+                //Change case depending on the letter_case value.
+                if(uppercase && UPPER_CASE == letter_case)
+                        str_buf[i] = (char) (str[i] + upper_diff);
+                else if(lowercase && LOWER_CASE == letter_case)
+                        str_buf[i] = (char) (str[i] - upper_diff);
+                else
+                        str_buf[i] = str[i];
+        }
+        return str_buf;
+}
 
 void *memcpy(void * restrict s1, const void * restrict s2, size_t n)
 {
@@ -38,6 +89,58 @@ int strcmp(const char *s1, const char *s2)
 	return (*(unsigned char *)s1 - *(unsigned char *)s2);
 }
 
+int strcicmp(const char *s1, const char *s2)
+{
+
+        // Remarks:
+        // 1) If we made it to the end of both strings (i. e. our pointer points to a
+        //    '\0' character), the function will return 0
+        // 2) If we didn't make it to the end of both strings, the function will
+        //    return the difference of the characters at the first index of
+        //    indifference.
+        while ((*s1) && (tolower(*s1) == tolower(*s2))) {
+                ++s1;
+                ++s2;
+        }
+        return (tolower(*(unsigned char *)s1) - tolower(*(unsigned char *)s2));
+}
+
+char *str_strip_whitespace(char *str, char *buffer, int buf_len)
+{
+        //Load the buffer to store it in.
+        char *str_buf = NULL;
+        int str_len = strlen(str);
+        if(buffer == NULL)
+        {
+                str_buf = str;
+        }
+        else
+        {
+                if(str_len + 1 > buf_len)
+                        return NULL;
+
+                str_buf = buffer;
+        }
+
+        //Find beginning and ending index.
+        int starting_pos = 0;
+        while(isspace(str[starting_pos]))
+                starting_pos++;
+
+        int end_pos = str_len - 1;
+        while(isspace(str[end_pos]))
+                end_pos--;
+
+        //Copy memory.
+        int index = 0;
+        for (int i = starting_pos; i <= end_pos; ++i)
+        {
+                str_buf[index++] = str[i];
+        }
+        str_buf[index] = '\0';
+        return str_buf;
+}
+
 size_t strlen(const char *s)
 {
 	size_t len = 0;
@@ -45,6 +148,16 @@ size_t strlen(const char *s)
 		len++;
 	}
 	return len;
+}
+
+char *str_to_upper(char *str, char *buffer, int buf_len)
+{
+        return s_changecase(str, buffer, buf_len, UPPER_CASE);
+}
+
+char *str_to_lower(char *str, char *buffer, int buf_len)
+{
+        return s_changecase(str, buffer, buf_len, LOWER_CASE);
 }
 
 char *strtok(char * restrict s1, const char * restrict s2)

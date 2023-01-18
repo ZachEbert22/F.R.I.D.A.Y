@@ -12,25 +12,6 @@
 #define CMD_PROMPT ">> "
 
 /**
- * The shutdown command, used to handle when a shutdown happens.
- * @param comm the command string.
- * @return true if the command was handled, false if not.
- */
-bool shutdown(const char *comm)
-{
-        //The command's label.
-        const char *label = "shutdown";
-
-        //Check if it matched.
-        int cmp = strcmp(comm, label);
-        if(cmp != 0)
-                return false;
-
-        println("Shutting down...");
-        return true;
-}
-
-/**
  * The version command, used to handle when the user asks for a version number. Must Include Compilation date
  * @param comm_version the command string.
  * @return true if the command was handled, false if not.
@@ -82,11 +63,10 @@ bool get_time_menu(const char *comm)
 bool help(const char *comm)
 {
         //The command's label.
-        const char *label1 = "help";
-        const char *label2 = "Help";
+        const char *label = "help";
 
         //Check if it matched.
-        int cmp = strcmp(comm, label1) && strcmp(comm, label2);
+        int cmp = strcicmp(comm, label);
         if(cmp != 0)
                 return false;
 
@@ -102,16 +82,15 @@ bool help(const char *comm)
  * will return true if the command was handled by them, or false if not.
  */
 bool (*comm_funcs[])(const char *comm) = {
-        &shutdown,
         &version,
         &help,
         &get_time_menu
-
 };
 
 void comhand(void)
 {
         println("Welcome to MPX. Please select an option");
+
         println("=> Help");
         println("=> Set Time");
         println("=> Get Time");
@@ -124,19 +103,17 @@ void comhand(void)
 
                 print(CMD_PROMPT);
                 sys_req(READ, COM1, buf, 100);
-                println(buf);
 
                 //Handle all functions.
                 int comm_func_count = sizeof (comm_funcs) /
                         sizeof (comm_funcs[0]);
 
-                if (strcmp(buf, "shutdown\0") == 0){
+                if (strcmp(buf, "shutdown") == 0){
                         println("Are you sure you want to shutdown? enter y for yes or N for no");
                         memset(buf,'\0', 101);
                         sys_req(READ, COM1, buf, 5); 
-                        if (strcmp(buf, "y\0") == 0 || strcmp(buf, "yes\0") == 0 || strcmp(buf, "Yes\0") == 0){
-                                shutdown("shutdown\0");
-                                break;
+                        if (strcmp(buf, "y") == 0 || strcmp(buf, "yes") == 0 || strcmp(buf, "Yes") == 0){
+                                return;
                         }else{
                                 continue;
                         }
