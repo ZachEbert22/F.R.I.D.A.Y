@@ -17,21 +17,28 @@
  * @param comm_version the command string.
  * @return true if the command was handled, false if not.
  */
-bool version(const char *comm);
+bool cmd_version(const char *comm);
 
 /**
- * The version command, used to handle when the user asks for a version number. Must Include Compilation date
+ * @brief The shutdown command. If ran, will re-prompt the user for confirmation.
+ * @param comm the command string.
+ * @return true if the command was handled, false if not.
+ */
+bool cmd_shutdown(const char *comm);
+
+/**
+ * The get time command, used to get the time on the system.
  * @param comm_version the command string.
  * @return true if the command was handled, false if not.
  */
-bool get_time_menu(const char *comm);
+bool cmd_get_time_menu(const char *comm);
 
 /**
  * The help command, used to help the user when they are struggling.
  * @param comm_version the command string.
  * @return help true if it was handled, false if not.
  */
-bool help(const char *comm);
+bool cmd_help(const char *comm);
 
 /**
  * The set time command, used to set time user wants
