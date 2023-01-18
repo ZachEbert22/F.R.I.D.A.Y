@@ -45,12 +45,12 @@ bool cmd_help(const char *comm);
  * @param comm_version the command string.
  * @return help true if it was handled, false if not.
  */
-bool set_time(const char* comm);
+bool cmd_set_time(const char* comm);
 /**
  * The set date command, used to set time user wants
  * @param comm_version the command string.
  * @return help true if it was handled, false if not.
  */
-bool set_date(const char* comm);
+bool cmd_set_date(const char* comm);
 
 #endif //F_R_I_D_A_Y_COMMANDS_H

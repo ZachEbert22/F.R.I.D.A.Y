@@ -60,7 +60,7 @@ bool cmd_get_time_menu(const char *comm)
         //println(__TIME__);
         return true;
 }
-bool set_date(const char* comm)
+bool cmd_set_date(const char* comm)
 {
     const char *label = "set date";
     const char* date = splitOnceAfter(comm, label);
@@ -103,7 +103,7 @@ return true;
 }
 
 
-bool set_time(const char* comm)
+bool cmd_set_time(const char* comm)
 {
     const char *label = "set time";
     const char* date = splitOnceAfter(comm, label);
