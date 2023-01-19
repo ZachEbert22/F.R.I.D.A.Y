@@ -34,12 +34,19 @@ int get_time(){
     int min_adj = minutes;
     if (min_adj > 59){
         min_adj =min_adj-60;
-        hour_adj = hour_adj + 1;
-
-        if (hour_adj > 23){
+        hour_adj = hour_adj + 1;  
+    }
+    if (min_adj < 0){
+        min_adj =min_adj+60;
+        hour_adj = hour_adj - 1;  
+    }
+    if (hour_adj > 23){
             hour_adj = hour_adj-24;
             date = date + 1;
         }
+    if (hour_adj < 0){
+            hour_adj = 24+hour_adj;
+            date = date - 1;
     }
     printf("%02d ", minutes);
         int seconds = get_index(SECONDS);
