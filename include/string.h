@@ -138,7 +138,24 @@ bool starts_with(const char* string, const char* starts_with);
  */
 bool ci_starts_with(const char *string, const char *prefix);
 
+/**
+* @brief Splits the given string at character saving into a 2D buffer
+* @param string string to be split
+* @param split_at character to split at
+* @param wordlength length of the column dimension of buffer must match buff dimension
+* @param words number of rows (words) available in buff
+* @returns error codes 0 is successful, negative if not
+*/
 int split(const char *string, char split_at, int word_length, char buff[][word_length], int words);
 
+/**
+* @brief Splits the given string at character saving into a 2D buffer
+* @param string string to be spliced
+* @param start index to start at
+* @param end index to end at
+* @param buff buffer to save result to
+* @param buff_size length of buff
+* @returns error codes 0 is successful, negative if not
+*/
 int substring(const char* string, int start, int end, char buff[], int buff_size);
 #endif
