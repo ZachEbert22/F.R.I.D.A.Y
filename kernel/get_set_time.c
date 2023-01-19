@@ -27,11 +27,11 @@ int get_time(){
     printf("%02d ", date);
     int day_of_week = get_index(DAY);
     printf("%02d ", day_of_week);
-    int hours = get_index(HOURS);
-    int hour_adj = hours - 3;
+    int hours = get_index(HOURS) ; // converts to eastern time
+    int hour_adj = hours -5;
     printf("%02d ", hour_adj);
     int minutes = get_index(MINUTES);
-    int min_adj = minutes + 2;
+    int min_adj = minutes;
     if (min_adj > 59){
         min_adj =min_adj-60;
         hour_adj = hour_adj + 1;
@@ -62,7 +62,7 @@ int get_time(){
         week = "Saturday";
     }
     printf("%s\n", week);
-        printf("%s, %02d/%02d/%02d @ %02d:%02d:%02d\n", week, month, date, year, hours, minutes, seconds);
+        printf("%s, %02d/%02d/%02d @ %02d:%02d:%02d\n", week, month, date, year, hour_adj, minutes, seconds);
     return 0;
 }
 

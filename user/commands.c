@@ -22,7 +22,7 @@ bool cmd_version(const char *comm)
 
         println("Module: R1");
         println(__DATE__);
-        //println(__TIME__);
+        println(__TIME__);
         return true;
 }
 
@@ -65,7 +65,7 @@ bool cmd_get_time_menu(const char *comm)
 
 bool cmd_set_date(const char *comm)
 {
-        const char *label = "set date ";
+        const char *label = "set date";
         char date[10] = {0};
         split_once_after(comm, label,date,10);
         // Means that it did not start with label therefore it is not a valid input
@@ -118,7 +118,7 @@ bool cmd_set_date(const char *comm)
 
 bool cmd_set_time(const char *comm)
 {
-        const char *label = "set time ";
+        const char *label = "set time";
         char date[10] = {0};
         split_once_after(comm, label,date,10);
         // Means that it did not start with label therefore it is not a valid input
