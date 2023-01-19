@@ -121,11 +121,11 @@ int strcicmp(const char *s1, const char *s2)
     return (tolower(*(unsigned char *) s1) - tolower(*(unsigned char *) s2));
 }
 
-char *str_strip_whitespace(char *str, char *buffer, int buf_len)
+char *str_strip_whitespace(char *str, char *buffer, size_t buf_len)
 {
     //Load the buffer to store it in.
     char *str_buf = NULL;
-    int str_len = strlen(str);
+    size_t str_len = strlen(str);
     if (buffer == NULL)
     {
         str_buf = str;
@@ -142,7 +142,7 @@ char *str_strip_whitespace(char *str, char *buffer, int buf_len)
     while (isspace(str[starting_pos]))
         starting_pos++;
 
-    int end_pos = str_len - 1;
+    int end_pos = (int) str_len - 1;
     while (isspace(str[end_pos]))
         end_pos--;
 

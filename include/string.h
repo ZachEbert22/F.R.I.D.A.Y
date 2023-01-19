@@ -52,7 +52,7 @@ int strcicmp(const char *s1, const char *s2);
  * @param buf_len the length of the buffer.
  * @return a pointer to the resulting string, or NULL if it failed.
  */
-char *str_strip_whitespace(char *str, char *buffer, int buf_len);
+char *str_strip_whitespace(char *str, char *buffer, size_t buf_len);
 
 /**
  Returns the length of a string.
