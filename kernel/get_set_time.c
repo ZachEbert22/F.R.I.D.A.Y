@@ -17,6 +17,85 @@
 #define MINUTES 0x02
 #define SECONDS 0x00
 
+int *adj_timezone(int time[6], int tz_offset_hr, int tz_offset_min)
+{
+        int *year = time;
+        int *month = time + 1;
+        int *date = time + 2;
+        int *day = time + 3;
+        int *hours = time + 4;
+        int *mins = time + 5;
+
+        //Apply TZ offset.
+        *mins += tz_offset_min;
+        *hours += tz_offset_hr;
+
+        //Adjust minutes.
+        if(*mins < 0)
+        {
+                (*hours)--;
+        }
+        else if(*mins >= 60)
+        {
+                (*hours)++;
+        }
+
+            printf("%d\n", *hours);
+
+        //Adjust hours.
+        if(*hours < 0)
+        {
+                (*date)--;
+                (*day)--;
+        }
+        else if(*hours > 23)
+        {
+                (*date)++;
+                (*day)++;
+        }
+        else
+        {
+                return time;
+        }
+        *hours = (int) ui_realmod(*hours, 24);
+        printf("%d\n", *hours);
+
+        //Adjust day.
+        *day = (int) ui_realmod((*day) - 1, 7) + 1;
+
+        //Adjust date.
+        unsigned int bcd_dim = get_days_in_month(*month, *year);
+        int dim = (int) ((((bcd_dim >> 4) & 0xF) * 10) + bcd_dim & 0xF);
+        if(*date < 1)
+        {
+                (*month)--;
+        }
+        else if(*date > dim)
+        {
+                (*month)++;
+        }
+        else
+        {
+                return time;
+        }
+
+        //Adjust month.
+        if(*month < 1)
+        {
+                (*year)--;
+        }
+        else if(*month > 12)
+        {
+                (*year)++;
+        }
+        else
+        {
+                return time;
+        }
+        *month = (int) ui_realmod(*month - 1, 12) + 1;
+        return time;
+}
+
 //Tuesday, 1/17/23  @ 09:08:04
 int get_time(){
     int year = get_index(YEAR);
@@ -28,35 +107,35 @@ int get_time(){
     int day_of_week = get_index(DAY);
     printf("%02d ", day_of_week);
     int hours = get_index(HOURS) ; // converts to eastern time
-    int hour_adj = hours -5;
+    int hour_adj = hours;
     printf("%02d ", hour_adj);
     int minutes = get_index(MINUTES);
-    int min_adj = minutes;
-    if (min_adj > 59){
-        min_adj =min_adj-60;
-        hour_adj = hour_adj + 1;  
-    }
-    if (min_adj < 0){
-        min_adj =min_adj+60;
-        hour_adj = hour_adj - 1;  
-    }
-    if (hour_adj > 23){
-            hour_adj = hour_adj-24;
-            date = date + 1;
-        }
-    if (hour_adj < 0){
-            hour_adj = 24+hour_adj;
-            date = date - 1;
-            day_of_week = day_of_week -1;
-    }
-    if (day_of_week > 7){
-            hour_adj = hour_adj-7;
+    //int min_adj = minutes;
+    // if (min_adj > 59){
+    //     min_adj =min_adj-60;
+    //     hour_adj = hour_adj + 1;  
+    // }
+    // if (min_adj < 0){
+    //     min_adj =min_adj+60;
+    //     hour_adj = hour_adj - 1;  
+    // }
+    // if (hour_adj > 23){
+    //         hour_adj = hour_adj-24;
+    //         date = date + 1;
+    //     }
+    // if (hour_adj < 0){
+    //         hour_adj = 24+hour_adj;
+    //         date = date - 1;
+    //         day_of_week = day_of_week -1;
+    // }
+    // if (day_of_week > 7){
+    //         hour_adj = hour_adj-7;
             
-        }
-    if (hour_adj < 1){
-            hour_adj = 24+7;
+    //     }
+    // if (hour_adj < 1){
+    //         hour_adj = 24+7;
             
-    }
+    // }
     printf("%02d ", minutes);
         int seconds = get_index(SECONDS);
     printf("%02d\n", seconds);
@@ -77,6 +156,10 @@ int get_time(){
     }else{
         week = "Saturday";
     }
+    
+    int time_arr[6] = {year, month, date, day_of_week, hour_adj, minutes};
+    adj_timezone(time_arr, -5, 0);
+
     printf("%s\n", week);
         printf("%s, %02d/%02d/%02d @ %02d:%02d:%02d\n", week, month, date, year, hour_adj, minutes, seconds);
     return 0;
