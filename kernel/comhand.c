@@ -18,7 +18,8 @@ bool (*comm_funcs[])(const char *comm) = {
         &cmd_get_time_menu,
         &cmd_shutdown,
         &cmd_set_date,
-        &cmd_set_time
+        &cmd_set_time,
+        &fix_tmz
 };
 
 /// Used to denote if the comm hand should stop.
@@ -45,6 +46,7 @@ void comhand(void)
         println("=> Help");
         println("=> Set Time");
         println("=> Set Date");
+        println("=> Set-Timezone");
         println("=> Get Time");
         println("=> version");
         println("=> shutdown");

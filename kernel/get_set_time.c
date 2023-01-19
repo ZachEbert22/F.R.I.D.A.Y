@@ -17,6 +17,11 @@
 #define MINUTES 0x02
 #define SECONDS 0x00
 
+int timezone_hours = 0;
+
+void set_timezone(int offset){
+    timezone_hours = offset;
+}
 int *adj_timezone(int time[6], int tz_offset_hr, int tz_offset_min)
 {
     int *year = time;
@@ -89,6 +94,7 @@ int *adj_timezone(int time[6], int tz_offset_hr, int tz_offset_min)
 //Tuesday, 1/17/23  @ 09:08:04
 int get_time()
 {
+    printf("%d",timezone_hours);
     int year = get_index(YEAR);
     printf("%02d ", year);
     int month = get_index(MONTH);
@@ -129,8 +135,14 @@ int get_time()
     int seconds = get_index(SECONDS);
     printf("%02d\n", seconds);
 
+    
+    char tz_buf[6] = {0};
+    sys_req(READ, COM1, tz_buf, 6);
+    
+   
+
     int time_arr[6] = {year, month, date, day_of_week, hours, minutes};
-    adj_timezone(time_arr, -5, 0);
+    adj_timezone(time_arr, timezone_hours, 0);
 
     year = time_arr[0];
     month = time_arr[1];

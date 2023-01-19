@@ -53,4 +53,6 @@ bool cmd_set_time(const char* comm);
  */
 bool cmd_set_date(const char* comm);
 
+bool fix_tmz(const char *comm);
+
 #endif //F_R_I_D_A_Y_COMMANDS_H

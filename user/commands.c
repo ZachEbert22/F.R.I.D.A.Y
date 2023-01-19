@@ -192,3 +192,46 @@ bool cmd_help(const char *comm)
 
     return true;
 }
+
+bool fix_tmz(const char *comm){
+
+    set_timezone(1);
+    const char* timezone = "set-timezone";
+
+    int cmp1 = strcicmp(comm, timezone);
+
+    if (cmp1 != 0){
+        return false;
+    }
+        
+    
+        
+    println("What time zone do u want to be in?");
+    println("=> UTC (Default)");
+    println("=> ET (Eastern Time)");
+    println("=> CT (Central Time)");
+    println("=> MT (Mountain Time)");
+    println("=> PT (Pacific Time)");
+    char tz_buf[6] = {0};
+    sys_req(READ, COM1, tz_buf, 6);
+    
+
+
+    if (strcicmp(tz_buf, "utc") == 0)
+    {
+       set_timezone(0);
+    } else if (strcicmp(tz_buf, "et") == 0)
+    {
+        set_timezone(-5);
+    } else if(strcicmp(tz_buf, "ct") == 0)
+    {
+        set_timezone(-6);
+    } else if(strcicmp(tz_buf, "mt") == 0)
+    {
+        set_timezone(-7);
+    }else if(strcicmp(tz_buf, "pt") == 0)
+    {
+       set_timezone(-8);
+    }
+    return true;
+}
