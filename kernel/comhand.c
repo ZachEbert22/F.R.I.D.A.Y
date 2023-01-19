@@ -50,15 +50,18 @@ void print_welcome(void)
 
     println("Welcome to MPX. Please select an option");
     println("=> Help");
-    println("=> Set Time");
-    println("=> Set Date");
-    println("=> Get Time");
+    println("=> Set-Time");
+    println("=> Set-Timezone");
+    println("=> Set-Date");
+    println("=> Get-Time");
     println("=> version");
     println("=> shutdown");
+
 }
 
 void comhand(void)
 {
+        print_welcome();
     while (!sig_shutdown)
     {
         //100 + 1 for the null terminator.
