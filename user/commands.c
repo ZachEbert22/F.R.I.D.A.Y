@@ -15,12 +15,26 @@
 #define CMD_VERSION_LABEL "version"
 #define CMD_SHUTDOWN_LABEL "shutdown"
 #define CMD_GET_TIME_LABEL "get-time"
+#define CMD_SET_TIMEZONE_LABEL "set-timezone"
 #define CMD_SET_TIME_LABEL "set-time"
 #define CMD_SET_DATE_LABEL "set-date"
 
+/**
+ * @brief Checks if the given command matches the label.
+ * @param comm the command.
+ * @param label the label.
+ * @return if the command matches the label.
+ */
 bool matches_cmd(const char *comm, const char *label)
 {
-    return true;
+    //Create a copy.
+    size_t comm_len = strlen(comm);
+    char comm_cpy[comm_len + 1];
+    memcpy(comm_cpy, comm, comm_len + 1);
+
+    //Token the command.
+    char *str_token = strtok(comm_cpy, " ");
+    return strcicmp(str_token, label) == 0;
 }
 
 
@@ -44,8 +58,7 @@ bool cmd_shutdown(const char *comm)
 {
     const char *label = CMD_SHUTDOWN_LABEL;
 
-    int cmp = strcicmp(comm, label);
-    if (cmp != 0)
+    if (!matches_cmd(comm, label))
         return false;
 
     print("Are you sure you want to shutdown? (y/N): ");
@@ -69,8 +82,7 @@ bool cmd_get_time_menu(const char *comm)
     const char *label = CMD_GET_TIME_LABEL;
 
     //Check if it matched.
-    int cmp = strcicmp(comm, label);
-    if (cmp != 0)
+    if (!matches_cmd(comm, label))
         return false;
 
     get_time();
@@ -82,7 +94,7 @@ bool cmd_set_date(const char *comm)
 {
     const char *label = CMD_SET_DATE_LABEL;
     // Means that it did not start with label therefore it is not a valid input
-    if (ci_starts_with(comm, label) == 0)
+    if (!matches_cmd(comm, label))
     {
         return false;
     }
@@ -144,7 +156,7 @@ bool cmd_set_time(const char *comm)
 {
     const char *label = CMD_SET_TIME_LABEL;
     // Means that it did not start with label therefore it is not a valid input
-    if (ci_starts_with(comm, label) == 0)
+    if (!matches_cmd(comm, label))
     {
         return false;
     }
@@ -166,7 +178,7 @@ bool cmd_set_time(const char *comm)
     char time_array[3][3] = {0};
     // if part after set time is not valid with form hh:mm:ss returns with invalid date
     if (split(time_token, ':', 3, time_array, 3) < 0 ||
-            !is_valid_date_or_time(3, time_array, 3))
+        !is_valid_date_or_time(3, time_array, 3))
     {
         printf("Invalid time. You entered: %s, expecting format: HH:mm:SS\n", time_token);
         return true;
@@ -219,15 +231,15 @@ struct help_info
  * An array of all help info messages.
  */
 struct help_info help_messages[] = {
-        {.str_label = CMD_HELP_LABEL, "The '%s' command gives information about specific aspects of the system."},
+        {.str_label = CMD_HELP_LABEL,     "The '%s' command gives information about specific aspects of the system."},
         {.str_label = CMD_VERSION_LABEL,
-                "The '%s' command gives you the version of the OS and the date it was compiled."},
+                                          "The '%s' command gives you the version of the OS and the date it was compiled."},
         {.str_label = CMD_SHUTDOWN_LABEL, "The '%s' command prompts the user to shut down the OS."},
         {.str_label = CMD_GET_TIME_LABEL, "The '%s' command gets the current system time in the OS."},
         {.str_label = CMD_SET_TIME_LABEL,
-                "The '%s' command allows the use to set the time on the system.\nThe time should follow the format HH:mm:SS."},
+                                          "The '%s' command allows the use to set the time on the system.\nThe time should follow the format HH:mm:SS."},
         {.str_label = CMD_SET_DATE_LABEL,
-                "The '%s' command allows the use to set the date on the system.\nThe date should follow the format MM/DD/YY."}
+                                          "The '%s' command allows the use to set the date on the system.\nThe date should follow the format MM/DD/YY."}
 };
 
 bool cmd_help(const char *comm)
@@ -283,45 +295,49 @@ bool cmd_help(const char *comm)
     return true;
 }
 
-bool fix_tmz(const char *comm){
-
-    set_timezone(1);
-    const char* timezone = "set-timezone";
-
-    int cmp1 = strcicmp(comm, timezone);
-
-    if (cmp1 != 0){
+bool cmd_set_tz(const char *comm)
+{
+    const char *timezone = CMD_SET_TIMEZONE_LABEL;
+    if (!matches_cmd(timezone, comm))
+    {
         return false;
     }
-        
-    
-        
-    println("What time zone do u want to be in?");
+
+    //Prompt the user again.
+    println("What time zone do you want to be in?");
     println("=> UTC (Default)");
     println("=> ET (Eastern Time)");
     println("=> CT (Central Time)");
     println("=> MT (Mountain Time)");
     println("=> PT (Pacific Time)");
-    char tz_buf[6] = {0};
-    sys_req(READ, COM1, tz_buf, 6);
-    
+    set_cli_history(0);
+    char tz_buf[10] = {0};
+    print(": ");
+    sys_req(READ, COM1, tz_buf, 9);
+    set_cli_history(1);
 
-
+    //Check it against all other timezones.
     if (strcicmp(tz_buf, "utc") == 0)
     {
-       set_timezone(0);
+        set_timezone(0);
     } else if (strcicmp(tz_buf, "et") == 0)
     {
         set_timezone(-5);
-    } else if(strcicmp(tz_buf, "ct") == 0)
+    } else if (strcicmp(tz_buf, "ct") == 0)
     {
         set_timezone(-6);
-    } else if(strcicmp(tz_buf, "mt") == 0)
+    } else if (strcicmp(tz_buf, "mt") == 0)
     {
         set_timezone(-7);
-    }else if(strcicmp(tz_buf, "pt") == 0)
+    } else if (strcicmp(tz_buf, "pt") == 0)
     {
-       set_timezone(-8);
+        set_timezone(-8);
+    }else
+    {
+        printf("Timezone '%s' not recognized!\n", tz_buf);
+        return true;
     }
+
+    printf("Set the timezone to '%s'!\n", tz_buf);
     return true;
 }

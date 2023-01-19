@@ -22,7 +22,7 @@ bool (*comm_funcs[])(const char *comm) = {
         &cmd_shutdown,
         &cmd_set_date,
         &cmd_set_time,
-        &fix_tmz
+        &cmd_set_tz
 };
 
 /// Used to denote if the comm hand should stop.
