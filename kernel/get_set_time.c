@@ -48,6 +48,14 @@ int get_time(){
             hour_adj = 24+hour_adj;
             date = date - 1;
     }
+    if (day_of_week > 7){
+            hour_adj = hour_adj-7;
+            
+        }
+    if (hour_adj < 1){
+            hour_adj = 24+7;
+            
+    }
     printf("%02d ", minutes);
         int seconds = get_index(SECONDS);
     printf("%02d\n", seconds);
