@@ -9,9 +9,9 @@ bool set_time_clock(unsigned int a, unsigned int b, unsigned int c);
 
 bool set_date_clock(unsigned int a, unsigned int b, unsigned int c);
 
-unsigned char decimalToBCD(unsigned int first, unsigned int second);
+unsigned char decimal_to_bcd(unsigned int decimal);
 
-bool isValidTimeOrDate(const char* date, unsigned int buf[], int buf_len, char c);
+bool is_valid_date_or_time(int word_len,char buf[][word_len], int buff_len);
 
-int getDaysInMonth(int month, int year);
+unsigned get_days_in_month(int month, int year);
 #endif

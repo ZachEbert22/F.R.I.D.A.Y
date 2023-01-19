@@ -509,26 +509,66 @@ bool ci_starts_with(const char* string, const char* prefix)
         return true;
 }
 
-const char* splitOnceAfter(const char *string, const char* splitAfter)
+ char split_once_after(const char *string, const char* split_after, char* buff, int buff_len)
 {
+	int index = 0;
 	int size = 0;
-	const char* temp = string;
-	while(*string){
-		if(*splitAfter == '\0'){
-			if(size > 0) return string;
-			return temp;
-
-		}
-		if(*string == *splitAfter) {
+	while(*string && *split_after){
+		if(*string == *split_after) {
 			string++;
-			splitAfter++;
+			split_after++;
 			size++;
 		} else {
-			string++;
-			splitAfter = splitAfter - size;
-			size = 0;
+			return -1;
 		}
 	}
-	if(*string == '\0' && * splitAfter == '\0') return "";
-	return temp;
+	while(*string){
+		if(index >= buff_len-1) return -1;
+		buff[index++] = *string++;
+		
+	}
+	buff[index] = '\0';
+	return 0;
 }
+int split(const char *string, char split_at, int word_length, char buff[][word_length], int words)
+{
+	int length = 0;
+	int num_words = 0;
+	int start = 0;
+	int end = 0;
+	const char* temp = string;
+	while(*string){
+		if(*string == split_at) {
+			if(num_words == words) return -1;
+			if(length > word_length) return -2;
+			if(substring(temp, start, end, buff[num_words], word_length)) return -1;
+			start = ++end;
+			num_words++;
+			string++;
+			length = 0;
+			continue;
+		}
+		end++;
+		length++;
+		string++;
+	}
+	if(*string == '\0' && length > 0) {
+	    if(substring(temp,start,end,buff[num_words], word_length)) return -1;
+	}
+	return 0;
+}
+int substring(const char* string, int start, int end, char buff[], int buff_size)
+{
+	int length = end - start;
+	int index = 0;
+	if(buff_size <= length) return -1;
+	for(int i = 0; i < start; i++){
+		string++;
+	}
+	while(index < length) {
+		buff[index++] = *string++;
+	}
+	buff[index] = '\0';
+
+	return 0;
+} 

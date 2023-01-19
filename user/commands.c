@@ -8,6 +8,7 @@
 #include "sys_req.h"
 #include "mpx/comhand.h"
 #include "mpx/get_set_time.h"
+#include "stdlib.h"
 
 bool cmd_version(const char *comm)
 {
@@ -64,8 +65,9 @@ bool cmd_get_time_menu(const char *comm)
 
 bool cmd_set_date(const char *comm)
 {
-        const char *label = "set date";
-        const char *date = splitOnceAfter(comm, label);
+        const char *label = "set date ";
+        char date[10] = {0};
+        split_once_after(comm, label,date,10);
         // Means that it did not start with label therefore it is not a valid input
         if (ci_starts_with(comm, label) == 0)
         {
@@ -78,28 +80,30 @@ bool cmd_set_date(const char *comm)
                 return false;
         }
         // buffer to save numbers
-        unsigned int time_array[7] = {0};
+        char time_array[3][3] = {0};
         // if part after set time is not valid with form hh:mm:ss returns with invalid date
-        if (!isValidTimeOrDate(date, time_array, 7, '/'))
+        if (split(date, '/',3,time_array, 3) || !is_valid_date_or_time(3,time_array,3))
         {
                 println("Invalid date");
                 return true;
         }
         // sets the time and returns whether is was sucessful
-        unsigned int month = decimalToBCD(time_array[0] << 4, time_array[1]);
+        unsigned int month = decimal_to_bcd(atoi(time_array[0]));
+        unsigned int day = decimal_to_bcd(atoi(time_array[1]));
+        unsigned int year = decimal_to_bcd(atoi(time_array[2]));
         if (month < 0x01 | month > 0x12)
         {
                 println("Month is out of range 1-12");
                 return true;
         }
-        unsigned char year = decimalToBCD(time_array[4] << 4, time_array[5]);
+       
         if (year < 0x00 | year > 0x99)
         {
                 println("Year is out of range 0-100");
                 return true;
         }
-        unsigned char day = decimalToBCD(time_array[2] << 4, time_array[3]);
-        if (day < 0x01 | day > getDaysInMonth((int) month, year))
+        
+        if (day < 0x01 | day > get_days_in_month((int) month, year))
         {
                 println("Day is out of range for that month");
                 return true;
@@ -114,8 +118,9 @@ bool cmd_set_date(const char *comm)
 
 bool cmd_set_time(const char *comm)
 {
-        const char *label = "set time";
-        const char *date = splitOnceAfter(comm, label);
+        const char *label = "set time ";
+        char date[10] = {0};
+        split_once_after(comm, label,date,10);
         // Means that it did not start with label therefore it is not a valid input
         if (ci_starts_with(comm, label) == 0)
         {
@@ -127,28 +132,31 @@ bool cmd_set_time(const char *comm)
                 println("Date value must be provided");
                 return false;
         }
+        char stripped_date[10] = {0};
+        str_strip_whitespace(date, stripped_date, 10);
         // buffer to save numbers
-        unsigned int time_array[7] = {0};
+        char time_array[3][3] = {0};
         // if part after set time is not valid with form hh:mm:ss returns with invalid date
-        if (!isValidTimeOrDate(date, time_array, 7, ':'))
+        if (split(stripped_date,':', 3,time_array, 3) < 0 || !is_valid_date_or_time(3,time_array,3))
         {
-                println("Invalid date, please");
+                println("Invalid date, please try again");
                 return true;
         }
         // sets the time and returns whether is was sucessful
-        unsigned int hour = decimalToBCD(time_array[0] << 4, time_array[1]);
+        unsigned char hour = decimal_to_bcd(atoi(time_array[0]));
+        unsigned char minute = decimal_to_bcd(atoi(time_array[1]));
+        unsigned char second = decimal_to_bcd(atoi(time_array[2]));
+        printf("%d,%d,%d", hour, minute, second);
         if (hour < 0x00 | hour > 0x23)
         {
                 println("Hour is out of range 0-23");
                 return true;
         }
-        unsigned char minute = decimalToBCD(time_array[2] << 4, time_array[3]);
         if (minute < 0x00 | minute > 0x59)
         {
                 println("Minutes is out of range 0-59");
                 return true;
         }
-        unsigned char second = decimalToBCD(time_array[4] << 4, time_array[5]);
         if (second < 0x00 | second > 0x59)
         {
                 println("Seconds is out of range 0-59");

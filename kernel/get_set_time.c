@@ -75,7 +75,7 @@ int get_index(int a){
 
     return fixed;
 }
-int getDaysInMonth(int month, int year){
+unsigned get_days_in_month(int month, int year){
         switch(month){
                 case 1:
                         return 0x31;
@@ -106,34 +106,14 @@ int getDaysInMonth(int month, int year){
         return 0x00;
 }
 
-bool isValidTimeOrDate(const char* date, unsigned int buf[], int buf_len, char c){
-    int index = 0;
-    int colonCount = 0;
-    int count = 0;
-    while(isspace(*date)) date++;
-    while(*date != '\0') {
-    if(index >= buf_len) return false;
-    if(isdigit(*date)) {
-    buf[index++] = todigit(*date);
-    count++;
-    date++;
-    continue; 
+bool is_valid_date_or_time(int word_len,char buf[][word_len], int buff_len) 
+{
+    for(int i = 0; i < buff_len; i++){
+        for(int j = 0; j < word_len;j++){
+            if(!isdigit(buf[i][j])) return false;
+        }
     }
-    if(*date == c && count == 2) {
-    count = 0;
-    colonCount++;
-    date++;
-    continue;
-    }
-    if(isspace(*date)){
-        break;
-    }
-    return false;
-}
-
-    buf[index+1] = '\0';
-    if(index == 6 && colonCount < 3) return true;
-    return false;
+    return true;
 }
 
 bool set_time_clock(unsigned int hr, unsigned int min, unsigned int sec){
@@ -163,6 +143,8 @@ bool set_date_clock(unsigned int month, unsigned int day, unsigned int year){
 
 
 
-unsigned char decimalToBCD(unsigned int first, unsigned int second){
-    return first + second;
+unsigned char decimal_to_bcd(unsigned int decimal){
+    unsigned int first_half = decimal / 10;
+    unsigned int second_half = decimal % 10;
+    return ((first_half << 4) + second_half);
 }

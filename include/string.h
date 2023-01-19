@@ -119,15 +119,15 @@ char *vsprintf(const char *format, char *str, size_t buf_len, va_list varargs);
 * @param splitAt string that chooses where to split
 * @return the string split or not
 */
-const char* splitOnceAfter(const char* string, const char* splitAt);
+char split_once_after(const char* string, const char* split_after, char buff[], int buff_len);
 
 /** 
 * @brief Returns true if string starts with given string 
 * @param string string to be tested
-* @param startsWith given string to start with
-* @return if string starts with startsWith string
+* @param starts_with given string to start with
+* @return if string starts with starts_with string
 */
-bool startsWith(const char* string, const char* startsWith);
+bool starts_with(const char* string, const char* starts_with);
 
 /**
  * @brief Returns true if the string starts with the given prefix.
@@ -137,4 +137,8 @@ bool startsWith(const char* string, const char* startsWith);
  * @return true if the string starts with the prefix.
  */
 bool ci_starts_with(const char *string, const char *prefix);
+
+int split(const char *string, char split_at, int word_length, char buff[][word_length], int words);
+
+int substring(const char* string, int start, int end, char buff[], int buff_size);
 #endif
