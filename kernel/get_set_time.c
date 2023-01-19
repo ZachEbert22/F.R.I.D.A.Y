@@ -3,6 +3,7 @@
 #include "string.h"
 #include "stdbool.h"
 #include "mpx/comhand.h"
+#include "math.h"
 #include "mpx/get_set_time.h"
 #include <mpx/io.h>
 #include <ctype.h>
@@ -16,34 +17,34 @@
 #define MINUTES 0x02
 #define SECONDS 0x00
 
- //Tuesday, 1/17/23  @ 09:08:04
+//Tuesday, 1/17/23  @ 09:08:04
 int get_time(){
     int year = get_index(YEAR);
-    printf("%d ", year);
+    printf("%02d ", year);
     int month = get_index(MONTH);
-    printf("%d ", month);
+    printf("%02d ", month);
     int date = get_index(DATE);
-    printf("%d ", date);
+    printf("%02d ", date);
     int day_of_week = get_index(DAY);
-    printf("%d ", day_of_week);
+    printf("%02d ", day_of_week);
     int hours = get_index(HOURS);
     int hour_adj = hours - 3;
-    printf("%d ", hour_adj);
+    printf("%02d ", hour_adj);
     int minutes = get_index(MINUTES);
     int min_adj = minutes + 2;
     if (min_adj > 59){
         min_adj =min_adj-60;
         hour_adj = hour_adj + 1;
-    
+
         if (hour_adj > 23){
             hour_adj = hour_adj-24;
             date = date + 1;
         }
     }
-    printf("%d ", minutes);
-    int seconds = get_index(SECONDS);
-    printf("%d\n", seconds);
-   
+    printf("%02d ", minutes);
+        int seconds = get_index(SECONDS);
+    printf("%02d\n", seconds);
+
     char* week;
     if (day_of_week == 1){
          week = "Sunday";
@@ -61,11 +62,11 @@ int get_time(){
         week = "Saturday";
     }
     printf("%s\n", week);
-    printf("%s, %d/%d/%d @ %d:%d:%d\n", week, month, date, year, hours, minutes, seconds);
+        printf("%s, %02d/%02d/%02d @ %02d:%02d:%02d\n", week, month, date, year, hours, minutes, seconds);
     return 0;
 }
-   
-    
+
+
 int get_index(int a){
     outb(0x70, a);
     int bits = inb(0x71);
@@ -75,38 +76,39 @@ int get_index(int a){
 
     return fixed;
 }
-unsigned get_days_in_month(int month, int year){
+
+unsigned int get_days_in_month(int month, int year){
         switch(month){
                 case 1:
                         return 0x31;
                 case 2:
                         if(year % 4 == 0) return 0x29;
                         return 0x28;
-                case 3: 
+                case 3:
                         return 0x31;
-                case 4: 
+                case 4:
                         return 0x30;
                 case 5:
                         return 0x31;
                 case 6:
                         return 0x30;
-                case 7: 
+                case 7:
                         return 0x31;
                 case 8:
                         return 0x31;
-                case 9: 
+                case 9:
                         return 0x30;
                 case 0x10:
                         return 0x31;
                 case 0x11:
                         return 0x30;
-                case 0x12: 
+                case 0x12:
                         return 0x31;
         }
         return 0x00;
 }
 
-bool is_valid_date_or_time(int word_len,char buf[][word_len], int buff_len) 
+bool is_valid_date_or_time(int word_len,char buf[][word_len], int buff_len)
 {
     for(int i = 0; i < buff_len; i++){
         for(int j = 0; j < word_len;j++){
@@ -131,7 +133,7 @@ bool set_date_clock(unsigned int month, unsigned int day, unsigned int year){
     cli();
 
     outb(0x70,0x07);
-    outb(0x71,day); 
+    outb(0x71,day);
     outb(0x70,0x08);
     outb(0x71,month);
     outb(0x70,0x09);

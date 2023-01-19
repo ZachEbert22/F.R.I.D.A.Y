@@ -13,5 +13,5 @@ unsigned char decimal_to_bcd(unsigned int decimal);
 
 bool is_valid_date_or_time(int word_len,char buf[][word_len], int buff_len);
 
-unsigned get_days_in_month(int month, int year);
+unsigned int get_days_in_month(int month, int year);
 #endif
