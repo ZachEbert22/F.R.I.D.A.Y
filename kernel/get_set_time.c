@@ -47,6 +47,7 @@ int get_time(){
     if (hour_adj < 0){
             hour_adj = 24+hour_adj;
             date = date - 1;
+            day_of_week = day_of_week -1;
     }
     if (day_of_week > 7){
             hour_adj = hour_adj-7;
