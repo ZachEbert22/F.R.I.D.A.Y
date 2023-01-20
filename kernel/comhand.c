@@ -9,6 +9,8 @@
 #include "commands.h"
 #include "string.h"
 
+#define UNKNOWN_CMD_MSG "Unknown command '%s'. Type 'help' for help!"
+
 /**
  * @brief An array of pointers to command functions. These functions
  * will return true if the command was handled by them, or false if not.
@@ -72,11 +74,21 @@ void comhand(void)
         int comm_func_count = sizeof(comm_funcs) /
                               sizeof(comm_funcs[0]);
 
+        bool found = false;
         for (int i = 0; i < comm_func_count; ++i)
         {
             bool result = comm_funcs[i](buf);
             if (result)
+            {
+                found = true;
                 break;
+            }
+        }
+
+        if(!found)
+        {
+            printf(UNKNOWN_CMD_MSG, buf);
+            println("");
         }
     }
 }
