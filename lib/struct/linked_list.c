@@ -9,15 +9,22 @@
 //Contains the definition of our linked list.
 struct linked_list_
 {
+    ///The size of the linked list.
     int _size;
+    ///The maximum size of the linked list, set to -1 for infinite.
     int _max_size;
-    ll_node *_first, *_last;
+    ///The first node in the linked list.
+    ll_node *_first;
+    //The second node in the linked list.
+    ll_node *_last;
 };
 
 //Contains the structure of the nodes in our linked list.
 struct linked_list_node_
 {
+    ///The pointer to the item we're storing.
     void *_item; //8 bytes
+    ///The next node in the list.
     ll_node *_next; //8 bytes
 };
 

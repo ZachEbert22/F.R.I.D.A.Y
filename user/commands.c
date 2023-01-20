@@ -85,7 +85,7 @@ bool cmd_get_time_menu(const char *comm)
     if (!matches_cmd(comm, label))
         return false;
 
-    get_time();
+    print_time();
     //println(__TIME__);
     return true;
 }

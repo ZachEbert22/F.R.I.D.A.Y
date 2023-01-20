@@ -19,9 +19,26 @@
 
 int timezone_hours = 0;
 
+/**
+ * @brief Gets the clock value at the specific address index and converts it from BCD to a normal number.
+ * Should use one of the compiler constant time addresses in this file.
+ * @param a the address to read from.
+ * @return the normal number read from the specific index.
+ */
+int get_index(int a);
+
 void set_timezone(int offset){
     timezone_hours = offset;
 }
+
+/**
+ * @brief Adjusts the given time array to the specified timezone.
+ * @param time the time array, should be passed in with the format
+ *             {year, month, date, week_day, hours, mins}.
+ * @param tz_offset_hr the hour offset.
+ * @param tz_offset_min the minute offset.
+ * @return a pointer to the adjusted array.
+ */
 int *adj_timezone(int time[6], int tz_offset_hr, int tz_offset_min)
 {
     int *year = time;
@@ -63,7 +80,7 @@ int *adj_timezone(int time[6], int tz_offset_hr, int tz_offset_min)
     *day = (int) ui_realmod((*day) - 1, 7) + 1;
 
     //Adjust date.
-    unsigned int bcd_dim = get_days_in_month(*month, *year);
+    unsigned int bcd_dim = get_days_in_month(decimal_to_bcd(*month), decimal_to_bcd(*year));
     int dim = (int) ((((bcd_dim >> 4) & 0xF) * 10) + bcd_dim & 0xF);
     if (*date < 1)
     {
@@ -92,7 +109,7 @@ int *adj_timezone(int time[6], int tz_offset_hr, int tz_offset_min)
 }
 
 //Tuesday, 1/17/23  @ 09:08:04
-int get_time()
+int print_time()
 {
     int year = get_index(YEAR);
     int month = get_index(MONTH);
@@ -236,6 +253,10 @@ bool is_valid_date_or_time(int word_len, char buf[][word_len], int buff_len)
 
 bool set_time_clock(unsigned int hr, unsigned int min, unsigned int sec)
 {
+    //Check the values.
+    if(hr > 0x23 || min > 0x59 || sec > 0x59)
+        return false;
+
     cli();
     outb(0x70, 0x04);
     outb(0x71, hr);
@@ -249,6 +270,14 @@ bool set_time_clock(unsigned int hr, unsigned int min, unsigned int sec)
 
 bool set_date_clock(unsigned int month, unsigned int day, unsigned int year)
 {
+    if(month < 0x01 || month > 0x12 || year > 0x99)
+        return false;
+
+    //Check the days in the month.
+    unsigned int days_in_month = get_days_in_month((int) month, (int) year);
+    if(day > days_in_month)
+        return false;
+
     cli();
 
     outb(0x70, 0x07);

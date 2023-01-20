@@ -5,7 +5,13 @@
 #ifndef LINKEDLIST_H
 #define LINKEDLIST_H
 
+/**
+ * @brief The node used for all linked lists.
+ */
 typedef struct linked_list_node_ ll_node;
+/**
+ * @brief The main linked list structure.
+ */
 typedef struct linked_list_ linked_list;
 
 /**
