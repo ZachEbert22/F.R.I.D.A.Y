@@ -37,6 +37,7 @@ struct line_entry
 enum key_code
 {
     BACKSPACE = 8,
+    NEWLINE = 10,
     CARRIAGE_RETURN = 13,
     ESCAPE = 27,
     SPACE = 32, //The minimum keycode value for normal characters.
@@ -237,7 +238,7 @@ int serial_poll(device dev, char *buffer, size_t len)
             bytes_read++;
         }
 
-        if (keycode == CARRIAGE_RETURN)
+        if (keycode == CARRIAGE_RETURN || keycode == NEWLINE)
         {
             buffer[bytes_read] = '\0';
             break;
