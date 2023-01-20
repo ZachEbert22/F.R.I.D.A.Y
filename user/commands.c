@@ -150,7 +150,6 @@ bool cmd_set_time(const char *comm)
         unsigned char hour = decimal_to_bcd(atoi(time_array[0]));
         unsigned char minute = decimal_to_bcd(atoi(time_array[1]));
         unsigned char second = decimal_to_bcd(atoi(time_array[2]));
-        printf("%d,%d,%d", hour, minute, second);
         if (hour < 0x00 | hour > 0x23)
         {
                 println("Hour is out of range 0-23");
