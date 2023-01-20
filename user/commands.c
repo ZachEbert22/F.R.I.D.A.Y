@@ -18,6 +18,12 @@
 #define CMD_SET_TIME_LABEL "set-time"
 #define CMD_SET_DATE_LABEL "set-date"
 
+bool matches_cmd(const char *comm, const char *label)
+{
+    return true;
+}
+
+
 bool cmd_version(const char *comm)
 {
     //The command's label.

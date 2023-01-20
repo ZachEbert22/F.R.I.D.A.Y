@@ -94,15 +94,10 @@ int *adj_timezone(int time[6], int tz_offset_hr, int tz_offset_min)
 //Tuesday, 1/17/23  @ 09:08:04
 int get_time()
 {
-    printf("%d",timezone_hours);
     int year = get_index(YEAR);
-    printf("%02d ", year);
     int month = get_index(MONTH);
-    printf("%02d ", month);
     int date = get_index(DATE);
-    printf("%02d ", date);
     int day_of_week = get_index(DAY);
-    printf("%02d ", day_of_week);
     int hours = get_index(HOURS); // converts to eastern time
     int minutes = get_index(MINUTES);
     //int min_adj = minutes;
@@ -131,15 +126,7 @@ int get_time()
     //         hour_adj = 24+7;
 
     // }
-    printf("%02d ", minutes);
     int seconds = get_index(SECONDS);
-    printf("%02d\n", seconds);
-
-    
-    char tz_buf[6] = {0};
-    sys_req(READ, COM1, tz_buf, 6);
-    
-   
 
     int time_arr[6] = {year, month, date, day_of_week, hours, minutes};
     adj_timezone(time_arr, timezone_hours, 0);
@@ -180,7 +167,6 @@ int get_time()
     {
         week = "Saturday";
     }
-    printf("%s\n", week);
     printf("%s, %02d/%02d/%02d @ %02d:%02d:%02d\n", week, month, date, year, hours, minutes, seconds);
     return 0;
 }
