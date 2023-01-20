@@ -80,17 +80,19 @@ bool cmd_set_date(const char *comm)
                 return false;
         }
         // buffer to save numbers
-        char time_array[3][3] = {0};
+        char date_array[3][3] = {0};
+        char stripped_date[10] = {0};
+        str_strip_whitespace(date, stripped_date, 10);
         // if part after set time is not valid with form hh:mm:ss returns with invalid date
-        if (split(date, '/',3,time_array, 3) || !is_valid_date_or_time(3,time_array,3))
+        if (split(stripped_date, '/',3,date_array, 3) || !is_valid_date_or_time(3,date_array,3))
         {
                 println("Invalid date");
                 return true;
         }
         // sets the time and returns whether is was sucessful
-        unsigned int month = decimal_to_bcd(atoi(time_array[0]));
-        unsigned int day = decimal_to_bcd(atoi(time_array[1]));
-        unsigned int year = decimal_to_bcd(atoi(time_array[2]));
+        unsigned int month = decimal_to_bcd(atoi(date_array[0]));
+        unsigned int day = decimal_to_bcd(atoi(date_array[1]));
+        unsigned int year = decimal_to_bcd(atoi(date_array[2]));
         if (month < 0x01 | month > 0x12)
         {
                 println("Month is out of range 1-12");
@@ -119,27 +121,27 @@ bool cmd_set_date(const char *comm)
 bool cmd_set_time(const char *comm)
 {
         const char *label = "set time ";
-        char date[10] = {0};
-        split_once_after(comm, label,date,10);
+        char time[10] = {0};
+        split_once_after(comm, label,time,10);
         // Means that it did not start with label therefore it is not a valid input
         if (ci_starts_with(comm, label) == 0)
         {
                 return false;
         }
         // Date is provided
-        if (strlen(date) == 0)
+        if (strlen(time) == 0)
         {
-                println("Date value must be provided");
+                println("Time value must be provided");
                 return false;
         }
-        char stripped_date[10] = {0};
-        str_strip_whitespace(date, stripped_date, 10);
+        char stripped_time[10] = {0};
+        str_strip_whitespace(time, stripped_time, 10);
         // buffer to save numbers
         char time_array[3][3] = {0};
         // if part after set time is not valid with form hh:mm:ss returns with invalid date
-        if (split(stripped_date,':', 3,time_array, 3) < 0 || !is_valid_date_or_time(3,time_array,3))
+        if (split(stripped_time,':', 3,time_array, 3) < 0 || !is_valid_date_or_time(3,time_array,3))
         {
-                println("Invalid date, please try again");
+                println("Invalid time, please try again");
                 return true;
         }
         // sets the time and returns whether is was sucessful

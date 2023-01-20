@@ -108,9 +108,15 @@ unsigned get_days_in_month(int month, int year){
 
 bool is_valid_date_or_time(int word_len,char buf[][word_len], int buff_len) 
 {
+    int num_digs = 0;
     for(int i = 0; i < buff_len; i++){
-        for(int j = 0; j < word_len;j++){
+        for(int j = 0; j < word_len-1;j++){
+            if(buf[i][j] == '\0' && num_digs > 0) {
+                num_digs = 0;
+                continue;
+            }
             if(!isdigit(buf[i][j])) return false;
+            num_digs++;
         }
     }
     return true;
