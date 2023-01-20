@@ -17,6 +17,7 @@
 #define MINUTES 0x02
 #define SECONDS 0x00
 
+///The timezone hour offset.
 int timezone_hours = 0;
 
 /**
