@@ -7,6 +7,7 @@
 #include "stdbool.h"
 #include "mpx/comhand.h"
 #include "commands.h"
+#include "string.h"
 
 /**
  * @brief An array of pointers to command functions. These functions
@@ -55,6 +56,9 @@ void comhand(void)
 
                 print(CMD_PROMPT);
                 sys_req(READ, COM1, buf, 100);
+
+                //Strip whitespace.
+                str_strip_whitespace(buf, NULL, 0);
 
                 //Handle all functions.
                 int comm_func_count = sizeof (comm_funcs) /

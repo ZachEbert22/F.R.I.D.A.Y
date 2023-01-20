@@ -225,7 +225,7 @@ bool cmd_help(const char *comm)
     char *spl_token = strtok(comm_cpy, split_label);
     //Bump the token forward.
     int help_m_len = sizeof (help_messages) / sizeof (help_messages[0]);
-    while((spl_token = strtok(NULL, split_label)) != NULL)
+    if((spl_token = strtok(NULL, split_label)) != NULL)
     {
         //Try to find help for the specific command.
         for (int i = 0; i < help_m_len; ++i)
@@ -240,6 +240,10 @@ bool cmd_help(const char *comm)
             println("");
             return true;
         }
+
+        //At this point, we didn't find any valid strings.
+        printf("Couldn't find any help for '%s'!\n", spl_token);
+        return true;
     }
 
     println("If You want to set the Time for the OS, enter 'Set Time ##:##:##'");
