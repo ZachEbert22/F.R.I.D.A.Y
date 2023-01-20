@@ -173,15 +173,67 @@ bool cmd_set_time(const char *comm)
         return true;
 }
 
+/**
+ * Used to store information on a specific label of the 'help' command.
+ */
+struct help_info {
+    /**
+     * The label of the command for the help message.
+     */
+    char *str_label;
+    /**
+     * The help message to send for this.
+     */
+    char *help_message;
+};
+
+/**
+ * An array of all help info messages.
+ */
+struct help_info help_messages[] = {
+        {.str_label = "help", "The 'help' command gives information about specific aspects of the system."},
+        {.str_label = "version", "The 'version' command gives you the version of the OS and the date it was compiled."},
+        {.str_label = "shutdown", "The 'shutdown' command prompts the user to shut down the OS."},
+        {.str_label = "get-time", "The 'get-time' command gets the current system time in the OS."},
+        {.str_label = "set-time", "The 'set-time' command allows the use to set the time on the system.\nThe time should follow the format HH:mm:SS."},
+        {.str_label = "set-date", "The 'set-date' command allows the use to set the date on the system.\nThe date should follow the format MM/DD/YY."}
+};
+
 bool cmd_help(const char *comm)
 {
     //The command's label.
     const char *label = "help";
 
     //Check if it matched.
-    int cmp = strcicmp(comm, label);
-    if (cmp != 0)
+    int cmp = ci_starts_with(comm, label);
+    if (!cmp)
         return false;
+
+    const char *split_label = " ";
+    size_t str_len = strlen(comm);
+
+    //Create a copy.
+    char comm_cpy[str_len + 1];
+    memcpy(comm_cpy, comm, str_len + 1);
+
+    char *spl_token = strtok(comm_cpy, split_label);
+    //Bump the token forward.
+    int help_m_len = sizeof (help_messages) / sizeof (help_messages[0]);
+    while((spl_token = strtok(NULL, split_label)) != NULL)
+    {
+        //Try to find help for the specific command.
+        for (int i = 0; i < help_m_len; ++i)
+        {
+            char *help_label = help_messages[i].str_label;
+
+            //Check if the label matches.
+            if(strcicmp(help_label, spl_token) != 0)
+                continue;
+
+            println(help_messages[i].help_message);
+            return true;
+        }
+    }
 
     println("If You want to set the Time for the OS, enter 'Set Time ##:##:##'");
     println("If You want to set the Time for the OS, enter 'Set Date ##/##/##'");
