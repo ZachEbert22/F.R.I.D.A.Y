@@ -38,27 +38,31 @@ void signal_shutdown(void)
  */
 void print_welcome(void)
 {
-        println("*********      **********      **      ****                  **         **      **");
-        println("**             **     **       **      **   **             **  **         **   **");
-        println("**             **    **        **      **    **           **     **         ****");
-        println("*****          **  **          **      **     **         **       **         **");
-        println("**             ****            **      **     **        *************        **");
-        println("**             **  **          **      **     **       **           **       ** ");
-        println("**             **    **        **      **    **       **             **      **");
-        println("**             **     **       **      **   **       **               **     **");
-        println("**             **      **      **      ******       **                 **    **");
-        
-        println("Welcome to MPX. Please select an option");
-        println("=> Help");
-        println("=> Set Time");
-        println("=> Set Date");
-        println("=> Get Time");
-        println("=> version");
-        println("=> shutdown");
-        while(!sig_shutdown)
-        {
-                //100 + 1 for the null terminator.
-                char buf[101] = {0};
+    println("*********      **********      **      ****                  **         **      **");
+    println("**             **     **       **      **   **             **  **         **   **");
+    println("**             **    **        **      **    **           **     **         ****");
+    println("*****          **  **          **      **     **         **       **         **");
+    println("**             ****            **      **     **        *************        **");
+    println("**             **  **          **      **     **       **           **       ** ");
+    println("**             **    **        **      **    **       **             **      **");
+    println("**             **     **       **      **   **       **               **     **");
+    println("**             **      **      **      ******       **                 **    **");
+
+    println("Welcome to MPX. Please select an option");
+    println("=> Help");
+    println("=> Set Time");
+    println("=> Set Date");
+    println("=> Get Time");
+    println("=> version");
+    println("=> shutdown");
+}
+
+void comhand(void)
+{
+    while (!sig_shutdown)
+    {
+        //100 + 1 for the null terminator.
+        char buf[101] = {0};
 
         print(CMD_PROMPT);
         sys_req(READ, COM1, buf, 100);
@@ -81,7 +85,7 @@ void print_welcome(void)
             }
         }
 
-        if(!found)
+        if (!found)
         {
             printf(UNKNOWN_CMD_MSG, buf);
             println("");

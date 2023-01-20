@@ -74,7 +74,7 @@ bool cmd_get_time_menu(const char *comm)
 
 bool cmd_set_date(const char *comm)
 {
-    const char *label = "set-date";
+    const char *label = CMD_SET_DATE_LABEL;
     // Means that it did not start with label therefore it is not a valid input
     if (ci_starts_with(comm, label) == 0)
     {
@@ -102,7 +102,7 @@ bool cmd_set_date(const char *comm)
         printf("Invalid date! You entered: %s, expecting format: MM/DD/YY!\n", date_token);
         return true;
     }
-    // sets the time and returns whether is was sucessful
+    // sets the time and returns whether it was successful
     unsigned int month = decimal_to_bcd(atoi(date_array[0]));
     unsigned int day = decimal_to_bcd(atoi(date_array[1]));
     unsigned int year = decimal_to_bcd(atoi(date_array[2]));
