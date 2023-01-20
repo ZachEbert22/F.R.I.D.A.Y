@@ -11,10 +11,17 @@
 #include "mpx/get_set_time.h"
 #include "stdlib.h"
 
+#define CMD_HELP_LABEL "help"
+#define CMD_VERSION_LABEL "version"
+#define CMD_SHUTDOWN_LABEL "shutdown"
+#define CMD_GET_TIME_LABEL "get-time"
+#define CMD_SET_TIME_LABEL "set-time"
+#define CMD_SET_DATE_LABEL "set-date"
+
 bool cmd_version(const char *comm)
 {
     //The command's label.
-    const char *label = "Version";
+    const char *label = CMD_VERSION_LABEL;
 
     //Check if it matched.
     int cmp = strcicmp(comm, label);
@@ -29,7 +36,7 @@ bool cmd_version(const char *comm)
 
 bool cmd_shutdown(const char *comm)
 {
-    const char *label = "shutdown";
+    const char *label = CMD_SHUTDOWN_LABEL;
 
     int cmp = strcicmp(comm, label);
     if (cmp != 0)
@@ -53,7 +60,7 @@ bool cmd_shutdown(const char *comm)
 bool cmd_get_time_menu(const char *comm)
 {
     //The command's label.
-    const char *label = "get time";
+    const char *label = CMD_GET_TIME_LABEL;
 
     //Check if it matched.
     int cmp = strcicmp(comm, label);
@@ -100,13 +107,13 @@ bool cmd_set_date(const char *comm)
                 println("Month is out of range 1-12");
                 return true;
         }
-       
+
         if (year < 0x00 | year > 0x99)
         {
                 println("Year is out of range 0-100");
                 return true;
         }
-        
+
         if (day < 0x01 | day > get_days_in_month((int) month, year))
         {
                 println("Day is out of range for that month");
@@ -190,18 +197,18 @@ struct help_info {
  * An array of all help info messages.
  */
 struct help_info help_messages[] = {
-        {.str_label = "help", "The 'help' command gives information about specific aspects of the system."},
-        {.str_label = "version", "The 'version' command gives you the version of the OS and the date it was compiled."},
-        {.str_label = "shutdown", "The 'shutdown' command prompts the user to shut down the OS."},
-        {.str_label = "get-time", "The 'get-time' command gets the current system time in the OS."},
-        {.str_label = "set-time", "The 'set-time' command allows the use to set the time on the system.\nThe time should follow the format HH:mm:SS."},
-        {.str_label = "set-date", "The 'set-date' command allows the use to set the date on the system.\nThe date should follow the format MM/DD/YY."}
+        {.str_label = CMD_HELP_LABEL, "The '%s' command gives information about specific aspects of the system."},
+        {.str_label = CMD_VERSION_LABEL, "The '%s' command gives you the version of the OS and the date it was compiled."},
+        {.str_label = CMD_SHUTDOWN_LABEL, "The '%s' command prompts the user to shut down the OS."},
+        {.str_label = CMD_GET_TIME_LABEL, "The '%s' command gets the current system time in the OS."},
+        {.str_label = CMD_SET_TIME_LABEL, "The '%s' command allows the use to set the time on the system.\nThe time should follow the format HH:mm:SS."},
+        {.str_label = CMD_SET_DATE_LABEL, "The '%s' command allows the use to set the date on the system.\nThe date should follow the format MM/DD/YY."}
 };
 
 bool cmd_help(const char *comm)
 {
     //The command's label.
-    const char *label = "help";
+    const char *label = CMD_HELP_LABEL;
 
     //Check if it matched.
     int cmp = ci_starts_with(comm, label);
@@ -229,7 +236,8 @@ bool cmd_help(const char *comm)
             if(strcicmp(help_label, spl_token) != 0)
                 continue;
 
-            println(help_messages[i].help_message);
+            printf(help_messages[i].help_message, spl_token);
+            println("");
             return true;
         }
     }
