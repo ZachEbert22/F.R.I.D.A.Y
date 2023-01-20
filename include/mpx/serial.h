@@ -35,4 +35,10 @@ int serial_out(device dev, const char *buffer, size_t len);
 
 int serial_poll(device dev, char *buffer, size_t len);
 
+/**
+ * @brief Sets if the CLI is enabled.
+ * @param enabled if the CLI should be enabled.
+ */
+void set_cli_history(int enabled);
+
 #endif
