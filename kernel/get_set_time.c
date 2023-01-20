@@ -228,7 +228,8 @@ bool is_valid_date_or_time(int word_len, char buf[][word_len], int buff_len)
                 num_digs = 0;
                 continue;
             }
-            if(!isdigit(buf[i][j])) return false;
+            if(!isdigit(buf[i][j]))
+                return false;
             num_digs++;
         }
     }
