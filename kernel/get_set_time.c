@@ -287,12 +287,22 @@ bool set_time_clock(unsigned int hr, unsigned int min, unsigned int sec)
     if(hr > 0x23 || min > 0x59 || sec > 0x59)
         return false;
 
+    //Due to the issues found in set_date_clock, (read comments in it), this is done here
+    //to avoid issue.
+    get_index(YEAR);
+    get_index(MONTH);
+    get_index(DATE);
+    get_index(DAY);
+    get_index(HOURS);
+    get_index(MINUTES);
+    get_index(SECONDS);
+
     cli();
-    outb(0x70, 0x04);
+    outb(0x70, HOURS);
     outb(0x71, hr);
-    outb(0x70, 0x02);
+    outb(0x70, MINUTES);
     outb(0x71, min);
-    outb(0x70, 0x00);
+    outb(0x70, SECONDS);
     outb(0x71, sec);
     sti();
     return true;
@@ -308,15 +318,24 @@ bool set_date_clock(unsigned int month, unsigned int day, unsigned int year)
     if(day > days_in_month)
         return false;
 
+    //It appears that it is necessary to 'refresh' the times in the clock.
+    //If this is not done, the hours, minutes, and seconds reset to whatever they were
+    //at the time of the previous read.
+    get_index(YEAR);
+    get_index(MONTH);
+    get_index(DATE);
+    get_index(DAY);
+    get_index(HOURS);
+    get_index(MINUTES);
+    get_index(SECONDS);
+
     cli();
-
-    outb(0x70, 0x07);
+    outb(0x70, DATE);
     outb(0x71, day);
-    outb(0x70, 0x08);
+    outb(0x70, MONTH);
     outb(0x71, month);
-    outb(0x70, 0x09);
+    outb(0x70, YEAR);
     outb(0x71, year);
-
     sti();
     return true;
 }
