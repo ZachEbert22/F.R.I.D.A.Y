@@ -44,8 +44,7 @@ bool cmd_version(const char *comm)
     const char *label = CMD_VERSION_LABEL;
 
     //Check if it matched.
-    int cmp = strcicmp(comm, label);
-    if (cmp != 0)
+    if (!matches_cmd(comm, label))
         return false;
 
     println("Module: R1");
@@ -231,15 +230,18 @@ struct help_info
  * An array of all help info messages.
  */
 struct help_info help_messages[] = {
-        {.str_label = CMD_HELP_LABEL,     "The '%s' command gives information about specific aspects of the system."},
+        {.str_label = CMD_HELP_LABEL,
+                .help_message = "The '%s' command gives information about specific aspects of the system."},
         {.str_label = CMD_VERSION_LABEL,
-                                          "The '%s' command gives you the version of the OS and the date it was compiled."},
-        {.str_label = CMD_SHUTDOWN_LABEL, "The '%s' command prompts the user to shut down the OS."},
-        {.str_label = CMD_GET_TIME_LABEL, "The '%s' command gets the current system time in the OS."},
+                .help_message = "The '%s' command gives you the version of the OS and the date it was compiled."},
+        {.str_label = CMD_SHUTDOWN_LABEL,
+                .help_message = "The '%s' command prompts the user to shut down the OS."},
+        {.str_label = CMD_GET_TIME_LABEL,
+                .help_message = "The '%s' command gets the current system time in the OS."},
         {.str_label = CMD_SET_TIME_LABEL,
-                                          "The '%s' command allows the use to set the time on the system.\nThe time should follow the format HH:mm:SS."},
+                .help_message = "The '%s' command allows the use to set the time on the system.\nThe time should follow the format HH:mm:SS."},
         {.str_label = CMD_SET_DATE_LABEL,
-                                          "The '%s' command allows the use to set the date on the system.\nThe date should follow the format MM/DD/YY."}
+                .help_message =  "The '%s' command allows the use to set the date on the system.\nThe date should follow the format MM/DD/YY."}
 };
 
 bool cmd_help(const char *comm)
@@ -332,7 +334,7 @@ bool cmd_set_tz(const char *comm)
     } else if (strcicmp(tz_buf, "pt") == 0)
     {
         set_timezone(-8);
-    }else
+    } else
     {
         printf("Timezone '%s' not recognized!\n", tz_buf);
         return true;

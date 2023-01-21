@@ -9,6 +9,7 @@
 #include "commands.h"
 #include "string.h"
 
+///The message to send to the user if a command hasn't been recognized.
 #define UNKNOWN_CMD_MSG "Unknown command '%s'. Type 'help' for help!"
 
 /**
@@ -61,7 +62,7 @@ void print_welcome(void)
 
 void comhand(void)
 {
-        print_welcome();
+    print_welcome();
     while (!sig_shutdown)
     {
         //100 + 1 for the null terminator.
@@ -77,6 +78,7 @@ void comhand(void)
         int comm_func_count = sizeof(comm_funcs) /
                               sizeof(comm_funcs[0]);
 
+        //Loop over all commands and check if it matches.
         bool found = false;
         for (int i = 0; i < comm_func_count; ++i)
         {
@@ -88,6 +90,7 @@ void comhand(void)
             }
         }
 
+        //If something wasn't found, print the unknown command message.
         if (!found)
         {
             printf(UNKNOWN_CMD_MSG, buf);
