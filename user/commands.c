@@ -182,10 +182,24 @@ bool cmd_set_time(const char *comm)
         printf("Invalid time. You entered: %s, expecting format: HH:mm:SS\n", time_token);
         return true;
     }
-    // sets the time and returns whether it was successful
-    unsigned char hour = decimal_to_bcd(atoi(time_array[0]));
-    unsigned char minute = decimal_to_bcd(atoi(time_array[1]));
-    unsigned char second = decimal_to_bcd(atoi(time_array[2]));
+    unsigned char hour_dec = atoi(time_array[0]);
+    unsigned char minute_dec = atoi(time_array[1]);
+    unsigned char second_dec = atoi(time_array[2]);
+
+    //Get the current time.
+    int current_time[7] = {0};
+    get_time(current_time);
+
+    //Update the hours and minutes.
+    current_time[4] = hour_dec;
+    current_time[5] = minute_dec;
+    adj_timezone(current_time, -get_timezone_offset(), 0);
+    hour_dec = current_time[4];
+    minute_dec = current_time[5];
+
+    unsigned char hour = decimal_to_bcd(hour_dec);
+    unsigned char minute = decimal_to_bcd(minute_dec);
+    unsigned char second = decimal_to_bcd(second_dec);
     if (hour < 0x00 | hour > 0x23)
     {
         println("Hour is out of range 0-23!");
@@ -201,6 +215,8 @@ bool cmd_set_time(const char *comm)
         println("Seconds is out of range 0-59!");
         return true;
     }
+
+
     if (!set_time_clock(hour, minute, second))
     {
         println("Failed to set time, please try again!");
@@ -241,7 +257,9 @@ struct help_info help_messages[] = {
         {.str_label = CMD_SET_TIME_LABEL,
                 .help_message = "The '%s' command allows the use to set the time on the system.\nThe time should follow the format HH:mm:SS."},
         {.str_label = CMD_SET_DATE_LABEL,
-                .help_message =  "The '%s' command allows the use to set the date on the system.\nThe date should follow the format MM/DD/YY."}
+                .help_message = "The '%s' command allows the use to set the date on the system.\nThe date should follow the format MM/DD/YY."},
+        {.str_label = CMD_SET_TIMEZONE_LABEL,
+                .help_message = "The '%s' command allows the user to set the timezone for the system.\nOnly a select set of American timezones are provided."}
 };
 
 bool cmd_help(const char *comm)

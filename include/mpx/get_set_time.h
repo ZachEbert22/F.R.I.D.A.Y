@@ -8,10 +8,34 @@
 void set_timezone(int offset);
 
 /**
+ * @brief Gets the hour offset for the current timezone.
+ * @return the timezone hour offset.
+ */
+int get_timezone_offset(void);
+
+/**
  * @brief Prints the time and date of the system.
  * @return 0 if successful, negative if not.
  */
-int print_time();
+int print_time(void);
+
+/**
+ * @brief Adjusts the given time array to the specified timezone.
+ * @param time the time array, should be passed in with the format
+ *             {year, month, date, week_day, hours, mins}.
+ * @param tz_offset_hr the hour offset.
+ * @param tz_offset_min the minute offset.
+ * @return a pointer to the adjusted array.
+ */
+int *adj_timezone(int time[6], int tz_offset_hr, int tz_offset_min);
+
+/**
+ * @brief Gets the time and stores it in the given array in the form:
+ *        {year, month, date, week_day, hours, mins, seconds}
+ * @param t_buf the buffer to store the time in. Can be NULL.
+ * @return the time array.
+ */
+int *get_time(int t_buf[7]);
 
 /**
  * @brief Sets the time of the system clock to the provided values.

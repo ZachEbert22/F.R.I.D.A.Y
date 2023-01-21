@@ -18,7 +18,7 @@
 #define SECONDS 0x00
 
 ///The timezone hour offset.
-int timezone_hours = 0;
+static int timezone_hours = 0;
 
 /**
  * @brief Gets the clock value at the specific address index and converts it from BCD to a normal number.
@@ -32,14 +32,11 @@ void set_timezone(int offset){
     timezone_hours = offset;
 }
 
-/**
- * @brief Adjusts the given time array to the specified timezone.
- * @param time the time array, should be passed in with the format
- *             {year, month, date, week_day, hours, mins}.
- * @param tz_offset_hr the hour offset.
- * @param tz_offset_min the minute offset.
- * @return a pointer to the adjusted array.
- */
+int get_timezone_offset()
+{
+    return timezone_hours;
+}
+
 int *adj_timezone(int time[6], int tz_offset_hr, int tz_offset_min)
 {
     int *year = time;
@@ -109,14 +106,46 @@ int *adj_timezone(int time[6], int tz_offset_hr, int tz_offset_min)
     return time;
 }
 
+int *get_time(int time[7])
+{
+    //Set up the storage array.
+    static int time_arr[7] = {0};
+    int *storage = NULL;
+    if(time == NULL)
+    {
+        storage = time_arr;
+    }
+    else
+    {
+        storage = time;
+    }
+
+    int year = get_index(YEAR);
+    int month = get_index(MONTH);
+    int date = get_index(DATE);
+    int day_of_week = get_index(DAY);
+    int hours = get_index(HOURS);
+    int minutes = get_index(MINUTES);
+    int seconds = get_index(SECONDS);
+
+    storage[0] = year;
+    storage[1] = month;
+    storage[2] = date;
+    storage[3] = day_of_week;
+    storage[4] = hours;
+    storage[5] = minutes;
+    storage[6] = seconds;
+    return time;
+}
+
 //Tuesday, 1/17/23  @ 09:08:04
-int print_time()
+int print_time(void)
 {
     int year = get_index(YEAR);
     int month = get_index(MONTH);
     int date = get_index(DATE);
     int day_of_week = get_index(DAY);
-    int hours = get_index(HOURS); // converts to eastern time
+    int hours = get_index(HOURS);
     int minutes = get_index(MINUTES);
     //int min_adj = minutes;
     // if (min_adj > 59){
