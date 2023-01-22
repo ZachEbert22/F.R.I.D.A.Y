@@ -1,10 +1,8 @@
-#include <sys_req.h>
 #include "stdio.h"
 #include "string.h"
 #include "stdbool.h"
-#include "mpx/comhand.h"
 #include "math.h"
-#include "mpx/get_set_time.h"
+#include "mpx/clock.h"
 #include <mpx/io.h>
 #include <ctype.h>
 #include <mpx/interrupts.h>
@@ -17,8 +15,10 @@
 #define MINUTES 0x02
 #define SECONDS 0x00
 
-///The timezone hour offset.
-static int timezone_hours = 0;
+#define TIME_OUT_FORMAT "%s, %02d/%02d/%02d @ %02d:%02d:%02d %s"
+
+///The timezone hour offset. Initialized by the {@code get_clock_timezone} function.
+static const time_zone_t *clock_tz = NULL;
 
 /**
  * @brief Gets the clock value at the specific address index and converts it from BCD to a normal number.
@@ -28,13 +28,20 @@ static int timezone_hours = 0;
  */
 int get_index(int a);
 
-void set_timezone(int offset){
-    timezone_hours = offset;
+const time_zone_t *get_clock_timezone(void) {
+    //Check if the clock timezone has been initialized.
+    if(clock_tz == NULL)
+        clock_tz = get_timezone("UTC");
+
+    return clock_tz;
 }
 
-int get_timezone_offset()
-{
-    return timezone_hours;
+void set_timezone(const time_zone_t *tz){
+    //Can't set timezone to null.
+    if(tz == NULL)
+        return;
+
+    clock_tz = tz;
 }
 
 int *adj_timezone(int time[6], int tz_offset_hr, int tz_offset_min)
@@ -176,7 +183,9 @@ int print_time(void)
     int seconds = get_index(SECONDS);
 
     int time_arr[6] = {year, month, date, day_of_week, hours, minutes};
-    adj_timezone(time_arr, timezone_hours, 0);
+    adj_timezone(time_arr,
+                 get_clock_timezone()->tz_hour_offset,
+                 get_clock_timezone()->tz_minute_offset);
 
     year = time_arr[0];
     month = time_arr[1];
@@ -214,7 +223,9 @@ int print_time(void)
     {
         week = "Saturday";
     }
-    printf("%s, %02d/%02d/%02d @ %02d:%02d:%02d\n", week, month, date, year, hours, minutes, seconds);
+
+    printf(TIME_OUT_FORMAT, week, month, date, year, hours, minutes, seconds, get_clock_timezone()->tz_label);
+    println("");
     return 0;
 }
 

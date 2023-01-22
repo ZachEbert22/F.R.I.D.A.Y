@@ -8,7 +8,7 @@ kernel/core.o\
 kernel/kmain.o\
 kernel/serial.o\
 kernel/comhand.o\
-kernel/get_set_time.o
+kernel/clock.o
 
 LIB_OBJECTS =\
 lib/ctype.o\
@@ -16,7 +16,8 @@ lib/stdlib.o\
 lib/string.o\
 lib/stdio.o\
 lib/struct/linked_list.o\
-lib/math.o
+lib/math.o\
+lib/time_zone.o
 
 USER_OBJECTS =\
 user/system.o\

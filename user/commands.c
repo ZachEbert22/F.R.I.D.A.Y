@@ -8,7 +8,7 @@
 #include "sys_req.h"
 #include "mpx/comhand.h"
 #include "mpx/serial.h"
-#include "mpx/get_set_time.h"
+#include "mpx/clock.h"
 #include "stdlib.h"
 
 #define CMD_HELP_LABEL "help"
@@ -193,7 +193,9 @@ bool cmd_set_time(const char *comm)
     //Update the hours and minutes.
     current_time[4] = hour_dec;
     current_time[5] = minute_dec;
-    adj_timezone(current_time, -get_timezone_offset(), 0);
+    adj_timezone(current_time,
+                 -get_clock_timezone()->tz_hour_offset,
+                 -get_clock_timezone()->tz_minute_offset);
     hour_dec = current_time[4];
     minute_dec = current_time[5];
 
@@ -316,47 +318,55 @@ bool cmd_help(const char *comm)
 
 bool cmd_set_tz(const char *comm)
 {
-    const char *timezone = CMD_SET_TIMEZONE_LABEL;
-    if (!matches_cmd(timezone, comm))
+    const char *label = CMD_SET_TIMEZONE_LABEL;
+    if (!matches_cmd(comm, label))
     {
         return false;
     }
 
-    //Prompt the user again.
-    println("What time zone do you want to be in?");
-    println("=> UTC (Default)");
-    println("=> ET (Eastern Time)");
-    println("=> CT (Central Time)");
-    println("=> MT (Mountain Time)");
-    println("=> PT (Pacific Time)");
-    set_cli_history(0);
+    //Create a copy.
+    size_t str_len = strlen(comm);
+    char comm_cpy[str_len + 1];
+    memcpy(comm_cpy, comm, str_len + 1);
+
     char tz_buf[10] = {0};
-    print(": ");
-    sys_req(READ, COM1, tz_buf, 9);
-    set_cli_history(1);
+    char *tz_token = strtok(comm_cpy, " ");
+
+    //Advance the token forward.
+    tz_token = strtok(NULL, " ");
+    if(tz_token != NULL)
+    {
+        memcpy(tz_buf, tz_token, 9);
+    }
+    else
+    {
+        //Prompt the user again.
+        println("What time zone do you want to be in?");
+
+        //Iterate over the timezone.
+        const time_zone_t **all_tzs = get_all_timezones();
+        int printed = 0;
+        while(all_tzs[printed] != NULL)
+        {
+            const time_zone_t *tz_ptr = all_tzs[printed];
+            printf("=> %s (%s)\n", tz_ptr->tz_label, tz_ptr->tz_longformat);
+            printed++;
+        }
+        set_cli_history(0);
+        print(": ");
+        sys_req(READ, COM1, tz_buf, 9);
+        set_cli_history(1);
+    }
 
     //Check it against all other timezones.
-    if (strcicmp(tz_buf, "utc") == 0)
-    {
-        set_timezone(0);
-    } else if (strcicmp(tz_buf, "et") == 0)
-    {
-        set_timezone(-5);
-    } else if (strcicmp(tz_buf, "ct") == 0)
-    {
-        set_timezone(-6);
-    } else if (strcicmp(tz_buf, "mt") == 0)
-    {
-        set_timezone(-7);
-    } else if (strcicmp(tz_buf, "pt") == 0)
-    {
-        set_timezone(-8);
-    } else
+    const time_zone_t *tz_ptr = get_timezone(tz_buf);
+    if(tz_ptr == NULL)
     {
         printf("Timezone '%s' not recognized!\n", tz_buf);
         return true;
     }
 
+    set_timezone(tz_ptr);
     printf("Set the timezone to '%s'!\n", tz_buf);
     return true;
 }

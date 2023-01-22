@@ -1,17 +1,23 @@
 #ifndef F_R_I_D_A_Y_SET_TIME_H
 #define F_R_I_D_A_Y_SET_TIME_H
 
+#include "time_zone.h"
+
+/**
+ * @file Contains functions for interacting with the system clock.
+ */
+
+/**
+ * @brief Gets the current timezone for the clock.
+ * @return the timezone.
+ */
+const time_zone_t *get_clock_timezone(void);
+
 /**
  * @brief Sets the timezone hour offset.
  * @param offset the hour offset.
  */
-void set_timezone(int offset);
-
-/**
- * @brief Gets the hour offset for the current timezone.
- * @return the timezone hour offset.
- */
-int get_timezone_offset(void);
+void set_timezone(const time_zone_t *offset);
 
 /**
  * @brief Prints the time and date of the system.
