@@ -119,10 +119,28 @@ bool cmd_set_date(const char *comm)
         printf("Invalid date! You entered: %s, expecting format: MM/DD/YY!\n", date_token);
         return true;
     }
-    // sets the time and returns whether it was successful
-    unsigned int month = decimal_to_bcd(atoi(date_array[0]));
-    unsigned int day = decimal_to_bcd(atoi(date_array[1]));
-    unsigned int year = decimal_to_bcd(atoi(date_array[2]));
+    unsigned char month_dec = atoi(date_array[0]);
+    unsigned char day_dec = atoi(date_array[1]);
+    unsigned char year_dec = atoi(date_array[2]);
+
+    //Get the current time.
+    int current_time[7] = {0};
+    get_time(current_time);
+
+    //Update the hours and minutes.
+    current_time[0] = year_dec;
+    current_time[1] = month_dec;
+    current_time[2] = day_dec;
+    adj_timezone(current_time,
+                 -get_clock_timezone()->tz_hour_offset,
+                 -get_clock_timezone()->tz_minute_offset);
+    year_dec = current_time[0];
+    month_dec = current_time[1];
+    day_dec = current_time[2];
+
+    unsigned int month = decimal_to_bcd(month_dec);
+    unsigned int day = decimal_to_bcd(day_dec);
+    unsigned int year = decimal_to_bcd(year_dec);
     if (month < 0x01 | month > 0x12)
     {
         println("Month is out of range 1-12!");
@@ -135,7 +153,7 @@ bool cmd_set_date(const char *comm)
         return true;
     }
 
-    if (day < 0x01 | day > get_days_in_month((int) month, year))
+    if (day < 0x01 | day > get_days_in_month((int) month, (int) year))
     {
         println("Day is out of range for that month!");
         return true;
