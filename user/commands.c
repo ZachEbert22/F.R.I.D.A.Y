@@ -268,8 +268,7 @@ bool cmd_help(const char *comm)
     const char *label = CMD_HELP_LABEL;
 
     //Check if it matched.
-    int cmp = ci_starts_with(comm, label);
-    if (!cmp)
+    if (!matches_cmd(comm, label))
         return false;
 
     const char *split_label = " ";

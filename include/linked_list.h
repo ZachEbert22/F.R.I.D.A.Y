@@ -15,14 +15,14 @@ typedef struct linked_list_node_ ll_node;
 typedef struct linked_list_ linked_list;
 
 /**
- * @brief Creates a new unbounded linked list. You should call {@code destroy(list, 1)} when finished with it.
+ * @brief Creates a new unbounded linked list. You should call {@code destroy_list(list, 1)} when finished with it.
  * @return a pointer to the new linked list.
  */
 linked_list
 *nl_unbounded(void);
 
 /**
- * @brief Creates a new bounded linked list. You should call {@code destroy(list, 1)} when finished with it.
+ * @brief Creates a new bounded linked list. You should call {@code destroy_list(list, 1)} when finished with it.
  * @return a pointer to the new linked list.
  */
 linked_list

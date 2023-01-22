@@ -27,7 +27,7 @@ bool (*comm_funcs[])(const char *comm) = {
 };
 
 /// Used to denote if the comm hand should stop.
-bool sig_shutdown = false;
+static bool sig_shutdown = false;
 
 void signal_shutdown(void)
 {

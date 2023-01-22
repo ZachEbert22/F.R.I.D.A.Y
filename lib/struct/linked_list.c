@@ -6,6 +6,15 @@
 #include <stddef.h>
 #include "memory.h"
 
+//Contains the structure of the nodes in our linked list.
+struct linked_list_node_
+{
+    ///The pointer to the item we're storing.
+    void *_item; //8 bytes
+    ///The next node in the list.
+    ll_node *_next; //8 bytes
+};
+
 //Contains the definition of our linked list.
 struct linked_list_
 {
@@ -15,17 +24,8 @@ struct linked_list_
     int _max_size;
     ///The first node in the linked list.
     ll_node *_first;
-    //The second node in the linked list.
+    ///The second node in the linked list.
     ll_node *_last;
-};
-
-//Contains the structure of the nodes in our linked list.
-struct linked_list_node_
-{
-    ///The pointer to the item we're storing.
-    void *_item; //8 bytes
-    ///The next node in the list.
-    ll_node *_next; //8 bytes
 };
 
 /**
