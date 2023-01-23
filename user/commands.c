@@ -367,7 +367,7 @@ bool cmd_set_tz(const char *comm)
         while(all_tzs[printed] != NULL)
         {
             const time_zone_t *tz_ptr = all_tzs[printed];
-            printf("=> %s (%s)\n", tz_ptr->tz_label, tz_ptr->tz_longformat);
+            printf("=> %s (%s - %s)\n", tz_ptr->tz_label, tz_ptr->tz_longformat, tz_ptr->tz_city);
             printed++;
         }
         set_cli_history(0);

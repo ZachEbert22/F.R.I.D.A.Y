@@ -19,6 +19,8 @@ typedef struct time_zone {
     const int tz_hour_offset;
     ///The minute offset of this timezone.
     const int tz_minute_offset;
+
+    const char* tz_city;
 } time_zone_t;
 
 /**
