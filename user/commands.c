@@ -267,19 +267,19 @@ struct help_info
  */
 struct help_info help_messages[] = {
         {.str_label = CMD_HELP_LABEL,
-                .help_message = "The '%s' command gives information about specific aspects of the system."},
+                .help_message = "The '%s' command gives information about specific aspects of the system.\nIf you need further help, type 'help'"},
         {.str_label = CMD_VERSION_LABEL,
-                .help_message = "The '%s' command gives you the version of the OS and the date it was compiled."},
+                .help_message = "The '%s' command gives you the version of the OS and the date it was compiled.\nType 'version', to get the version!"},
         {.str_label = CMD_SHUTDOWN_LABEL,
-                .help_message = "The '%s' command prompts the user to shut down the OS."},
+                .help_message = "The '%s' command prompts the user to shut down the OS.\nType 'shutdown' to turn off the machine!"},
         {.str_label = CMD_GET_TIME_LABEL,
-                .help_message = "The '%s' command gets the current system time in the OS."},
+                .help_message = "The '%s' command gets the current system time in the OS.\nType 'get-time' to get the time!"},
         {.str_label = CMD_SET_TIME_LABEL,
-                .help_message = "The '%s' command allows the use to set the time on the system.\nThe time should follow the format HH:mm:SS."},
+                .help_message = "The '%s' command allows the use to set the time on the system.\nThe time should follow the format HH:mm:SS.\nTo start changing the time, enter 'set-time'"},
         {.str_label = CMD_SET_DATE_LABEL,
-                .help_message = "The '%s' command allows the use to set the date on the system.\nThe date should follow the format MM/DD/YY."},
+                .help_message = "The '%s' command allows the use to set the date on the system.\nThe date should follow the format MM/DD/YY.\nTo start changing the date, enter 'set-date'"},
         {.str_label = CMD_SET_TIMEZONE_LABEL,
-                .help_message = "The '%s' command allows the user to set the timezone for the system.\nOnly a select set of American timezones are provided."}
+                .help_message = "The '%s' command allows the user to set the timezone for the system.\nOnly the standard American timezones are provided.\nTo fix the timezone, type 'set-timezone'"}
 };
 
 bool cmd_help(const char *comm)
@@ -298,7 +298,7 @@ bool cmd_help(const char *comm)
     char comm_cpy[str_len + 1];
     memcpy(comm_cpy, comm, str_len + 1);
 
-    char *spl_token = strtok(comm_cpy, split_label);
+    char *spl_token = strtok(comm_cpy, split_label); //First Time
     //Bump the token forward.
     int help_m_len = sizeof(help_messages) / sizeof(help_messages[0]);
     if ((spl_token = strtok(NULL, split_label)) != NULL)
@@ -322,12 +322,12 @@ bool cmd_help(const char *comm)
         return true;
     }
 
-    println("If You want to set the Time for the OS, enter 'Set Time ##:##:##'");
-    println("If You want to set the Time for the OS, enter 'Set Date ##/##/##'");
-    println("if You want to get the Time for the OS, enter 'Get Time'");
-    println("If you need this screen reprompted, re-enter 'help'");
-    println("If you want to get the version history, enter 'Version'");
-    println("If you want to shutdown, enter 'shutdown' down below");
+    println("If You want to set the Time for the OS, enter 'help Set-Time'");
+    println("If You want to set the Time for the OS, enter 'help set-Date'");
+    println("if You want to get the Time for the OS, enter 'help Get-Time'");
+    println("If you want to know what the help command does, enter 'help help'");
+    println("If you want to get the version history, enter 'help Version'");
+    println("If you help to shutdown, enter 'help shutdown' down below");
     println("If you need help in your actual class, dont use Stack Overflow");
     println("Hope this helps!");
 
@@ -383,8 +383,9 @@ bool cmd_set_tz(const char *comm)
         printf("Timezone '%s' not recognized!\n", tz_buf);
         return true;
     }
+    
 
     set_timezone(tz_ptr);
-    printf("Set the timezone to '%s'!\n", tz_buf);
+     printf("Set the timezone to '%s'!\n", tz_ptr->tz_longformat);
     return true;
 }

@@ -16,5 +16,5 @@
  * @return the modulo value of x modulo 'mod'
  */
 unsigned int ui_realmod(int x, int mod);
-
+double pow(double a, double b);
 #endif //F_R_I_D_A_Y_MATH_H
