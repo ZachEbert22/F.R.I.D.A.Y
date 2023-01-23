@@ -6,6 +6,12 @@
 #define LINKEDLIST_H
 
 /**
+ * @file This file represents the functionality and structure of a linked list.
+ * Nodes added to the list ARE allocated dynamically. All add methods except
+ * {@code add_item_index} allocate memory to store the value of the item.
+ */
+
+/**
  * @brief The node used for all linked lists.
  */
 typedef struct linked_list_node_ ll_node;
