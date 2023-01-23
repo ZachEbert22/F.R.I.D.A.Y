@@ -7,12 +7,7 @@
 #include "stddef.h"
 #include "string.h"
 
-///The universal time timezone
-static const time_zone_t UTC = {.tz_label = "UTC",
-                                .tz_longformat = "Universal Time Code",
-                                .tz_hour_offset = 0,
-                                .tz_minute_offset = 0,
-                                .tz_city = "London"};
+
 ///The eastern time timezone
 static const time_zone_t ET = {.tz_label = "ET",
                                .tz_longformat = "Eastern Time",
@@ -37,14 +32,45 @@ static const time_zone_t PT = {.tz_label = "PT",
                                .tz_hour_offset = -8,
                                .tz_minute_offset = 0,
                                 .tz_city = "Los Angeles"};
+static const time_zone_t AKT = {.tz_label = "AKT",
+                               .tz_longformat = "Alaskan Time",
+                               .tz_hour_offset = -9,
+                               .tz_minute_offset = 0,
+                                .tz_city = "Anchorage"};
+static const time_zone_t HAT = {.tz_label = "HAT",
+                               .tz_longformat = "Hawaii-Aleutian Time",
+                               .tz_hour_offset = -10,
+                               .tz_minute_offset = 0,
+                                .tz_city = "Honolulu"};
+///The universal time timezone
+static const time_zone_t UTC = {.tz_label = "UTC",
+                                .tz_longformat = "Universal Time Code",
+                                .tz_hour_offset = 0,
+                                .tz_minute_offset = 0,
+                                .tz_city = "London"};
+
+static const time_zone_t CET = {.tz_label = "CET",
+                               .tz_longformat = "Central European Time",
+                               .tz_hour_offset = +1,
+                               .tz_minute_offset = 0,
+                                .tz_city = "Paris"};
+static const time_zone_t AT = {.tz_label = "AT",
+                               .tz_longformat = "Arabian Time",
+                               .tz_hour_offset = +2,
+                               .tz_minute_offset = 0,
+                                .tz_city = "Moscow"};
 
 ///Contains all timezones, in an array, for easier iteration
 static const time_zone_t *TIMEZONES[] = {
-    &UTC,
     &ET,
     &CT,
     &MT,
     &PT,
+    &AKT,
+    &HAT,
+    &UTC,
+    &CET,
+    &AT,
     NULL //For iteration
 };
 

@@ -325,10 +325,10 @@ bool cmd_help(const char *comm)
     println("If You want to set the Time for the OS, enter 'help Set-Time'");
     println("If You want to set the Time for the OS, enter 'help set-Date'");
     println("if You want to get the Time for the OS, enter 'help Get-Time'");
-    println("If you want to know what the help command does, enter 'help help'");
+    println("If you want to know what the help does, enter 'help help'");
     println("If you want to get the version history, enter 'help Version'");
     println("If you help to shutdown, enter 'help shutdown' down below");
-    println("If you need help in your actual class, dont use Stack Overflow");
+    println("If you need help in a class, dont use Stack Overflow");
     println("Hope this helps!");
 
     return true;
