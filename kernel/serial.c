@@ -274,36 +274,49 @@ int serial_poll(device dev, char *buffer, size_t len)
             while (!matched)
             {
                 //Check for more data.
-                if (read_pos < ANSI_CODE_READ_LEN && (inb(dev + LSR) & 1) != 0)
+                //We check every loop as ALL data from an ANSI escape isn't immediately available.
+                //For example, a read might look like: <esc>000000[000A
+                //All data isn't immediately available, so we have to continuously look for more data.
+                if(read_pos >= ANSI_CODE_READ_LEN)
+                    break;
+
+                if ((inb(dev + LSR) & 1) != 0)
                 {
                     char in = inb(dev);
+
+                    //Throw away the bracket.
+                    if(in == '[')
+                        continue;
+
                     //If we get another escape, reset.
                     if (in == ESCAPE)
                     {
                         read_pos = 0;
                         memset(action_arr, 0, ANSI_CODE_READ_LEN);
-                    } else
+                    }
+                    else
                     {
                         action_arr[read_pos++] = in;
                     }
                 }
 
                 //Movement right or left
-                if (action_arr[1] == 'C' || action_arr[1] == 'D')
+                if (action_arr[0] == 'C' || action_arr[0] == 'D')
                 {
                     matched = 1;
 
                     //Adjust value then coerce.
-                    line_pos += action_arr[1] == 'C' ? 1 : -1;
+                    line_pos += action_arr[0] == 'C' ? 1 : -1;
                     line_pos = line_pos < 0 ? 0 : line_pos;
                     line_pos = line_pos > (int) bytes_read ? (int) bytes_read : line_pos;
                 }
-                //Word movement right or left
-                else if (action_arr[0] == 'f' || action_arr[0] == 'b')
+                //Word movement right or left. (Different codes for Unix/Windows)
+                else if ((action_arr[0] == 'f' || action_arr[3] == 'C') ||
+                        (action_arr[0] == 'b' || action_arr[3] == 'D'))
                 {
                     matched = 1;
                     int next_index =
-                            find_next_word(action_arr[0] == 'b' ? LEFT : RIGHT,
+                            find_next_word(action_arr[0] == 'b' || action_arr[3] == 'D' ? LEFT : RIGHT,
                                            line_pos,
                                            buffer,
                                            (int) bytes_read);
@@ -311,7 +324,7 @@ int serial_poll(device dev, char *buffer, size_t len)
                     line_pos = next_index;
                 }
                 //Movement up and down
-                else if (action_arr[1] == 'A' || action_arr[1] == 'B')
+                else if (action_arr[0] == 'A' || action_arr[0] == 'B')
                 {
                     matched = 1;
 
@@ -348,6 +361,25 @@ int serial_poll(device dev, char *buffer, size_t len)
                     line_pos = (int) copy_len;
                     bytes_read = copy_len;
                 }
+                //The 'delete' key
+                else if (action_arr[0] == '3' && action_arr[1] == '~')
+                {
+                    matched = 1;
+
+                    if(line_pos >= (int) bytes_read)
+                        continue;
+
+                    //Delete the character.
+                    buffer[line_pos] = '\0';
+
+                    //Copy down the new characters.
+                    for (int i = 0; i < (int) bytes_read; ++i)
+                    {
+                        buffer[line_pos + i] =
+                                buffer[line_pos + i + 1];
+                    }
+                    bytes_read--;
+                }
                 //Word deletion
                 else if (action_arr[0] == DELETE)
                 {
@@ -368,6 +400,13 @@ int serial_poll(device dev, char *buffer, size_t len)
 
                     line_pos -= deleted;
                     bytes_read -= deleted;
+                }
+                //This acts as a 'catch-all' for all input-able ansi escape codes.
+                else if((action_arr[0] >= 'A' && action_arr[0] <= 'Z' && action_arr[0] != 'O') ||
+                        action_arr[read_pos - 1] == '~' ||
+                        (action_arr[0] == 'O' && action_arr[1] != 0))
+                {
+                    matched = 1;
                 }
             }
         }
