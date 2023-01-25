@@ -4,7 +4,8 @@
 #include "time_zone.h"
 
 /**
- * @file Contains functions for interacting with the system clock.
+ * @file clock.h
+ * @brief Contains functions for interacting with the system clock.
  */
 
 /**

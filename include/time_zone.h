@@ -6,7 +6,8 @@
 #define F_R_I_D_A_Y_TIME_ZONE_H
 
 /**
- * @file Contains the definition of the {@code time_zone_t} type.
+ * @file time_zone.h
+ * @brief Contains the definition of the {@code time_zone_t} type.
  */
 
 ///The definition of a time zone, contains its label and offsets.
