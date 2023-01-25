@@ -247,23 +247,21 @@ bool cmd_set_time(const char *comm)
     return true;
 }
 
-/**
- * Used to store information on a specific label of the 'help' command.
- */
+///Used to store information on a specific label of the 'help' command.
 struct help_info
 {
     /**
-     * The label of the command for the help message.
+     * @brief The label of the command for the help message.
      */
     char *str_label;
     /**
-     * The help message to send for this.
+     * @brief The help message to send for this struct.
      */
     char *help_message;
 };
 
 /**
- * An array of all help info messages.
+ * @brief An array of all help info messages.
  */
 struct help_info help_messages[] = {
         {.str_label = CMD_HELP_LABEL,

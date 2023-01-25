@@ -6,7 +6,7 @@
 #include <stddef.h>
 #include "memory.h"
 
-//Contains the structure of the nodes in our linked list.
+///Contains the structure of the nodes in our linked list.
 struct linked_list_node_
 {
     ///The pointer to the item we're storing.
@@ -15,7 +15,7 @@ struct linked_list_node_
     ll_node *_next; //8 bytes
 };
 
-//Contains the definition of our linked list.
+///Contains the definition of our linked list.
 struct linked_list_
 {
     ///The size of the linked list.

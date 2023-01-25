@@ -30,7 +30,7 @@ Once the command handler has finished, `comhand()` will return, thus giving cont
 
 ## 3. Extending Systems
 
-### 3.i. `kmain()` and Startup
+### 3.i. kmain() and Startup
 
 `kmain()` is the first function called after the bootloader for the OS.
 This function is located in [kmain.c](../kernel/kmain.c) and is responsible for bootstrapping most of the OS' core functionality.

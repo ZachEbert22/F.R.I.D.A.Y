@@ -16,9 +16,7 @@
 ///If CLI history should be enabled.
 static int cli_history_enabled = DO_CLI_HISTORY;
 
-/**
- * Used to store a specific line previously entered.
- */
+///Used to store a specific line previously entered.
 struct line_entry
 {
     /**
@@ -31,9 +29,7 @@ struct line_entry
     size_t line_length;
 };
 
-/**
- * Useful keycodes.
- */
+///Contains constants for useful or common keycodes.
 enum key_code
 {
     BACKSPACE = 8,
@@ -45,9 +41,7 @@ enum key_code
     DELETE = 127,
 };
 
-/**
- * A direction registry for line navigation
- */
+///A direction registry for line navigation.
 enum direction
 {
     LEFT = 0,

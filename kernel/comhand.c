@@ -57,12 +57,12 @@ void print_welcome(void)
     println("=> Get-Time");
     println("=> version");
     println("=> shutdown");
-
 }
 
 void comhand(void)
 {
     print_welcome();
+    sig_shutdown = false;
     while (!sig_shutdown)
     {
         //100 + 1 for the null terminator.

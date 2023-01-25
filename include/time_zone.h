@@ -25,7 +25,7 @@ typedef struct time_zone {
 } time_zone_t;
 
 /**
- * Returns an array to all time zones defined in this file.
+ * @brief Returns an array to all time zones defined in this file.
  * Terminated with a NULL pointer at the end of the array.
  * @return the array of pointers for timezones.
  */
