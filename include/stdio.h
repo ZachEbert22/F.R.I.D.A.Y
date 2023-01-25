@@ -6,6 +6,11 @@
 #define F_R_I_D_A_Y_STDIO_H
 
 /**
+ * @file stdio.h
+ * @brief Contains useful functions for standard IO
+ */
+
+/**
  * @brief Prints a null-terminated string to standard output.
  * @param str the string.
  */

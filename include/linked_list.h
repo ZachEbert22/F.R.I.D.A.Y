@@ -6,7 +6,8 @@
 #define LINKEDLIST_H
 
 /**
- * @file This file represents the functionality and structure of a linked list.
+ * @file linked_list.h
+ * @brief This file represents the functionality and structure of a linked list.
  * Nodes added to the list ARE allocated dynamically. All add methods except
  * {@code add_item_index} allocate memory to store the value of the item.
  */

@@ -6,7 +6,8 @@
 #define F_R_I_D_A_Y_MATH_H
 
 /**
- * @file A header full of useful math type functions.
+ * @file math.h
+ * @brief A header full of useful math type functions
  */
 
 /**
