@@ -333,12 +333,12 @@ int serial_poll(device dev, char *buffer, size_t len)
 
                     int l_size = list_size(cli_history);
                     //Check if we can move in the history.
-                    if (cli_history == NULL || (cli_index <= 0 && action_arr[1] == 'A')
-                        || (cli_index >= l_size && action_arr[1] == 'B'))
+                    if (cli_history == NULL || (cli_index <= 0 && action_arr[0] == 'A')
+                        || (cli_index >= l_size && action_arr[0] == 'B'))
                         continue;
 
                     //Get previous or future line.
-                    int delta = action_arr[1] == 'A' ? -1 : 1;
+                    int delta = action_arr[0] == 'A' ? -1 : 1;
                     cli_index += delta;
                     struct line_entry *l_entry = cli_index >= l_size ?
                                                  &current_entry :
