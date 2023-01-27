@@ -26,8 +26,7 @@ bool (*comm_funcs[])(const char *comm) = {
         &cmd_set_time,
         &cmd_set_tz,
         &cmd_clear,
-        &cmd_color,
-        &cmd_command_list
+        &cmd_color
 };
 
 /// Used to denote if the comm hand should stop.
@@ -54,18 +53,15 @@ void print_welcome(void)
     println("**             **      **      **      ******       **                 **    **");
 
     println("Welcome to MPX. Please select an option");
+    println("=> help");
     println("=> set-time HH:mm:SS");
     println("=> set-date MM/DD/YY");
     println("=> set-timezone");
+    println("=> clear");
+    println("=> color");
     println("=> get-time");
     println("=> version");
     println("=> shutdown");
-    println("=> clear");
-    println("=> color");
-    println("=> re-show commands");
-    println("=> help");
-
-
 }
 
 void comhand(void)

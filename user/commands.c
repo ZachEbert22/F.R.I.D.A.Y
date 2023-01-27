@@ -13,7 +13,6 @@
 #include "color.h"
 #include "cli.h"
 
-
 #define CMD_HELP_LABEL "help"
 #define CMD_VERSION_LABEL "version"
 #define CMD_SHUTDOWN_LABEL "shutdown"
@@ -23,7 +22,6 @@
 #define CMD_SET_DATE_LABEL "set-date"
 #define CMD_CLEAR_LABEL "clear"
 #define CMD_COLOR_LABEL "color"
-#define CMD_LIST_LABEL "list"
 
 /**
  * @brief Checks if the given command matches the label.
@@ -399,15 +397,6 @@ bool cmd_set_tz(const char *comm)
     return true;
 }
 
-bool cmd_command_list(const char *comm)
-{
-    if(!matches_cmd(comm, CMD_LIST_LABEL))
-        return false;
-
-    print_welcome();
-    return true;
-}
-
 bool cmd_clear(const char *comm)
 {
     //Check if the label matches.
@@ -415,7 +404,6 @@ bool cmd_clear(const char *comm)
         return false;
 
     clearscr();
-
     return true;
 }
 
