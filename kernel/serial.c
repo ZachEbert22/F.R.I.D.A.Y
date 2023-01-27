@@ -1,6 +1,5 @@
 #include <mpx/io.h>
 #include <mpx/serial.h>
-#include <sys_req.h>
 #include "stdlib.h"
 #include "string.h"
 #include "stdio.h"
@@ -418,7 +417,6 @@ int serial_poll(device dev, char *buffer, size_t len)
                 '\0'
         };
         print(clear_action);
-
         print(buffer);
 
         if (bytes_read > 0)
@@ -441,7 +439,5 @@ int serial_poll(device dev, char *buffer, size_t len)
         to_store->line_length = bytes_read;
         add_item_index(cli_history, list_size(cli_history), to_store);
     }
-
-    sys_req(WRITE, COM1, "\n", 1);
     return (int) bytes_read;
 }
