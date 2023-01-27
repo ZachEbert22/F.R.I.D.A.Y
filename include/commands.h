@@ -61,4 +61,11 @@ bool cmd_set_date(const char* comm);
  */
 bool cmd_set_tz(const char *comm);
 
+/**
+ * @brief The clear command, used to clear the console.
+ * @param comm the command string.
+ * @return true if it was handled, false if not.
+ */
+bool cmd_clear(const char *comm);
+
 #endif //F_R_I_D_A_Y_COMMANDS_H

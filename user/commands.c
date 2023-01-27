@@ -280,7 +280,9 @@ struct help_info help_messages[] = {
         {.str_label = CMD_SET_DATE_LABEL,
                 .help_message = "The '%s' command allows the use to set the date on the system.\nThe date should follow the format MM/DD/YY.\nTo start changing the date, enter 'set-date'"},
         {.str_label = CMD_SET_TIMEZONE_LABEL,
-                .help_message = "The '%s' command allows the user to set the timezone for the system.\nOnly the standard American timezones are provided.\nTo fix the timezone, type 'set-timezone'"}
+                .help_message = "The '%s' command allows the user to set the timezone for the system.\nOnly the standard American timezones are provided.\nTo fix the timezone, type 'set-timezone'"},
+        {.str_label = CMD_CLEAR_LABEL,
+                .help_message = "The '%s' command clears the screen."}
 };
 
 bool cmd_help(const char *comm)
@@ -323,11 +325,11 @@ bool cmd_help(const char *comm)
         return true;
     }
     //All the help function, and the possible functions that are associated to it
-    println("If You want help setting the time for the OS, enter 'help Set-Time'");
-    println("If You want help setting the time for the OS, enter 'help set-Date'");
-    println("if You want help getting the time for the OS, enter 'help Get-Time'");
+    println("If You want to set the Time for the OS, enter 'help set-time'");
+    println("If You want to set the Time for the OS, enter 'help set-date'");
+    println("if You want to get the Time for the OS, enter 'help get-time'");
     println("If you want to know what the help does, enter 'help help'");
-    println("If you want to know what version is, enter 'help Version'");
+    println("If you want to get the version history, enter 'help Version'");
     println("If you help to shutdown, enter 'help shutdown' down below");
     println("If you need help in a class, dont use Stack Overflow");
     println("Hope this helps!");
@@ -388,5 +390,34 @@ bool cmd_set_tz(const char *comm)
 
     set_timezone(tz_ptr);
     printf("Set the timezone to '%s'!\n", tz_ptr->tz_longformat);
+    return true;
+}
+
+bool cmd_clear(const char *comm)
+{
+    //Check if the label matches.
+    if(!matches_cmd(comm, CMD_CLEAR_LABEL))
+        return false;
+
+    //The 'Clear Screen' action
+    char clear_screen[5] = {
+            27,
+            '[',
+            '2',
+            'J',
+            0
+    };
+    //The 'reset cursor' action
+    char reset_cursor[7] = {
+            27,
+            '[',
+            '1',
+            ';',
+            '1',
+            'H',
+            0
+    };
+    print(clear_screen);
+    print(reset_cursor);
     return true;
 }
