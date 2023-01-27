@@ -56,7 +56,7 @@ bool cmd_set_date(const char* comm);
 
 /**
  * @brief The set timezone command, used to set the system timezone.
- * @param comm
+ * @param comm the command string.
  * @return true if it was handled, false if not.
  */
 bool cmd_set_tz(const char *comm);

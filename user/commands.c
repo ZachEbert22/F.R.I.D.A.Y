@@ -18,6 +18,7 @@
 #define CMD_SET_TIMEZONE_LABEL "set-timezone"
 #define CMD_SET_TIME_LABEL "set-time"
 #define CMD_SET_DATE_LABEL "set-date"
+#define CMD_CLEAR_LABEL "clear"
 
 /**
  * @brief Checks if the given command matches the label.

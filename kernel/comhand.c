@@ -91,7 +91,7 @@ void comhand(void)
         }
 
         //If something wasn't found, print the unknown command message.
-        if (!found)
+        if (!found && strlen(buf) > 0)
         {
             printf(UNKNOWN_CMD_MSG, buf);
             println("");

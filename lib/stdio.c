@@ -14,7 +14,6 @@
 char *gets(char *str_buf, size_t buf_len)
 {
     sys_req(READ, COM1, str_buf, buf_len);
-    println("");
     return str_buf;
 }
 
