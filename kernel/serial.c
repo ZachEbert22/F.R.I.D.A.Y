@@ -116,22 +116,24 @@ int serial_out(device dev, const char *buffer, size_t len)
 
 /**
  * @brief Moves the text cursor back the given amount of spaces.
+ * @param dev the device to print to.
  * @param direc 1 if we should move it direc, 0 if left.
  * @param spaces the amount to move the cursor back.
  */
-void move_cursor(enum direction direc, int spaces)
+void move_cursor(device dev, enum direction direc, int spaces)
 {
     char full_len_str[20] = {0};
-    itoa((int) spaces, full_len_str, 20);
+    itoa((int) spaces, full_len_str, 19);
+    size_t str_len = strlen(full_len_str);
 
     char m_left_prefix[3] = {
             ESCAPE,
             '[',
             '\0'
     };
-    print(m_left_prefix);
-    print(full_len_str);
-    print(direc == RIGHT ? "C" : "D");
+    serial_out(dev, m_left_prefix, 2);
+    serial_out(dev, full_len_str, str_len);
+    serial_out(dev, direc == RIGHT ? "C" : "D", 1);
 }
 
 /**
@@ -174,6 +176,8 @@ int find_next_word(enum direction direc, int cursor_index, const char *str, int 
     return index;
 }
 
+#include "cli.h"
+
 void set_cli_history(int hist_enabled)
 {
     cli_history_enabled = hist_enabled;
@@ -207,8 +211,13 @@ int serial_poll(device dev, char *buffer, size_t len)
     while (bytes_read < len)
     {
         //Check the LSR.
+        //A null buffer indicates the user simply wants to poll.
         if ((inb(dev + LSR) & 1) == 0)
+        {
+            if(buffer == NULL)
+                return 0;
             continue;
+        }
 
         int beginning_pos = line_pos;
 
@@ -218,6 +227,19 @@ int serial_poll(device dev, char *buffer, size_t len)
         int keycode = (int) read_char;
         char k_str[20] = {0};
         itoa(keycode, k_str, 20);
+
+        //Check if the buffer is null.
+        if(buffer == NULL)
+        {
+            if(keycode >= SPACE && keycode <= TILDA)
+            {
+                return keycode;
+            }
+            else
+            {
+                return 0;
+            }
+        }
 
         if (keycode >= SPACE && keycode <= TILDA)
         {
@@ -406,7 +428,7 @@ int serial_poll(device dev, char *buffer, size_t len)
 
         //Reset the line.
         if (beginning_pos > 0)
-            move_cursor(LEFT, beginning_pos);
+            move_cursor(dev, LEFT, beginning_pos);
 
         //Move it back one more.
         char clear_action[5] = {
@@ -416,15 +438,15 @@ int serial_poll(device dev, char *buffer, size_t len)
                 'K',
                 '\0'
         };
-        print(clear_action);
-        print(buffer);
+        serial_out(dev, clear_action, 4);
+        serial_out(dev, buffer, bytes_read);
 
         if (bytes_read > 0)
-            move_cursor(LEFT, (int) bytes_read);
+            move_cursor(dev, LEFT, (int) bytes_read);
 
         //Get the string amount to move the cursor.
         if (line_pos > 0)
-            move_cursor(RIGHT, line_pos);
+            move_cursor(dev, RIGHT, line_pos);
     }
 
     //Allocate the line for storage.
@@ -439,5 +461,6 @@ int serial_poll(device dev, char *buffer, size_t len)
         to_store->line_length = bytes_read;
         add_item_index(cli_history, list_size(cli_history), to_store);
     }
+    serial_out(dev, "\n", 1);
     return (int) bytes_read;
 }

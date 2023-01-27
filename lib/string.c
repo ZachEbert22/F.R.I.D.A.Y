@@ -87,6 +87,19 @@ void *memset(void *s, int c, size_t n)
     return s;
 }
 
+char *strcpy(char *str_dest, const char *str_src, size_t maxlen)
+{
+    if(str_dest == NULL || str_src == NULL)
+        return NULL;
+
+    size_t src_len = strlen(str_src);
+    size_t copy_len = maxlen < src_len ? maxlen : src_len;
+
+    //Copy the data.
+    memcpy(str_dest, str_src, copy_len + 1);
+    return str_dest;
+}
+
 int strcmp(const char *s1, const char *s2)
 {
 

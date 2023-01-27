@@ -56,9 +56,23 @@ bool cmd_set_date(const char* comm);
 
 /**
  * @brief The set timezone command, used to set the system timezone.
- * @param comm
+ * @param comm the command string.
  * @return true if it was handled, false if not.
  */
 bool cmd_set_tz(const char *comm);
+
+/**
+ * @brief The clear command, used to clear the console.
+ * @param comm the command string.
+ * @return true if it was handled, false if not.
+ */
+bool cmd_clear(const char *comm);
+
+/**
+ * @brief The color command, used to change text color for the terminal.
+ * @param comm the command string.
+ * @return true if it was handled, false if not.
+ */
+bool cmd_color(const char *comm);
 
 #endif //F_R_I_D_A_Y_COMMANDS_H

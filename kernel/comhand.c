@@ -2,12 +2,15 @@
 // Created by Andrew Bowie on 1/13/23.
 //
 
+// test commit
+
 #include <sys_req.h>
 #include "stdio.h"
 #include "stdbool.h"
 #include "mpx/comhand.h"
 #include "commands.h"
 #include "string.h"
+#include "math.h"
 
 ///The message to send to the user if a command hasn't been recognized.
 #define UNKNOWN_CMD_MSG "Unknown command '%s'. Type 'help' for help!"
@@ -23,7 +26,9 @@ bool (*comm_funcs[])(const char *comm) = {
         &cmd_shutdown,
         &cmd_set_date,
         &cmd_set_time,
-        &cmd_set_tz
+        &cmd_set_tz,
+        &cmd_clear,
+        &cmd_color
 };
 
 /// Used to denote if the comm hand should stop.
@@ -50,11 +55,13 @@ void print_welcome(void)
     println("**             **      **      **      ******       **                 **    **");
 
     println("Welcome to MPX. Please select an option");
-    println("=> Help");
-    println("=> Set-Time HH:mm:SS");
-    println("=> Set-Date MM/DD/YY");
-    println("=> Set-Timezone");
-    println("=> Get-Time");
+    println("=> help");
+    println("=> set-time HH:mm:SS");
+    println("=> set-date MM/DD/YY");
+    println("=> set-timezone");
+    println("=> clear");
+    println("=> color");
+    println("=> get-time");
     println("=> version");
     println("=> shutdown");
 }
@@ -69,7 +76,7 @@ void comhand(void)
         char buf[101] = {0};
 
         print(CMD_PROMPT);
-        gets(buf, 100);
+        gets(buf, 100, true);
 
         //Strip whitespace.
         str_strip_whitespace(buf, NULL, 0);
@@ -91,7 +98,7 @@ void comhand(void)
         }
 
         //If something wasn't found, print the unknown command message.
-        if (!found)
+        if (!found && strlen(buf) > 0)
         {
             printf(UNKNOWN_CMD_MSG, buf);
             println("");
