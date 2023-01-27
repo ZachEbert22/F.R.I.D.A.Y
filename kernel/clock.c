@@ -19,8 +19,8 @@
 #define TIME_OUT_FORMAT "%s, %02d/%02d/%02d @ %02d:%02d:%02d %s"
 
 /**
- * The timezone hour offset. Initialized by the {@code get_clock_timezone} function.
- * This pointer should not be used directly, all access should be through {@code get_block_timezone}.
+ * The timezone hour offset. Initialized by the @code get_clock_timezone function.
+ * This pointer should not be used directly, all access should be through @code get_block_timezone.
  */
 static const time_zone_t *clock_tz = NULL;
 

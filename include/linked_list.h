@@ -9,7 +9,7 @@
  * @file linked_list.h
  * @brief This file represents the functionality and structure of a linked list.
  * Nodes added to the list ARE allocated dynamically. All add methods except
- * {@code add_item_index} allocate memory to store the value of the item.
+ * @code add_item_index allocate memory to store the value of the item.
  */
 
 /**
@@ -22,14 +22,14 @@ typedef struct linked_list_node_ ll_node;
 typedef struct linked_list_ linked_list;
 
 /**
- * @brief Creates a new unbounded linked list. You should call {@code destroy_list(list, 1)} when finished with it.
+ * @brief Creates a new unbounded linked list. You should call @code destroy_list(list, 1) when finished with it.
  * @return a pointer to the new linked list.
  */
 linked_list
 *nl_unbounded(void);
 
 /**
- * @brief Creates a new bounded linked list. You should call {@code destroy_list(list, 1)} when finished with it.
+ * @brief Creates a new bounded linked list. You should call @code destroy_list(list, 1) when finished with it.
  * @return a pointer to the new linked list.
  */
 linked_list

@@ -69,7 +69,7 @@ void comhand(void)
         char buf[101] = {0};
 
         print(CMD_PROMPT);
-        sys_req(READ, COM1, buf, 100);
+        gets(buf, 100);
 
         //Strip whitespace.
         str_strip_whitespace(buf, NULL, 0);

@@ -4,7 +4,7 @@
 
 /**
  * @file time_zone.h
- * @brief Contains the definition of the {@code time_zone_t} type.
+ * @brief Contains the definition of the @code time_zone_t type.
  */
 
 ///The definition of a time zone, contains its label and offsets.

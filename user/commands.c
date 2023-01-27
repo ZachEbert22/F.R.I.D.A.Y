@@ -63,7 +63,7 @@ bool cmd_shutdown(const char *comm)
     print("Are you sure you want to shutdown? (y/N): ");
     char confirm_buf[6] = {0};
     set_cli_history(0);
-    sys_req(READ, COM1, confirm_buf, 5);
+    gets(confirm_buf, 5);
     set_cli_history(1);
 
     //Check confirmation.
@@ -220,6 +220,8 @@ bool cmd_set_time(const char *comm)
     unsigned char hour = decimal_to_bcd(hour_dec);
     unsigned char minute = decimal_to_bcd(minute_dec);
     unsigned char second = decimal_to_bcd(second_dec);
+
+    //Do some error checking
     if (hour < 0x00 | hour > 0x23)
     {
         println("Hour is out of range 0-23!");
@@ -370,7 +372,7 @@ bool cmd_set_tz(const char *comm)
         }
         set_cli_history(0);
         print(": ");
-        sys_req(READ, COM1, tz_buf, 9);
+        gets(tz_buf, 9);
         set_cli_history(1);
     }
 
@@ -384,6 +386,6 @@ bool cmd_set_tz(const char *comm)
     
 
     set_timezone(tz_ptr);
-     printf("Set the timezone to '%s'!\n", tz_ptr->tz_longformat);
+    printf("Set the timezone to '%s'!\n", tz_ptr->tz_longformat);
     return true;
 }

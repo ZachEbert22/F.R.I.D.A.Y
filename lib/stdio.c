@@ -11,6 +11,13 @@
 
 #define PRINTF_BUF_LEN 250
 
+char *gets(char *str_buf, size_t buf_len)
+{
+    sys_req(READ, COM1, str_buf, buf_len);
+    println("");
+    return str_buf;
+}
+
 void print(const char *s)
 {
         int str_len = (int) strlen(s);
