@@ -209,8 +209,13 @@ int serial_poll(device dev, char *buffer, size_t len)
     while (bytes_read < len)
     {
         //Check the LSR.
+        //A null buffer indicates the user simply wants to poll.
         if ((inb(dev + LSR) & 1) == 0)
+        {
+            if(buffer == NULL)
+                return 0;
             continue;
+        }
 
         int beginning_pos = line_pos;
 
@@ -220,6 +225,19 @@ int serial_poll(device dev, char *buffer, size_t len)
         int keycode = (int) read_char;
         char k_str[20] = {0};
         itoa(keycode, k_str, 20);
+
+        //Check if the buffer is null.
+        if(buffer == NULL)
+        {
+            if(keycode >= SPACE && keycode <= TILDA)
+            {
+                return keycode;
+            }
+            else
+            {
+                return 0;
+            }
+        }
 
         if (keycode >= SPACE && keycode <= TILDA)
         {

@@ -8,6 +8,7 @@
 #include "mpx/comhand.h"
 #include "commands.h"
 #include "string.h"
+#include "math.h"
 
 ///The message to send to the user if a command hasn't been recognized.
 #define UNKNOWN_CMD_MSG "Unknown command '%s'. Type 'help' for help!"

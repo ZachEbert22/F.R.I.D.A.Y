@@ -17,6 +17,7 @@
  * @return the modulo value of x modulo 'mod'
  */
 unsigned int ui_realmod(int x, int mod);
+
 /**
 * @brief Calculates the Answer from a variable and a exponent
 * @param a is the variable
@@ -24,4 +25,16 @@ unsigned int ui_realmod(int x, int mod);
 * @return The new value from the a^b
 */
 double pow(double a, double b);
+
+/**
+ * @brief Seeds the random number generator.
+ * @param seed the seed.
+ */
+void s_rand(unsigned long seed);
+
+/**
+ * @brief Returns the next random 30 bits from the LCRNG.
+ * @return the next random number.
+ */
+unsigned int next_random(void);
 #endif //F_R_I_D_A_Y_MATH_H

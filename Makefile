@@ -21,7 +21,8 @@ lib/time_zone.o
 
 USER_OBJECTS =\
 user/system.o\
-user/commands.o
+user/commands.o\
+user/games/bomb_catcher.o
 
 ########################################################################
 ### Nothing below here needs to be changed

@@ -6,6 +6,7 @@
 #include "string.h"
 #include "stdio.h"
 #include "sys_req.h"
+#include "bomb_catcher.h"
 #include "mpx/comhand.h"
 #include "mpx/serial.h"
 #include "mpx/clock.h"
@@ -399,25 +400,6 @@ bool cmd_clear(const char *comm)
     if(!matches_cmd(comm, CMD_CLEAR_LABEL))
         return false;
 
-    //The 'Clear Screen' action
-    char clear_screen[5] = {
-            27,
-            '[',
-            '2',
-            'J',
-            0
-    };
-    //The 'reset cursor' action
-    char reset_cursor[7] = {
-            27,
-            '[',
-            '1',
-            ';',
-            '1',
-            'H',
-            0
-    };
-    print(clear_screen);
-    print(reset_cursor);
+    clearscr();
     return true;
 }
