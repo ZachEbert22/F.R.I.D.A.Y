@@ -176,6 +176,8 @@ int find_next_word(enum direction direc, int cursor_index, const char *str, int 
     return index;
 }
 
+#include "cli.h"
+
 void set_cli_history(int hist_enabled)
 {
     cli_history_enabled = hist_enabled;

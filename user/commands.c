@@ -8,9 +8,10 @@
 #include "sys_req.h"
 #include "bomb_catcher.h"
 #include "mpx/comhand.h"
-#include "mpx/serial.h"
 #include "mpx/clock.h"
 #include "stdlib.h"
+#include "color.h"
+#include "cli.h"
 
 #define CMD_HELP_LABEL "help"
 #define CMD_VERSION_LABEL "version"
@@ -20,6 +21,7 @@
 #define CMD_SET_TIME_LABEL "set-time"
 #define CMD_SET_DATE_LABEL "set-date"
 #define CMD_CLEAR_LABEL "clear"
+#define CMD_COLOR_LABEL "color"
 
 /**
  * @brief Checks if the given command matches the label.
@@ -65,7 +67,7 @@ bool cmd_shutdown(const char *comm)
     print("Are you sure you want to shutdown? (y/N): ");
     char confirm_buf[6] = {0};
     set_cli_history(0);
-    gets(confirm_buf, 5);
+    gets(confirm_buf, 5, false);
     set_cli_history(1);
 
     //Check confirmation.
@@ -283,7 +285,9 @@ struct help_info help_messages[] = {
         {.str_label = CMD_SET_TIMEZONE_LABEL,
                 .help_message = "The '%s' command allows the user to set the timezone for the system.\nOnly the standard American timezones are provided.\nTo fix the timezone, type 'set-timezone'"},
         {.str_label = CMD_CLEAR_LABEL,
-                .help_message = "The '%s' command clears the screen."}
+                .help_message = "The '%s' command clears the screen."},
+        {.str_label = CMD_COLOR_LABEL,
+                .help_message = "The '%s' command sets the color of text output."}
 };
 
 bool cmd_help(const char *comm)
@@ -334,7 +338,6 @@ bool cmd_help(const char *comm)
     println("If you help to shutdown, enter 'help shutdown' down below");
     println("If you need help in a class, dont use Stack Overflow");
     println("Hope this helps!");
-
     return true;
 }
 
@@ -356,11 +359,7 @@ bool cmd_set_tz(const char *comm)
 
     //Advance the token forward.
     tz_token = strtok(NULL, " ");
-    if(tz_token != NULL)
-    {
-        memcpy(tz_buf, tz_token, 9);
-    }
-    else
+    if(tz_token == NULL)
     {
         //Prompt the user again.
         println("What time zone do you want to be in?");
@@ -376,8 +375,12 @@ bool cmd_set_tz(const char *comm)
         }
         set_cli_history(0);
         print(": ");
-        gets(tz_buf, 9);
+        gets(tz_buf, 9, false);
         set_cli_history(1);
+    }
+    else
+    {
+        strcpy(tz_buf, tz_token, 9);
     }
 
     //Check it against all other timezones.
@@ -401,5 +404,58 @@ bool cmd_clear(const char *comm)
         return false;
 
     clearscr();
+    return true;
+}
+
+bool cmd_color(const char *comm)
+{
+    if(!matches_cmd(comm, CMD_COLOR_LABEL))
+        return false;
+
+    size_t comm_len = strlen(comm);
+    char comm_cpy[comm_len + 1];
+    memcpy(comm_cpy, comm, comm_len + 1);
+    char *token = strtok(comm_cpy, " ");
+    //Advance the token
+    token = strtok(NULL, " ");
+
+    char input[15] = {0};
+    if(token == NULL)
+    {
+        //Print all the available colors.
+        const color_t **colors = get_colors();
+        const color_t *current_color = get_output_color();
+
+        int index = 0;
+        while(colors[index] != NULL)
+        {
+            print("=> ");
+
+            //Print the color.
+            set_output_color(colors[index]);
+            print(colors[index]->color_label);
+            set_output_color(current_color);
+
+            println("");
+            index++;
+        }
+        print(": ");
+
+        gets(input, 14, false);
+    }
+    else
+    {
+        strcpy(input, token, 14);
+    }
+
+    const color_t *color = get_color(input);
+    if(color == NULL)
+    {
+        printf("The color '%s' is not defined!\n", input);
+        return true;
+    }
+
+    set_output_color(color);
+    printf("Set the color to '%s'!\n", color->color_label);
     return true;
 }

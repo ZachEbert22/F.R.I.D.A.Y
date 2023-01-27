@@ -17,7 +17,8 @@ lib/string.o\
 lib/stdio.o\
 lib/struct/linked_list.o\
 lib/math.o\
-lib/time_zone.o
+lib/time_zone.o\
+lib/color.o
 
 USER_OBJECTS =\
 user/system.o\

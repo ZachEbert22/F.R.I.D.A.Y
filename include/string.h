@@ -29,6 +29,16 @@ void* memcpy(void * restrict dst, const void * restrict src, size_t n);
 void* memset(void *address, int c, size_t n);
 
 /**
+ * @brief Copies the data from the string source into the string destination.
+ * If maxlen is exceeded, it only copies that amount of chars over.
+ * @param str_dest the string destination.
+ * @param str_src the string source.
+ * @param maxlen the maximum amount of bytes to copy. Note that maxlen does not include the null terminator.
+ * @return a pointer to the string, or NULL if there was an error.
+ */
+char *strcpy(char *str_dest, const char *str_src, size_t maxlen);
+
+/**
  Compares two strings
  @param s1 The first string to compare
  @param s2 The second string to compare
