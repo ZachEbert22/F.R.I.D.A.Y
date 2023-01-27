@@ -39,8 +39,8 @@ void signal_shutdown(void)
  */
 void print_welcome(void)
 {
-    println("*********      **********      **      ****                  **         **      **");
-    println("**             **     **       **      **   **             **  **         **   **");
+    println("*********      **********      **      ****                  **         **        **");
+    println("**             **     **       **      **   **             **  **         **    **");
     println("**             **    **        **      **    **           **     **         ****");
     println("*****          **  **          **      **     **         **       **         **");
     println("**             ****            **      **     **        *************        **");
@@ -51,9 +51,9 @@ void print_welcome(void)
 
     println("Welcome to MPX. Please select an option");
     println("=> Help");
-    println("=> Set-Time");
+    println("=> Set-Time HH:mm:SS");
+    println("=> Set-Date MM/DD/YY");
     println("=> Set-Timezone");
-    println("=> Set-Date");
     println("=> Get-Time");
     println("=> version");
     println("=> shutdown");

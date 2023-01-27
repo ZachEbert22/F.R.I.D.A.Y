@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <mpx/interrupts.h>
 
+//Defines all the time variables
 #define YEAR 0x09
 #define MONTH 0x08
 #define DATE 0x07
@@ -157,32 +158,6 @@ int print_time(void)
     int day_of_week = get_index(DAY);
     int hours = get_index(HOURS);
     int minutes = get_index(MINUTES);
-    //int min_adj = minutes;
-    // if (min_adj > 59){
-    //     min_adj =min_adj-60;
-    //     hour_adj = hour_adj + 1;
-    // }
-    // if (min_adj < 0){
-    //     min_adj =min_adj+60;
-    //     hour_adj = hour_adj - 1;
-    // }
-    // if (hour_adj > 23){
-    //         hour_adj = hour_adj-24;
-    //         date = date + 1;
-    //     }
-    // if (hour_adj < 0){
-    //         hour_adj = 24+hour_adj;
-    //         date = date - 1;
-    //         day_of_week = day_of_week -1;
-    // }
-    // if (day_of_week > 7){
-    //         hour_adj = hour_adj-7;
-
-    //     }
-    // if (hour_adj < 1){
-    //         hour_adj = 24+7;
-
-    // }
     int seconds = get_index(SECONDS);
 
     int time_arr[6] = {year, month, date, day_of_week, hours, minutes};

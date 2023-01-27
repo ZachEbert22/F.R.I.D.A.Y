@@ -1,6 +1,3 @@
-//
-// Created by Andrew Bowie on 1/21/23.
-//
 
 #ifndef F_R_I_D_A_Y_TIME_ZONE_H
 #define F_R_I_D_A_Y_TIME_ZONE_H
@@ -20,7 +17,7 @@ typedef struct time_zone {
     const int tz_hour_offset;
     ///The minute offset of this timezone.
     const int tz_minute_offset;
-    ///The main city this timezone belongs to.
+    ///The main/most populated city this timezone belongs to.
     const char* tz_city;
 } time_zone_t;
 

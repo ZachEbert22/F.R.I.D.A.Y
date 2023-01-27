@@ -107,7 +107,7 @@ bool cmd_set_date(const char *comm)
     // Date is provided
     if (date_token == NULL)
     {
-        println("Date must be provided. MM/DD/YY");
+        println("Date must be provided. enter 'set-date MM/DD/YY'");
         return true;
     }
     // buffer to save numbers
@@ -187,7 +187,7 @@ bool cmd_set_time(const char *comm)
     // Date is provided
     if (time_token == NULL)
     {
-        println("Time value must be provided. HH:mm:SS");
+        println("Time value must be provided. Try 'set-time HH:mm:SS'");
         return true;
     }
     str_strip_whitespace(time_token, NULL, 0);
@@ -319,7 +319,7 @@ bool cmd_help(const char *comm)
         printf("Couldn't find any help for '%s'!\n", spl_token);
         return true;
     }
-
+    //All the help function, and the possible functions that are associated to it
     println("If You want to set the Time for the OS, enter 'help Set-Time'");
     println("If You want to set the Time for the OS, enter 'help set-Date'");
     println("if You want to get the Time for the OS, enter 'help Get-Time'");
