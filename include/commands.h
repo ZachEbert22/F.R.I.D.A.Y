@@ -75,4 +75,6 @@ bool cmd_clear(const char *comm);
  */
 bool cmd_color(const char *comm);
 
+bool cmd_command_list(const char *comm);
+
 #endif //F_R_I_D_A_Y_COMMANDS_H

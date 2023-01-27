@@ -24,4 +24,6 @@ void signal_shutdown(void);
  */
 void comhand(void);
 
+void print_welcome(void);
+
 #endif //F_R_I_D_A_Y_COMHAND_H
