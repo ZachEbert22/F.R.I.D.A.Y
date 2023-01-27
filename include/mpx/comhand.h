@@ -9,7 +9,7 @@
 
 /**
  * @file comhand.h
- * @brief This file controls command running for the OS. Calling the {@code comhand(void)} function
+ * @brief This file controls command running for the OS. Calling the @code comhand(void) function
  * will initialize the command loop. The loop will run until it errors or it is signaled to shutdown.
  */
 
