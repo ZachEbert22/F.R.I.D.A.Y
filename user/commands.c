@@ -323,11 +323,11 @@ bool cmd_help(const char *comm)
         return true;
     }
     //All the help function, and the possible functions that are associated to it
-    println("If You want to set the Time for the OS, enter 'help Set-Time'");
-    println("If You want to set the Time for the OS, enter 'help set-Date'");
-    println("if You want to get the Time for the OS, enter 'help Get-Time'");
+    println("If You want help setting the time for the OS, enter 'help Set-Time'");
+    println("If You want help setting the time for the OS, enter 'help set-Date'");
+    println("if You want help getting the time for the OS, enter 'help Get-Time'");
     println("If you want to know what the help does, enter 'help help'");
-    println("If you want to get the version history, enter 'help Version'");
+    println("If you want to know what version is, enter 'help Version'");
     println("If you help to shutdown, enter 'help shutdown' down below");
     println("If you need help in a class, dont use Stack Overflow");
     println("Hope this helps!");
