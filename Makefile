@@ -33,7 +33,7 @@ AS	= nasm
 ASFLAGS = -f elf -g
 
 CC	= clang
-CFLAGS  = -std=c18 --target=i386-elf -Wall -Wextra -Werror -ffreestanding -g -Iinclude
+CFLAGS  = -std=c18 --target=i386-elf -Wall -Wextra -Werror -ffreestanding -g -Iinclude -mno-sse
 
 ifeq ($(shell uname), Darwin)
 LD	= i686-elf-ld
