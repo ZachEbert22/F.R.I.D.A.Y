@@ -55,14 +55,14 @@ void print_welcome(void)
 
     println("Welcome to MPX. Please select an option");
     println("=> help");
+    println("=> get-time-date");
     println("=> set-time HH:mm:SS");
     println("=> set-date MM/DD/YY");
     println("=> set-timezone");
-    println("=> clear");
-    println("=> color");
-    println("=> get-time");
     println("=> version");
     println("=> shutdown");
+    println("=> color");
+    println("=> clear");
 }
 
 void comhand(void)
@@ -75,6 +75,7 @@ void comhand(void)
         char buf[101] = {0};
 
         print(CMD_PROMPT);
+        
         gets(buf, 100, true);
 
         //Strip whitespace.

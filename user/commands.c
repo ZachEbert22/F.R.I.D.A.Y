@@ -16,7 +16,7 @@
 #define CMD_HELP_LABEL "help"
 #define CMD_VERSION_LABEL "version"
 #define CMD_SHUTDOWN_LABEL "shutdown"
-#define CMD_GET_TIME_LABEL "get-time"
+#define CMD_GET_TIME_LABEL "get-time-date"
 #define CMD_SET_TIMEZONE_LABEL "set-timezone"
 #define CMD_SET_TIME_LABEL "set-time"
 #define CMD_SET_DATE_LABEL "set-date"
@@ -283,7 +283,7 @@ struct help_info help_messages[] = {
         {.str_label = CMD_SET_DATE_LABEL,
                 .help_message = "The '%s' command allows the use to set the date on the system.\nThe date should follow the format MM/DD/YY.\nTo start changing the date, enter 'set-date'"},
         {.str_label = CMD_SET_TIMEZONE_LABEL,
-                .help_message = "The '%s' command allows the user to set the timezone for the system.\nOnly the standard American timezones are provided.\nTo fix the timezone, type 'set-timezone'"},
+                .help_message = "The '%s' command allows the user to set the timezone for the system.\nMost North American and European Time Zones Are provided\nTo fix the timezone, type 'set-timezone'"},
         {.str_label = CMD_CLEAR_LABEL,
                 .help_message = "The '%s' command clears the screen."},
         {.str_label = CMD_COLOR_LABEL,
@@ -334,10 +334,13 @@ bool cmd_help(const char *comm)
     println("If You want to set the Time for the OS, enter 'help set-date'");
     println("if You want to get the Time for the OS, enter 'help get-time'");
     println("If you want to know what the help does, enter 'help help'");
+    println("if you need help setting the timezone enter 'help set-timezone'");
     println("If you want to get the version history, enter 'help Version'");
     println("If you help to shutdown, enter 'help shutdown' down below");
-    println("If you need help in a class, dont use Stack Overflow");
-    println("Hope this helps!");
+    println("if you wnt to know what the command color does, enter 'help color'");
+    println("If you want to know what clear does, enter 'help clear'");
+    //println("If you need help in a class, dont use Stack Overflow");
+    //println("Hope this helps!");
     return true;
 }
 
