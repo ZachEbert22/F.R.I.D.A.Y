@@ -8,7 +8,7 @@
  */
 
 ///The definition of a time zone, contains its label and offsets.
-typedef struct time_zone {
+typedef struct {
     ///The label of the timezone.
     const char *tz_label;
     ///The long format of the timezone, (i.e. ET -> Eastern Time)

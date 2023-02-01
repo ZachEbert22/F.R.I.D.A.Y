@@ -2,15 +2,12 @@
 // Created by Andrew Bowie on 1/13/23.
 //
 
-// test commit
-
-#include <sys_req.h>
 #include "stdio.h"
 #include "stdbool.h"
 #include "mpx/comhand.h"
 #include "commands.h"
 #include "string.h"
-#include "math.h"
+#include "color.h"
 
 ///The message to send to the user if a command hasn't been recognized.
 #define UNKNOWN_CMD_MSG "Unknown command '%s'. Type 'help' for help!"
@@ -44,6 +41,7 @@ void signal_shutdown(void)
  */
 void print_welcome(void)
 {
+    set_output_color(get_color("red"));
     println("*********      **********      **      ****                  **         **        **");
     println("**             **     **       **      **   **             **  **         **    **");
     println("**             **    **        **      **    **           **     **         ****");
@@ -53,6 +51,7 @@ void print_welcome(void)
     println("**             **    **        **      **    **       **             **      **");
     println("**             **     **       **      **   **       **               **     **");
     println("**             **      **      **      ******       **                 **    **");
+    set_output_color(get_color("reset"));
 
     println("Welcome to MPX. Please select an option");
     println("=> help");
