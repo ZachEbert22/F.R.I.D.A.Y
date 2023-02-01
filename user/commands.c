@@ -285,9 +285,9 @@ struct help_info help_messages[] = {
         {.str_label = CMD_SET_TIMEZONE_LABEL,
                 .help_message = "The '%s' command allows the user to set the timezone for the system.\nMost North American and European Time Zones Are provided\nTo fix the timezone, type 'set-timezone'"},
         {.str_label = CMD_CLEAR_LABEL,
-                .help_message = "The '%s' command clears the screen."},
+                .help_message = "The '%s' command clears the screen.\nto clear your terminal, enter 'clear'"},
         {.str_label = CMD_COLOR_LABEL,
-                .help_message = "The '%s' command sets the color of text output."}
+                .help_message = "The '%s' command sets the color of text output.\nto change your color, enter 'color'"}
 };
 
 bool cmd_help(const char *comm)
@@ -335,7 +335,7 @@ bool cmd_help(const char *comm)
     println("if You want to get the Time for the OS, enter 'help get-time'");
     println("If you want to know what the help does, enter 'help help'");
     println("if you need help setting the timezone enter 'help set-timezone'");
-    println("If you want to get the version history, enter 'help Version'");
+    println("If you want to get the version history, enter 'help version'");
     println("If you help to shutdown, enter 'help shutdown' down below");
     println("if you wnt to know what the command color does, enter 'help color'");
     println("If you want to know what clear does, enter 'help clear'");
