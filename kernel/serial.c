@@ -188,9 +188,6 @@ static linked_list *cli_history = NULL;
 
 int serial_poll(device dev, char *buffer, size_t len)
 {
-    // insert your code to gather keyboard input via the technique of polling.
-    // You must validate each key and handle special keys such as delete, back-space, and
-    // arrow keys
     if (cli_history == NULL && cli_history_enabled)
     {
         cli_history = nl_unbounded();
