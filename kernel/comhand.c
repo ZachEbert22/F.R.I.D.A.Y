@@ -7,6 +7,7 @@
 #include "mpx/comhand.h"
 #include "commands.h"
 #include "string.h"
+#include "cli.h"
 #include "print_format.h"
 
 ///The message to send to the user if a command hasn't been recognized.
@@ -76,7 +77,9 @@ void comhand(void)
 
         print(CMD_PROMPT);
 
+        set_command_formatting(true);
         gets(buf, 100, true);
+        set_command_formatting(false);
 
         //Strip whitespace.
         str_strip_whitespace(buf, NULL, 0);

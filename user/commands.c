@@ -23,6 +23,20 @@
 #define CMD_CLEAR_LABEL "clear"
 #define CMD_COLOR_LABEL "color"
 
+///An array of all command labels, terminated with null.
+static const char *CMD_LABELS[] = {
+        CMD_HELP_LABEL,
+        CMD_VERSION_LABEL,
+        CMD_SHUTDOWN_LABEL,
+        CMD_GET_TIME_LABEL,
+        CMD_SET_TIMEZONE_LABEL,
+        CMD_SET_TIME_LABEL,
+        CMD_SET_DATE_LABEL,
+        CMD_CLEAR_LABEL,
+        CMD_COLOR_LABEL,
+        NULL,
+};
+
 /**
  * @brief Checks if the given command matches the label.
  * @param comm the command.
@@ -41,6 +55,17 @@ bool matches_cmd(const char *comm, const char *label)
     return strcicmp(str_token, label) == 0;
 }
 
+bool command_exists(const char *cmd)
+{
+    int index = 0;
+    while(CMD_LABELS[index] != NULL)
+    {
+        if(matches_cmd(cmd, CMD_LABELS[index]))
+            return true;
+        index++;
+    }
+    return false;
+}
 
 bool cmd_version(const char *comm)
 {

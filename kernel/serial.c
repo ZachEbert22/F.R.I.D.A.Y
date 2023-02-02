@@ -7,46 +7,6 @@
 #include "linked_list.h"
 #include "memory.h"
 
-#define ANSI_CODE_READ_LEN 15
-
-//Set to 1 to enable CLI history, 0 to disable.
-#define DO_CLI_HISTORY 1
-
-///If CLI history should be enabled.
-static int cli_history_enabled = DO_CLI_HISTORY;
-
-///Used to store a specific line previously entered.
-struct line_entry
-{
-    /**
-     * The line that was entered. Does not include null terminator.
-     */
-    char *line;
-    /**
-     * The line's length, not including the null terminator.
-     */
-    size_t line_length;
-};
-
-///Contains constants for useful or common keycodes.
-enum key_code
-{
-    BACKSPACE = 8,
-    NEWLINE = 10,
-    CARRIAGE_RETURN = 13,
-    ESCAPE = 27,
-    SPACE = 32, //The minimum keycode value for normal characters.
-    TILDA = 126, //The maximum keycode value for normal characters.
-    DELETE = 127,
-};
-
-///A direction registry for line navigation.
-enum direction
-{
-    LEFT = 0,
-    RIGHT = 1,
-};
-
 enum uart_registers
 {
     RBR = 0,    // Receive Buffer
@@ -114,6 +74,59 @@ int serial_out(device dev, const char *buffer, size_t len)
     return (int) len;
 }
 
+#include "cli.h"
+#include "commands.h"
+
+#define ANSI_CODE_READ_LEN 15
+
+///Used to store a specific line previously entered.
+struct line_entry
+{
+    /**
+     * The line that was entered. Does not include null terminator.
+     */
+    char *line;
+    /**
+     * The line's length, not including the null terminator.
+     */
+    size_t line_length;
+};
+
+///Contains constants for useful or common keycodes.
+enum key_code
+{
+    BACKSPACE = 8,
+    NEWLINE = 10,
+    CARRIAGE_RETURN = 13,
+    ESCAPE = 27,
+    SPACE = 32, //The minimum keycode value for normal characters.
+    TILDA = 126, //The maximum keycode value for normal characters.
+    DELETE = 127,
+};
+
+
+///A direction registry for line navigation.
+enum direction
+{
+    LEFT = 0,
+    RIGHT = 1,
+};
+
+///If CLI history should be enabled.
+static bool cli_history_enabled = false;
+///If CLI command color formatting should be enabled.
+static bool command_formatting_enabled = false;
+
+void set_cli_history(bool hist_enabled)
+{
+    cli_history_enabled = hist_enabled;
+}
+
+void set_command_formatting(bool enabled)
+{
+    command_formatting_enabled = enabled;
+}
+
 /**
  * @brief Moves the text cursor back the given amount of spaces.
  * @param dev the device to print to.
@@ -174,13 +187,6 @@ int find_next_word(enum direction direc, int cursor_index, const char *str, int 
     index = index > str_len ? str_len : index;
 
     return index;
-}
-
-#include "cli.h"
-
-void set_cli_history(int hist_enabled)
-{
-    cli_history_enabled = hist_enabled;
 }
 
 ///The CLI history from the serial_poll function.
@@ -435,6 +441,7 @@ int serial_poll(device dev, char *buffer, size_t len)
                 'K',
                 '\0'
         };
+
         serial_out(dev, clear_action, 4);
         serial_out(dev, buffer, bytes_read);
 

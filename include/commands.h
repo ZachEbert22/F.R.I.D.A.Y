@@ -14,6 +14,13 @@
  */
 
 /**
+ * @brief Checks if the given command exists.
+ * @param cmd the command to check for.
+ * @return true if it does, false if not.
+ */
+bool command_exists(const char *cmd);
+
+/**
  * @brief The version command, used to handle when the user asks for a version number. Must Include Compilation date
  * @param comm the command string.
  * @return true if the command was handled, false if not.
@@ -47,6 +54,7 @@ bool cmd_help(const char *comm);
  * @return true if it was handled, false if not.
  */
 bool cmd_set_time(const char* comm);
+
 /**
  * @brief The set date command, used to set time user wants
  * @param comm the command string.
