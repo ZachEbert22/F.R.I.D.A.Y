@@ -11,11 +11,9 @@
 
 #define PRINTF_BUF_LEN 250
 
-char *gets(char *str_buf, size_t buf_len, bool cli_history)
+char *gets(char *str_buf, size_t buf_len)
 {
-    set_cli_history(cli_history);
     sys_req(READ, COM1, str_buf, buf_len);
-    set_cli_history(true);
     return str_buf;
 }
 

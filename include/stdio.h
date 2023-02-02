@@ -30,10 +30,9 @@ char pollc(void);
  * @brief Reads a string of input from the standard input source.
  * @param str_buf the buffer to store the string in.
  * @param buf_len the amount of bytes to read. (The buffer should be at least one byte longer)
- * @param cli_history if the output should be recorded in the CLI history.
  * @return a pointer to the read array.
  */
-char *gets(char *str_buf, size_t buf_len, bool cli_history);
+char *gets(char *str_buf, size_t buf_len);
 
 /**
  * @brief Prints a null-terminated string to standard output.

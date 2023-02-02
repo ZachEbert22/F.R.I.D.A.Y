@@ -23,6 +23,20 @@
 #define CMD_CLEAR_LABEL "clear"
 #define CMD_COLOR_LABEL "color"
 
+///An array of all command labels, terminated with null.
+static const char *CMD_LABELS[] = {
+        CMD_HELP_LABEL,
+        CMD_VERSION_LABEL,
+        CMD_SHUTDOWN_LABEL,
+        CMD_GET_TIME_LABEL,
+        CMD_SET_TIMEZONE_LABEL,
+        CMD_SET_TIME_LABEL,
+        CMD_SET_DATE_LABEL,
+        CMD_CLEAR_LABEL,
+        CMD_COLOR_LABEL,
+        NULL,
+};
+
 /**
  * @brief Checks if the given command matches the label.
  * @param comm the command.
@@ -41,6 +55,17 @@ bool matches_cmd(const char *comm, const char *label)
     return strcicmp(str_token, label) == 0;
 }
 
+bool command_exists(const char *cmd)
+{
+    int index = 0;
+    while(CMD_LABELS[index] != NULL)
+    {
+        if(matches_cmd(cmd, CMD_LABELS[index]))
+            return true;
+        index++;
+    }
+    return false;
+}
 
 bool cmd_version(const char *comm)
 {
@@ -67,7 +92,7 @@ bool cmd_shutdown(const char *comm)
     print("Are you sure you want to shutdown? (y/N): ");
     char confirm_buf[6] = {0};
     set_cli_history(0);
-    gets(confirm_buf, 5, false);
+    gets(confirm_buf, 5);
     set_cli_history(1);
 
     //Check confirmation.
@@ -378,7 +403,7 @@ bool cmd_set_tz(const char *comm)
         }
         set_cli_history(0);
         print(": ");
-        gets(tz_buf, 9, false);
+        gets(tz_buf, 9);
         set_cli_history(1);
     }
     else
@@ -422,7 +447,7 @@ bool cmd_color(const char *comm)
     //Advance the token
     token = strtok(NULL, " ");
 
-    char input[15] = {0};
+    char input[20] = {0};
     if(token == NULL)
     {
         //Print all the available colors.
@@ -444,11 +469,11 @@ bool cmd_color(const char *comm)
         }
         print(": ");
 
-        gets(input, 14, false);
+        gets(input, 19);
     }
     else
     {
-        strcpy(input, token, 14);
+        strcpy(input, token, 19);
     }
 
     const color_t *color = get_color(input);
