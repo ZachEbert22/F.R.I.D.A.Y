@@ -6,7 +6,7 @@ doxygen Doxyfile
 ``
 to generate full documentation.
 
-# F.R.I.D.A.Y. Programmer Manual
+# F.R.I.D.A.Y. Programmer Manual R1
 
 ### Contents
 1. Overview
