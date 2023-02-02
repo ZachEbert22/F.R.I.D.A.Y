@@ -277,11 +277,11 @@ struct help_info help_messages[] = {
         {.str_label = CMD_SHUTDOWN_LABEL,
                 .help_message = "The '%s' command prompts the user to shut down the OS.\nType 'shutdown' to turn off the machine!"},
         {.str_label = CMD_GET_TIME_LABEL,
-                .help_message = "The '%s' command gets the current system time in the OS.\nType 'get-time' to get the time!"},
+                .help_message = "The '%s' command gets the current system time and date in the OS.\nType 'get-time-date' to get the time and date!"},
         {.str_label = CMD_SET_TIME_LABEL,
-                .help_message = "The '%s' command allows the use to set the time on the system.\nThe time should follow the format HH:mm:SS.\nTo start changing the time, enter 'set-time'"},
+                .help_message = "The '%s' command allows the use to set the time on the system.\nThe time should follow the format HH:mm:SS.\nTo start changing the time, enter 'set-time HH:mm:SS'"},
         {.str_label = CMD_SET_DATE_LABEL,
-                .help_message = "The '%s' command allows the use to set the date on the system.\nThe date should follow the format MM/DD/YY.\nTo start changing the date, enter 'set-date'"},
+                .help_message = "The '%s' command allows the use to set the date on the system.\nThe date should follow the format MM/DD/YY.\nTo start changing the date, enter 'set-date MM/DD/YY'"},
         {.str_label = CMD_SET_TIMEZONE_LABEL,
                 .help_message = "The '%s' command allows the user to set the timezone for the system.\nMost North American and European Time Zones Are provided\nTo fix the timezone, type 'set-timezone'"},
         {.str_label = CMD_CLEAR_LABEL,
@@ -331,8 +331,8 @@ bool cmd_help(const char *comm)
     }
     //All the help function, and the possible functions that are associated to it
     println("If You want to set the Time for the OS, enter 'help set-time'");
-    println("If You want to set the Time for the OS, enter 'help set-date'");
-    println("if You want to get the Time for the OS, enter 'help get-time'");
+    println("If You want to set the Date for the OS, enter 'help set-date'");
+    println("if You want to get the Time & Date for the OS, enter 'help get-time-date'");
     println("If you want to know what the help does, enter 'help help'");
     println("if you need help setting the timezone enter 'help set-timezone'");
     println("If you want to get the version history, enter 'help version'");
