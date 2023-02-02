@@ -75,7 +75,7 @@ void comhand(void)
         char buf[101] = {0};
 
         print(CMD_PROMPT);
-        
+
         gets(buf, 100, true);
 
         //Strip whitespace.

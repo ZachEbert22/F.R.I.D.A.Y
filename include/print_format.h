@@ -8,60 +8,32 @@
 #include "color.h"
 #include "stdbool.h"
 
-/**
- * Gets if the output is currently bolded according to this file.
- *
- * @return if the output is bold.
- */
-bool is_bold();
+///All format codes available for this file.
+typedef enum {
+    BOLD = 0,
+    UNDERLINE = 1,
+    ITALIC = 2,
+    INVISIBLE = 3,
+    INVERSE = 4,
+    BLINKING = 5,
+    STRIKETHROUGH = 6,
+} format_code_t;
 
 /**
- * Sets output to bold depending on the input boolean.
+ * Checks if the given format code is active.
  *
- * @param bold if the output should be bolded.
+ * @param format_code the format code.
+ * @return true if the format code is active.
  */
-void set_bold(bool bold);
+bool is_format_code(format_code_t format_code);
 
 /**
- * Gets if the output is currently underlined according to this file.
+ * Sets the format code to active or not.
  *
- * @return if the output is underlined.
+ * @param format_code the format code.
+ * @param active if it should be active or not.
  */
-bool is_underline();
-
-/**
- * Sets output to underline depending on the input boolean.
- *
- * @param underline if the output should be underlined.
- */
-void set_underline(bool underline);
-
-/**
- * Gets if the output is currently italicized according to this file.
- *
- * @return if the output is italic.
- */
-bool is_italic();
-
-/**
- * Sets output to italic depending on the input boolean.
- *
- * @param italic if the output should be italic.
- */
-void set_italic(bool italic);
-
-/**
- * Gets if the output is currently strikethrough according to this file.
- *
- * @return if the output is strikethrough.
- */
-bool is_strikethrough();
-
-/**
- * Sets output to strikethrough depending on the input boolean.
- * @param strikethrough
- */
-void set_strikethrough(bool strikethrough);
+void set_format_code(format_code_t format_code, bool active);
 
 /**
  * Clears all formatting from the output. Does NOT clear color!
