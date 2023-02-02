@@ -319,12 +319,12 @@ bool set_date_clock(unsigned int month, unsigned int day, unsigned int year)
     get_index(SECONDS);
 
     cli();
-    outb(0x70, DATE);
-    outb(0x71, day);
     outb(0x70, MONTH);
     outb(0x71, month);
     outb(0x70, YEAR);
     outb(0x71, year);
+    outb(0x70, DATE);
+    outb(0x71, day);
     sti();
     return true;
 }

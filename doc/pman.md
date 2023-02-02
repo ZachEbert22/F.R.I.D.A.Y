@@ -1,5 +1,11 @@
 @mainpage F.R.I.D.A.Y.
 
+NOTE: Run 
+``
+doxygen Doxyfile
+``
+to generate full documentation.
+
 # F.R.I.D.A.Y. Programmer Manual
 
 ### Contents
