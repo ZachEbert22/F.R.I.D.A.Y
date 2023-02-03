@@ -13,10 +13,8 @@
 #include "mpx/pcb.h"
 #include "linked_list.h"
 
-///The PCB queue for running processes.
+///The PCB queue for processes.
 static const linked_list *running_pcb_queue;
-///The PCB queue for blocked/suspended processes.
-static const linked_list *blocked_pcb_queue;
 
 /**
  * A pointer for comparing PCBs.
@@ -28,6 +26,12 @@ int pcb_cmpr(void *ptr1, void *ptr2)
 {
     struct pcb *pcb_ptr1 = (struct pcb *) ptr1;
     struct pcb *pcb_ptr2 = (struct pcb *) ptr2;
+
+    if(pcb_ptr1->exec_state == BLOCKED || pcb_ptr1->dispatch_state == SUSPENDED)
+        return 1;
+
+    if(pcb_ptr2->exec_state == BLOCKED || pcb_ptr2->dispatch_state == SUSPENDED)
+        return -1;
 
     return pcb_ptr1->priority - pcb_ptr2->priority;
 }
@@ -42,7 +46,6 @@ void setup_queue()
 
     running_pcb_queue = nl_unbounded();
     set_sort_func((linked_list *) running_pcb_queue, &pcb_cmpr);
-    blocked_pcb_queue = nl_unbounded();
 }
 
 //pcb_allocoate
