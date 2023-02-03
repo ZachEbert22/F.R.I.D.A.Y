@@ -49,6 +49,8 @@ void setup_queue()
 struct pcb *pcb_alloc(void)
 {
     struct pcb *pcb_ptr = sys_alloc_mem(sizeof (struct pcb));
+    pcb->stack = {0};
+    pcb->stack_ptr = sizeof(pcb->stack);
     return pcb_ptr;
 }
 
