@@ -9,6 +9,7 @@
 #include "string.h"
 #include "cli.h"
 #include "print_format.h"
+#include "mpx/pcb.h"
 
 ///The message to send to the user if a command hasn't been recognized.
 #define UNKNOWN_CMD_MSG "Unknown command '%s'. Type 'help' for help!"
@@ -26,7 +27,10 @@ bool (*comm_funcs[])(const char *comm) = {
         &cmd_set_time,
         &cmd_set_tz,
         &cmd_clear,
-        &cmd_color
+        &cmd_color,
+        &cmd_block_pcb,
+        &cmd_unblock_pcb,
+        &cmd_suspend_pcb
 };
 
 /// Used to denote if the comm hand should stop.

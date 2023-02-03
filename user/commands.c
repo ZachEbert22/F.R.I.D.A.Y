@@ -10,6 +10,7 @@
 #include "stdlib.h"
 #include "color.h"
 #include "cli.h"
+#include "mpx/pcb.h"
 
 #define CMD_HELP_LABEL "help"
 #define CMD_VERSION_LABEL "version"
@@ -522,5 +523,82 @@ bool cmd_color(const char *comm)
 
     set_output_color(color);
     printf("Set the color to '%s'!\n", color->color_label);
+    return true;
+}
+bool cmd_unblock_pcb(const char* comm)
+{
+    if(!matches_cmd(comm,CMD_PCBUNBLOCK_LABEL))
+        return false;
+    size_t comm_strlen = strlen(comm);
+    char comm_cpy[comm_strlen + 1];
+    memcpy(comm_cpy, comm, comm_strlen + 1);
+    char *name_token = strtok(comm_cpy, " ");
+    name_token = strtok(NULL, " ");
+    struct pcb* pcb_ptr = pcb_find(name_token);
+    if(pcb_ptr == NULL) {
+        printf("PCB with name: %s, not found\n",name_token);
+        return true;
+    }
+    if(pcb_ptr->exec_state != BLOCKED)
+    {
+        printf("PCB %s is not blocked\n",name_token);
+        return true;
+    }
+
+    pcb_ptr->exec_state = READY;
+    pcb_remove(pcb_ptr);
+    pcb_insert(pcb_ptr);
+    return true;
+}
+bool cmd_block_pcb(const char* comm)
+{
+    if(!matches_cmd(comm,CMD_PCBBLOCK_LABEL))
+        return false;
+    size_t comm_strlen = strlen(comm);
+    
+    char comm_cpy[comm_strlen + 1];
+    memcpy(comm_cpy, comm, comm_strlen + 1);
+    char *name_token = strtok(comm_cpy, " ");
+    name_token = strtok(NULL, " ");
+    struct pcb* pcb_ptr = pcb_find(name_token);
+    if(pcb_ptr == NULL) {
+        printf("PCB with name: %s, not found\n",name_token);
+        return true;
+    }
+    if(pcb_ptr->exec_state == BLOCKED)
+    {
+        printf("PCB %s is blocked already\n", name_token);
+        return true;
+    }
+
+    pcb_ptr->exec_state = BLOCKED;
+    pcb_remove(pcb_ptr);
+    pcb_insert(pcb_ptr);
+    return true;
+}
+bool cmd_suspend_pcb(const char* comm)
+{
+    if(!matches_cmd(comm,CMD_PCBSUSPEND_LABEL))
+        return false;
+    size_t comm_strlen = strlen(comm);
+    //Get the time.
+    char comm_cpy[comm_strlen + 1];
+    memcpy(comm_cpy, comm, comm_strlen + 1);
+    char *name_token = strtok(comm_cpy, " ");
+    name_token = strtok(NULL, " ");
+    struct pcb* pcb_ptr = pcb_find(name_token);
+    if(pcb_ptr == NULL) {
+        printf("PCB with name: %s, not found\n",name_token);
+        return true;
+    }
+    if(pcb_ptr->process_class != SYSTEM)
+    {
+        printf("PCB %s is a system class PCB cannot be suspended by user\n",name_token);
+        return true;
+    }
+
+    pcb_ptr->dispatch_state = SUSPENDED;
+    pcb_remove(pcb_ptr);
+    pcb_insert(pcb_ptr);
     return true;
 }

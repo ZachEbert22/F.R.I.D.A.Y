@@ -82,5 +82,24 @@ bool cmd_clear(const char *comm);
  * @return true if it was handled, false if not.
  */
 bool cmd_color(const char *comm);
+/**
+ * @brief The pcb_block command, used to block a pcb
+ * @param comm the command string.
+ * @return true if it was handled, false if not.
+ */
+bool cmd_block_pcb(const char *comm);
+/**
+ * @brief The pcb_unblock command, used to unblock a pcb
+ * @param comm the command string.
+ * @return true if it was handled, false if not.
+ */
+bool cmd_unblock_pcb(const char *comm);
+/**
+ * @brief The pcb suspend command, suspends non system pcbs
+ * @param comm the command string.
+ * @return true if it was handled, false if not.
+ */
+bool cmd_suspend_pcb(const char *comm);
+
 
 #endif //F_R_I_D_A_Y_COMMANDS_H

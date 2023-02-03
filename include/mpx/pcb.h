@@ -40,6 +40,10 @@ struct pcb {
     ///The stack itself.
     unsigned char stack[PCB_STACK_SIZE];
 };
+/** 
+*@brief Sets up queue for PCBS
+*/
+void setup_queue(void);
 
 /**
  * @brief Allocates memory for a PCB block.
