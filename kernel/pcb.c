@@ -104,12 +104,19 @@ struct pcb *pcb_find(const char *name)
     return NULL;
 }
 
-
-
-
 int pcb_remove(struct pcb *name)
 {
+    // get size of linked list
+    int size = list_size(running_pcb_queue);
 
+    for (int i = 0; i < size; ++i) {
+        struct pcb* pcb_ptr = get_item(running_pcb_queue, i);
+        if(pcb_ptr == name) {
+            remove_item(running_pcb_queue,i);
+            return 0;
+        }
+    }
+    return 1;
 }
 //pcb* pcb_setup
 //pcb* pcb_find
