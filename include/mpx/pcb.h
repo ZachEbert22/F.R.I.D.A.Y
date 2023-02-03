@@ -54,6 +54,7 @@ struct pcb *pcb_alloc(void);
  *
  * @param pcb_ptr the pointer to the pcb.
  * @return 0 on success, non-zero on failure.
+ * @authors Andrew Bowie
  */
 int pcb_free(struct pcb* pcb_ptr);
 
@@ -64,6 +65,7 @@ int pcb_free(struct pcb* pcb_ptr);
  * @param class the class of the PCB.
  * @param priority the priority of the PCB.
  * @return the created PCB, or NULL on error.
+ * @authors Andrew Bowie
  */
 struct pcb *pcb_setup(const char *name, int class, int priority);
 
@@ -74,4 +76,22 @@ struct pcb *pcb_setup(const char *name, int class, int priority);
 * @authors Kolby Eisenhauers
 */
 void pcb_insert(struct pcb* pcb_ptr);
+
+/**
+ *
+ * @param name
+ * @return
+ * @authors Jared Crowley
+ */
+struct pcb *pcb_find(const char *name);
+
+/**
+ *
+ * @param name
+ * @return
+ * @authors Jared Crowley
+ */
+int pcb_remove(struct pcb *name);
+
+
 #endif
