@@ -86,6 +86,24 @@ struct pcb *pcb_setup(const char *name, int class, int priority)
     pcb_ptr->priority = priority;
     return pcb_ptr;
 }
+
+void pcb_insert(struct pcb* pcb_ptr)
+{
+    if(pcb_ptr->state == BLOCKED)
+    {
+        
+    } 
+    else if(pcb_ptr->state == READY)
+    {
+
+    }
+    else 
+    {
+        println("Cannot recognize state");
+    }
+
+
+}
 //pcb* pcb_setup
 //pcb* pcb_find
 //pcb_insert
