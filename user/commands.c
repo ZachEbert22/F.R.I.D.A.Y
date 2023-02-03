@@ -20,7 +20,20 @@
 #define CMD_SET_DATE_LABEL "set-date"
 #define CMD_CLEAR_LABEL "clear"
 #define CMD_COLOR_LABEL "color"
+//PCB Command Header
 #define CMD_PCB_LABEL "pcb"
+//PCB Commands
+#define CMD_PCBCREATE_LABEL "pcb-create"
+#define CMD_PCBDELETE_LABEL "pcb-delete"
+#define CMD_PCBBLOCK_LABEL "pcb-block"
+#define CMD_PCBUNBLOCK_LABEL "pcb-unblock"
+#define CMD_PCBSUSPEND_LABEL "pcb-suspend"
+#define CMD_PCBRESUME_LABEL "pcb-resume"
+#define CMD_PCBPRIORITY_LABEL "pcb-priority"
+#define CMD_PCBSHOW_LABEL "pcb-show"
+#define CMD_PCBSHOWREADY_LABEL "pcb-show-ready"
+#define CMD_PCBSHOWBLOCKED_LABEL "pcb-show-blocked"
+#define CMD_PCBSHOWALL_LABEL "pcb-show-all"
 
 ///An array of all command labels, terminated with null.
 static const char *CMD_LABELS[] = {
@@ -313,7 +326,30 @@ struct help_info help_messages[] = {
         {.str_label = CMD_COLOR_LABEL,
                 .help_message = "The '%s' command sets the color of text output.\nto change your color, enter 'color'"},
         {.str_label = CMD_PCB_LABEL,
-                .help_message = "The '%s' command shows all the pcb commands available to the user. the help commands are listed below\nenter 'help pcb-create'\nenter 'help pcb-create'\nenter 'help pcb-create'\nenter 'help pcb-create'\nenter 'help pcb-create'\nenter 'help pcb-create'\nenter 'help pcb-create'"},
+                .help_message = "The '%s' command shows all the pcb commands available to the user. the help commands are listed below\nenter 'help pcb-create'\nenter 'help pcb-delete'\nenter 'help pcb-block'\nenter 'help pcb-unblock'\nenter 'help pcb-suspend'\nenter 'help pcb-resume'\nenter 'help pcb-priority'\nenter 'help pcb-show'\nenter 'help pcb-show-ready'\nenter 'help pcb-show-blocked'\nenter 'help pcb-show-all'"},
+        {.str_label = CMD_PCBCREATE_LABEL,
+                .help_message = "The '%s' Command Creates the PCB and inserts it into the appropriate queue"},
+        {.str_label = CMD_PCBDELETE_LABEL,
+                .help_message = "The '%s' Command Deletes the process and frees all associated memory"},
+        {.str_label = CMD_PCBBLOCK_LABEL,
+                .help_message = "The '%s' Command puts the PCB in a blocked state"},
+        {.str_label = CMD_PCBUNBLOCK_LABEL,
+                .help_message = "The '%s' Command unblocks the process (now into a ready state)"},
+        {.str_label = CMD_PCBSUSPEND_LABEL,
+                .help_message = "The '%s' Command puts the process in a suspended state"},
+        {.str_label = CMD_PCBRESUME_LABEL,
+                .help_message = "The '%s' Command resumes the process after its been suspended"},
+        {.str_label = CMD_PCBPRIORITY_LABEL,
+                .help_message = "The '%s' Command changes the process's priority"},
+        {.str_label = CMD_PCBSHOW_LABEL,
+                .help_message = "The '%s' Command displays the process's info including name, class, state, status, and priority"},
+        {.str_label = CMD_PCBSHOWREADY_LABEL,
+                .help_message = "The '%s' Command displays the process's info including name, class, state, status, and priority when in the ready state"},
+        {.str_label = CMD_PCBSHOWBLOCKED_LABEL,
+                .help_message = "The '%s' Command displays the process's info including name, class, state, status, and priority when in the blocked state"},
+        {.str_label = CMD_PCBSHOWALL_LABEL,
+                .help_message = "The '%s' Command displays the process's info including name, class, state, status, and priority no matter what state its in"},
+        
 };
 
 bool cmd_help(const char *comm)

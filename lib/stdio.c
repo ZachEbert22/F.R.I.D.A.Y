@@ -9,7 +9,7 @@
 #include "memory.h"
 #include "cli.h"
 
-#define PRINTF_BUF_LEN 250
+#define PRINTF_BUF_LEN 500
 
 char *gets(char *str_buf, size_t buf_len)
 {
