@@ -72,7 +72,7 @@ void comhand(void)
     sig_shutdown = false;
     while (!sig_shutdown)
     {
-        //100 + 1 for the null terminator.
+        //60 + 1 for the null terminator.
         char buf[61] = {0};
 
         print(CMD_PROMPT);
