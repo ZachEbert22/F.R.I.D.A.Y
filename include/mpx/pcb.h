@@ -69,4 +69,21 @@ int pcb_free(struct pcb* pcb_ptr);
  */
 struct pcb *pcb_setup(const char *name, int class, int priority);
 
+/**
+ *
+ * @param name
+ * @return
+ * @authors Jared Crowley
+ */
+struct pcb *pcb_find(const char *name);
+
+/**
+ *
+ * @param name
+ * @return
+ * @authors Jared Crowley
+ */
+int pcb_remove(struct pcb *name);
+
+
 #endif

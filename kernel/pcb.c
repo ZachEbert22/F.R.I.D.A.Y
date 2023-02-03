@@ -89,6 +89,28 @@ struct pcb *pcb_setup(const char *name, int class, int priority)
     pcb_ptr->priority = priority;
     return pcb_ptr;
 }
+
+
+struct pcb *pcb_find(const char *name)
+{
+    // get size of linked list
+    int size = list_size(running_pcb_queue);
+
+    for (int i = 0; i < size; ++i) {
+        struct pcb* pcb_ptr = get_item(running_pcb_queue, i);
+        if(strcmp(pcb_ptr->name,name) == 0)
+            return pcb_ptr;
+    }
+    return NULL;
+}
+
+
+
+
+int pcb_remove(struct pcb *name)
+{
+
+}
 //pcb* pcb_setup
 //pcb* pcb_find
 //pcb_insert
