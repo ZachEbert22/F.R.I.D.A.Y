@@ -92,21 +92,9 @@ struct pcb *pcb_setup(const char *name, int class, int priority)
 
 void pcb_insert(struct pcb* pcb_ptr)
 {
-    if(pcb_ptr->state == BLOCKED)
-    {
-        
-    } 
-    else if(pcb_ptr->state == READY)
-    {
-
-    }
-    else 
-    {
-        println("Cannot recognize state");
-    }
-
-
-
+    if(pcb_ptr == NULL) return;
+    add_item(running_pcb_queue,pcb_ptr);
+}
 struct pcb *pcb_find(const char *name)
 {
     // get size of linked list
