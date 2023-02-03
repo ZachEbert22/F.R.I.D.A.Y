@@ -1,6 +1,4 @@
-//
-// Created by Andrew Bowie on 1/18/23.
-//
+
 
 #include "commands.h"
 #include "string.h"
@@ -22,7 +20,7 @@
 #define CMD_SET_DATE_LABEL "set-date"
 #define CMD_CLEAR_LABEL "clear"
 #define CMD_COLOR_LABEL "color"
-
+#define CMD_PCB_LABEL "pcb"
 ///An array of all command labels, terminated with null.
 static const char *CMD_LABELS[] = {
         CMD_HELP_LABEL,
@@ -311,6 +309,8 @@ struct help_info help_messages[] = {
                 .help_message = "The '%s' command allows the user to set the timezone for the system.\nMost North American and European Time Zones Are provided\nTo fix the timezone, type 'set-timezone'"},
         {.str_label = CMD_CLEAR_LABEL,
                 .help_message = "The '%s' command clears the screen.\nto clear your terminal, enter 'clear'"},
+        {.str_label = CMD_COLOR_LABEL,
+                .help_message = "The '%s' command sets the color of text output.\nto change your color, enter 'color'"},
         {.str_label = CMD_COLOR_LABEL,
                 .help_message = "The '%s' command sets the color of text output.\nto change your color, enter 'color'"}
 };
