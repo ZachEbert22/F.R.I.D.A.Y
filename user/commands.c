@@ -401,6 +401,7 @@ bool cmd_help(const char *comm)
     println("If you help to shutdown, enter 'help shutdown' down below");
     println("if you wnt to know what the command color does, enter 'help color'");
     println("If you want to know what clear does, enter 'help clear'");
+    println("If you want help with PCB and its commands, enter 'help pcb'");
     //println("If you need help in a class, dont use Stack Overflow");
     //println("Hope this helps!");
     return true;
