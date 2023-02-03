@@ -144,7 +144,7 @@ void
  * @param sort_func the sort func for this list.
  */
 void
-set_sort_func(const linked_list *list, int sort_func(void *, void *));
+set_sort_func(linked_list *list, int sort_func(void *, void *));
 
 /**
  * Applies the given function to each item within the linked list.

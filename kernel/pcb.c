@@ -41,7 +41,7 @@ void setup_queue()
         return;
 
     running_pcb_queue = nl_unbounded();
-    set_sort_func(running_pcb_queue, &pcb_cmpr);
+    set_sort_func((linked_list *) running_pcb_queue, &pcb_cmpr);
     blocked_pcb_queue = nl_unbounded();
 }
 
