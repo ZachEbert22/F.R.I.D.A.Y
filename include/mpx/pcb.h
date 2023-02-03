@@ -45,7 +45,7 @@ struct pcb {
  * @brief Allocates memory for a PCB block.
  *
  * @return A pointer to the allocated PCB.
- * @authors Andrew Bowie
+ * @authors Andrew Bowie, Kolby Eisenhauer
  */
 struct pcb *pcb_alloc(void);
 
@@ -68,6 +68,14 @@ int pcb_free(struct pcb* pcb_ptr);
  * @authors Andrew Bowie
  */
 struct pcb *pcb_setup(const char *name, int class, int priority);
+
+/**
+* @brief Inserts a PCB into appropriate queue, based on state and priority
+* @param pcb_ptr pointer to pcb
+* @return void
+* @authors Kolby Eisenhauers
+*/
+void pcb_insert(struct pcb* pcb_ptr);
 
 /**
  *
