@@ -14,7 +14,7 @@
 #include "linked_list.h"
 
 ///The PCB queue for processes.
-static const linked_list *running_pcb_queue;
+static linked_list *running_pcb_queue;
 
 /**
  * A pointer for comparing PCBs.
