@@ -5,6 +5,7 @@
 #include "linked_list.h"
 #include <stddef.h>
 #include "memory.h"
+#include "string.h"
 
 ///Contains the structure of the nodes in our linked list.
 struct linked_list_node_
@@ -22,6 +23,8 @@ struct linked_list_
     int _size;
     ///The maximum size of the linked list, set to -1 for infinite.
     int _max_size;
+    ///A pointer to the sorting function.
+    int (*sort_func)(void*, void*);
     ///The first node in the linked list.
     ll_node *_first;
     ///The second node in the linked list.
@@ -54,6 +57,7 @@ linked_list
     if (created_ptr == NULL)
         return NULL;
 
+    memset(created_ptr, 0, sizeof(linked_list));
     created_ptr->_max_size = max_size;
     created_ptr->_first = created_ptr->_last = NULL;
     return created_ptr;
@@ -113,6 +117,12 @@ add_item_index_i(linked_list *list, int index, const int item)
 }
 
 int
+add_item(linked_list *list, void *item)
+{
+    return add_item_index(list, list->_size, item);
+}
+
+int
 add_item_index(linked_list *list, int index, void *item)
 {
     if (list == NULL)
@@ -125,6 +135,32 @@ add_item_index(linked_list *list, int index, void *item)
     //List is full.
     if(list->_max_size >= 0 && list->_max_size <= list->_size)
         return 0;
+
+    //Create the node and assign the values.
+    ll_node *created = sys_alloc_mem(sizeof(ll_node));
+
+    //We were not able to allocate the memory required.
+    if(created == NULL)
+        return 0;
+
+    created->_item = item;
+
+    //We need to find the proper index to add the item in accordance to the sort function.
+    if(list->sort_func != NULL)
+    {
+        ll_node *curr_next = list->_first;
+        int walk = 0;
+        while(curr_next != NULL)
+        {
+            if(list->sort_func(curr_next->_item, created->_item) < 0)
+                break;
+
+            curr_next = curr_next->_next;
+            walk++;
+        }
+
+        index = walk;
+    }
 
     int walk_index = 0;
     ll_node *first = list->_first;
@@ -146,15 +182,8 @@ add_item_index(linked_list *list, int index, void *item)
             walk_index++;
         }
     }
-    //Create the node and assign the values.
-    ll_node *created = sys_alloc_mem(sizeof(ll_node));
-
-    //We were not able to allocate the memory required.
-    if(created == NULL)
-        return 0;
 
     created->_next = first;
-    created->_item = item;
 
     //Update the next node to have us as previous.
     if(last_iterated != NULL)
@@ -310,6 +339,12 @@ for_each_il(linked_list *list, void call(void *call))
         call(first_node->_item);
         first_node = first_node->_next;
     }
+}
+
+void
+set_sort_func(linked_list *list, int sort_func(void *, void *))
+{
+    list->sort_func = sort_func;
 }
 
 void

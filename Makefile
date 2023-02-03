@@ -8,7 +8,8 @@ kernel/core.o\
 kernel/kmain.o\
 kernel/serial.o\
 kernel/comhand.o\
-kernel/clock.o
+kernel/clock.o\
+kernel/pcb.o
 
 LIB_OBJECTS =\
 lib/ctype.o\

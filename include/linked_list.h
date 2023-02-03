@@ -80,7 +80,16 @@ int
 add_item_index_i(linked_list *list, int index, int item);
 
 /**
- * @brief An internal method for adding an unknown type to the list.
+ * @brief A function for adding an unknown type to the list.
+ * @param list the list to add to.
+ * @param item the item to add.
+ * @return 1 if successful, 0 if not.
+ */
+int
+add_item(linked_list *list, void *item);
+
+/**
+ * @brief A function for adding an unknown type to the list.
  * @param list the list to add to.
  * @param index the index to add to.
  * @param item the item to add.
@@ -128,6 +137,14 @@ remove_item(linked_list *list, int index);
  */
 void
 *remove_item_unsafe(linked_list *list, int index);
+
+/**
+ * @brief Sets the sorting function for this linked list.
+ * @param list the list to set the func for.
+ * @param sort_func the sort func for this list.
+ */
+void
+set_sort_func(linked_list *list, int sort_func(void *, void *));
 
 /**
  * Applies the given function to each item within the linked list.
