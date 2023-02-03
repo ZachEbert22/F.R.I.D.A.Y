@@ -13,15 +13,46 @@
 #include "mpx/pcb.h"
 #include "linked_list.h"
 
-///The PCB queue.
-static const linked_list *pcb_queue;
+///The PCB queue for running processes.
+static const linked_list *running_pcb_queue;
+///The PCB queue for blocked/suspended processes.
+static const linked_list *blocked_pcb_queue;
 
+/**
+ * A pointer for comparing PCBs.
+ * @param ptr1
+ * @param ptr2
+ * @return
+ */
+int pcb_cmpr(void *ptr1, void *ptr2)
+{
+    struct pcb *pcb_ptr1 = (struct pcb *) ptr1;
+    struct pcb *pcb_ptr2 = (struct pcb *) ptr2;
+
+    return pcb_ptr1->priority - pcb_ptr2->priority;
+}
+
+/**
+ * @brief Sets up the backing pcb queues.
+ */
+void setup_queue()
+{
+    if(running_pcb_queue != NULL)
+        return;
+
+    running_pcb_queue = nl_unbounded();
+    set_sort_func(running_pcb_queue, &pcb_cmpr);
+    blocked_pcb_queue = nl_unbounded();
+}
+
+//pcb_allocoate
 struct pcb *pcb_alloc(void)
 {
     struct pcb *pcb_ptr = sys_alloc_mem(sizeof (struct pcb));
     return pcb_ptr;
 }
 
+//pcb_free
 int pcb_free(struct pcb* pcb_ptr)
 {
     if(pcb_ptr == NULL)
@@ -51,9 +82,8 @@ struct pcb *pcb_setup(const char *name, int class, int priority)
     pcb_ptr->name = name;
     pcb_ptr->process_class = class;
     pcb_ptr->priority = priority;
+    return pcb_ptr;
 }
-//pcb_allocoate
-//pcb_free
 //pcb* pcb_setup
 //pcb* pcb_find
 //pcb_insert

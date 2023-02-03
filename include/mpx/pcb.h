@@ -41,4 +41,30 @@ struct pcb {
     unsigned char stack[PCB_STACK_SIZE];
 };
 
+/**
+ * @brief Allocates memory for a PCB block.
+ *
+ * @return A pointer to the allocated PCB.
+ * @authors Andrew Bowie
+ */
+struct pcb *pcb_alloc(void);
+
+/**
+ * @brief Frees the memory associated with the given PCB block.
+ *
+ * @param pcb_ptr the pointer to the pcb.
+ * @return 0 on success, non-zero on failure.
+ */
+int pcb_free(struct pcb* pcb_ptr);
+
+/**
+ * @brief Sets up a PCB with the given information.
+ *
+ * @param name the name of the PCB, cannot be longer than @code PCB_MAX_NAME_LEN chars.
+ * @param class the class of the PCB.
+ * @param priority the priority of the PCB.
+ * @return the created PCB, or NULL on error.
+ */
+struct pcb *pcb_setup(const char *name, int class, int priority);
+
 #endif
