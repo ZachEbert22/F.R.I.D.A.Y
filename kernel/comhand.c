@@ -73,13 +73,13 @@ void comhand(void)
     while (!sig_shutdown)
     {
         //100 + 1 for the null terminator.
-        char buf[101] = {0};
+        char buf[61] = {0};
 
         print(CMD_PROMPT);
 
-        set_command_formatting(true);
-        gets(buf, 100, true);
-        set_command_formatting(false);
+        set_cli_history(true);
+        gets(buf, 60);
+        set_cli_history(false);
 
         //Strip whitespace.
         str_strip_whitespace(buf, NULL, 0);

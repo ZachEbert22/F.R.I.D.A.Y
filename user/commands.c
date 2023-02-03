@@ -92,7 +92,7 @@ bool cmd_shutdown(const char *comm)
     print("Are you sure you want to shutdown? (y/N): ");
     char confirm_buf[6] = {0};
     set_cli_history(0);
-    gets(confirm_buf, 5, false);
+    gets(confirm_buf, 5);
     set_cli_history(1);
 
     //Check confirmation.
@@ -403,7 +403,7 @@ bool cmd_set_tz(const char *comm)
         }
         set_cli_history(0);
         print(": ");
-        gets(tz_buf, 9, false);
+        gets(tz_buf, 9);
         set_cli_history(1);
     }
     else
@@ -447,7 +447,7 @@ bool cmd_color(const char *comm)
     //Advance the token
     token = strtok(NULL, " ");
 
-    char input[15] = {0};
+    char input[20] = {0};
     if(token == NULL)
     {
         //Print all the available colors.
@@ -469,11 +469,11 @@ bool cmd_color(const char *comm)
         }
         print(": ");
 
-        gets(input, 14, false);
+        gets(input, 19);
     }
     else
     {
-        strcpy(input, token, 14);
+        strcpy(input, token, 19);
     }
 
     const color_t *color = get_color(input);
