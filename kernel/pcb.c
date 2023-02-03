@@ -51,6 +51,7 @@ void setup_queue()
 struct pcb *pcb_alloc(void)
 {
     struct pcb *pcb_ptr = sys_alloc_mem(sizeof (struct pcb));
+    if(pcb_ptr == NULL) return NULL;
     memset(pcb_ptr->stack,0,sizeof(pcb_ptr->stack));
     pcb_ptr->stack_ptr = sizeof(pcb_ptr->stack)-1;
     return pcb_ptr;
