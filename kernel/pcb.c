@@ -50,7 +50,7 @@ struct pcb *pcb_alloc(void)
 {
     struct pcb *pcb_ptr = sys_alloc_mem(sizeof (struct pcb));
     memset(pcb_ptr->stack,0,sizeof(pcb_ptr->stack));
-    pcb_ptr->stack_ptr = sizeof(pcb->stack-1);
+    pcb_ptr->stack_ptr = sizeof(pcb_ptr->stack)-1;
     return pcb_ptr;
 }
 
