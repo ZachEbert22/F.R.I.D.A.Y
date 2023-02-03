@@ -21,6 +21,7 @@
 #define CMD_CLEAR_LABEL "clear"
 #define CMD_COLOR_LABEL "color"
 #define CMD_PCB_LABEL "pcb"
+
 ///An array of all command labels, terminated with null.
 static const char *CMD_LABELS[] = {
         CMD_HELP_LABEL,
@@ -311,8 +312,8 @@ struct help_info help_messages[] = {
                 .help_message = "The '%s' command clears the screen.\nto clear your terminal, enter 'clear'"},
         {.str_label = CMD_COLOR_LABEL,
                 .help_message = "The '%s' command sets the color of text output.\nto change your color, enter 'color'"},
-        {.str_label = CMD_COLOR_LABEL,
-                .help_message = "The '%s' command sets the color of text output.\nto change your color, enter 'color'"}
+        {.str_label = CMD_PCB_LABEL,
+                .help_message = "The '%s' command shows all the pcb commands available to the user. the help commands are listed below\nenter 'help pcb-create'\nenter 'help pcb-create'\nenter 'help pcb-create'\nenter 'help pcb-create'\nenter 'help pcb-create'\nenter 'help pcb-create'\nenter 'help pcb-create'"},
 };
 
 bool cmd_help(const char *comm)
