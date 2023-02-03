@@ -93,5 +93,12 @@ struct pcb *pcb_find(const char *name);
  */
 int pcb_remove(struct pcb *name);
 
+/**
+ * @brief Runs the PCB command from the given string.
+ * @param comm the command.
+ * @authors Andrew Bowie
+ */
+void exec_pcb_cmd(const char *comm);
+
 
 #endif

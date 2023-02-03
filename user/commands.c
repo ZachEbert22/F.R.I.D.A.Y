@@ -10,6 +10,7 @@
 #include "stdlib.h"
 #include "color.h"
 #include "cli.h"
+#include "mpx/pcb.h"
 
 #define CMD_HELP_LABEL "help"
 #define CMD_VERSION_LABEL "version"
@@ -46,33 +47,16 @@ static const char *CMD_LABELS[] = {
         CMD_SET_DATE_LABEL,
         CMD_CLEAR_LABEL,
         CMD_COLOR_LABEL,
+        CMD_PCB_LABEL,
         NULL,
 };
-
-/**
- * @brief Checks if the given command matches the label.
- * @param comm the command.
- * @param label the label.
- * @return if the command matches the label.
- */
-bool matches_cmd(const char *comm, const char *label)
-{
-    //Create a copy.
-    size_t comm_len = strlen(comm);
-    char comm_cpy[comm_len + 1];
-    memcpy(comm_cpy, comm, comm_len + 1);
-
-    //Token the command.
-    char *str_token = strtok(comm_cpy, " ");
-    return strcicmp(str_token, label) == 0;
-}
 
 bool command_exists(const char *cmd)
 {
     int index = 0;
     while(CMD_LABELS[index] != NULL)
     {
-        if(matches_cmd(cmd, CMD_LABELS[index]))
+        if(first_label_matches(cmd, CMD_LABELS[index]))
             return true;
         index++;
     }
@@ -85,7 +69,7 @@ bool cmd_version(const char *comm)
     const char *label = CMD_VERSION_LABEL;
 
     //Check if it matched.
-    if (!matches_cmd(comm, label))
+    if (!first_label_matches(comm, label))
         return false;
 
     println("Module: R2");
@@ -98,7 +82,7 @@ bool cmd_shutdown(const char *comm)
 {
     const char *label = CMD_SHUTDOWN_LABEL;
 
-    if (!matches_cmd(comm, label))
+    if (!first_label_matches(comm, label))
         return false;
 
     print("Are you sure you want to shutdown? (y/N): ");
@@ -122,7 +106,7 @@ bool cmd_get_time_menu(const char *comm)
     const char *label = CMD_GET_TIME_LABEL;
 
     //Check if it matched.
-    if (!matches_cmd(comm, label))
+    if (!first_label_matches(comm, label))
         return false;
 
     print_time();
@@ -134,7 +118,7 @@ bool cmd_set_date(const char *comm)
 {
     const char *label = CMD_SET_DATE_LABEL;
     // Means that it did not start with label therefore it is not a valid input
-    if (!matches_cmd(comm, label))
+    if (!first_label_matches(comm, label))
     {
         return false;
     }
@@ -214,7 +198,7 @@ bool cmd_set_time(const char *comm)
 {
     const char *label = CMD_SET_TIME_LABEL;
     // Means that it did not start with label therefore it is not a valid input
-    if (!matches_cmd(comm, label))
+    if (!first_label_matches(comm, label))
     {
         return false;
     }
@@ -358,7 +342,7 @@ bool cmd_help(const char *comm)
     const char *label = CMD_HELP_LABEL;
 
     //Check if it matched.
-    if (!matches_cmd(comm, label))
+    if (!first_label_matches(comm, label))
         return false;
 
     const char *split_label = " ";
@@ -410,7 +394,7 @@ bool cmd_help(const char *comm)
 bool cmd_set_tz(const char *comm)
 {
     const char *label = CMD_SET_TIMEZONE_LABEL;
-    if (!matches_cmd(comm, label))
+    if (!first_label_matches(comm, label))
     {
         return false;
     }
@@ -466,7 +450,7 @@ bool cmd_set_tz(const char *comm)
 bool cmd_clear(const char *comm)
 {
     //Check if the label matches.
-    if(!matches_cmd(comm, CMD_CLEAR_LABEL))
+    if(!first_label_matches(comm, CMD_CLEAR_LABEL))
         return false;
 
     clearscr();
@@ -475,7 +459,7 @@ bool cmd_clear(const char *comm)
 
 bool cmd_color(const char *comm)
 {
-    if(!matches_cmd(comm, CMD_COLOR_LABEL))
+    if(!first_label_matches(comm, CMD_COLOR_LABEL))
         return false;
 
     size_t comm_len = strlen(comm);
@@ -523,5 +507,16 @@ bool cmd_color(const char *comm)
 
     set_output_color(color);
     printf("Set the color to '%s'!\n", color->color_label);
+    return true;
+}
+
+bool cmd_pcb(const char *comm)
+{
+    if(!first_label_matches(comm, CMD_PCB_LABEL))
+        return false;
+
+    //Pass the command to the pcb.
+    size_t label_len = strlen(CMD_PCB_LABEL);
+    exec_pcb_cmd(comm + label_len);
     return true;
 }

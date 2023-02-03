@@ -122,3 +122,44 @@ int pcb_remove(struct pcb *name)
     return 1;
 }
 
+/**
+ * The 'create' sub command.
+ * @param comm the string command.
+ * @return true if it matched, false if not.
+ */
+bool pcb_create_cmd(const char *comm)
+{
+    return false;
+}
+
+/**
+ * The 'delete' sub command.
+ * @param comm the string command.
+ * @return true if it matched, false if not.
+ */
+bool pcb_delete_cmd(const char *comm)
+{
+    return false;
+}
+
+///All commands within this file, terminated with NULL.
+static bool (*command[])(const char *) = {
+        &pcb_create_cmd,
+        &pcb_delete_cmd,
+        NULL,
+};
+
+void exec_pcb_cmd(const char *comm)
+{
+    int index = 0;
+    while(command[index] != NULL)
+    {
+        bool result = command[index](comm);
+        if(result)
+            return;
+    }
+
+    //Inform the user that there wasn't any matches.
+    if(strlen(comm) > 0)
+        printf("PCB sub command '%s' does not exist! Type 'help pcb' for more info!\n", comm);
+}
