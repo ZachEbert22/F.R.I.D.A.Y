@@ -22,4 +22,10 @@ void set_cli_history(bool enabled);
  */
 void set_command_formatting(bool enabled);
 
+/**
+ * @brief Sets if the input for the line should be invisible.
+ * @param enabled if it's enabled or not.
+ */
+void set_invisible(bool enabled);
+
 #endif //F_R_I_D_A_Y_CLI_H

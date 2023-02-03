@@ -116,6 +116,8 @@ enum direction
 static bool cli_history_enabled = false;
 ///If CLI command color formatting should be enabled.
 static bool command_formatting_enabled = false;
+///If the CLI input should be invisible.
+static bool cli_invisible = false;
 
 void set_cli_history(bool hist_enabled)
 {
@@ -125,6 +127,11 @@ void set_cli_history(bool hist_enabled)
 void set_command_formatting(bool enabled)
 {
     command_formatting_enabled = enabled;
+}
+
+void set_invisible(bool enabled)
+{
+    cli_invisible = enabled;
 }
 
 /**
@@ -428,6 +435,9 @@ int serial_poll(device dev, char *buffer, size_t len)
                 }
             }
         }
+
+        if(cli_invisible)
+            continue;
 
         //Reset the line.
         if (beginning_pos > 0)

@@ -48,7 +48,6 @@ void setup_queue()
     set_sort_func((linked_list *) running_pcb_queue, &pcb_cmpr);
 }
 
-//pcb_allocoate
 struct pcb *pcb_alloc(void)
 {
     struct pcb *pcb_ptr = sys_alloc_mem(sizeof (struct pcb));
@@ -58,7 +57,6 @@ struct pcb *pcb_alloc(void)
     return pcb_ptr;
 }
 
-//pcb_free
 int pcb_free(struct pcb* pcb_ptr)
 {
     if(pcb_ptr == NULL)
@@ -123,7 +121,4 @@ int pcb_remove(struct pcb *name)
     }
     return 1;
 }
-//pcb* pcb_setup
-//pcb* pcb_find
-//pcb_insert
-//pcb_remove
+
