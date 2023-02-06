@@ -144,6 +144,9 @@ int pcb_remove(struct pcb *name)
 ///The label for the create label.
 #define CMD_CREATE_LABEL "create"
 #define CMD_DELETE_LABEL "delete"
+#define CMD_BLOCK_LABEL "block"
+#define CMD_UNBLOCK_LABEL "unblock"
+#define CMD_SUSPEND_LABEL "suspend"
 
 /**
  * The 'create' sub command.
@@ -292,10 +295,93 @@ bool pcb_delete_cmd(const char *comm)
     return true;
 }
 
+bool pcb_unblock_cmd(const char* comm)
+{
+     if(!first_label_matches(comm, CMD_UNBLOCK_LABEL))
+        return false;
+    size_t comm_strlen = strlen(comm);
+    char comm_cpy[comm_strlen + 1];
+    memcpy(comm_cpy, comm, comm_strlen + 1);
+    char *name_token = strtok(comm_cpy, " ");
+    name_token = strtok(NULL, " ");
+    struct pcb* pcb_ptr = pcb_find(name_token);
+    if(pcb_ptr == NULL) {
+        printf("PCB with name: %s, not found\n",name_token);
+        return true;
+    }
+    if(pcb_ptr->exec_state != BLOCKED)
+    {
+        printf("PCB %s is not blocked\n",name_token);
+        return true;
+    }
+
+    pcb_ptr->exec_state = READY;
+    pcb_remove(pcb_ptr);
+    pcb_insert(pcb_ptr);
+    return true;
+}
+
+bool pcb_block_cmd(const char* comm)
+{
+    if(!first_label_matches(comm, CMD_BLOCK_LABEL))
+        return false;
+    size_t comm_strlen = strlen(comm);
+    
+    char comm_cpy[comm_strlen + 1];
+    memcpy(comm_cpy, comm, comm_strlen + 1);
+    char *name_token = strtok(comm_cpy, " ");
+    name_token = strtok(NULL, " ");
+    struct pcb* pcb_ptr = pcb_find(name_token);
+    if(pcb_ptr == NULL) {
+        printf("PCB with name: %s, not found\n",name_token);
+        return true;
+    }
+    if(pcb_ptr->exec_state == BLOCKED)
+    {
+        printf("PCB %s is blocked already\n", name_token);
+        return true;
+    }
+
+    pcb_ptr->exec_state = BLOCKED;
+    pcb_remove(pcb_ptr);
+    pcb_insert(pcb_ptr);
+    return true;
+}
+
+bool pcb_suspend_cmd(const char* comm)
+{
+    if(!first_label_matches(comm, CMD_SUSPEND_LABEL))
+        return false;
+    size_t comm_strlen = strlen(comm);
+
+    char comm_cpy[comm_strlen + 1];
+    memcpy(comm_cpy, comm, comm_strlen + 1);
+    char *name_token = strtok(comm_cpy, " ");
+    name_token = strtok(NULL, " ");
+    struct pcb* pcb_ptr = pcb_find(name_token);
+    if(pcb_ptr == NULL) {
+        printf("PCB with name: %s, not found\n",name_token);
+        return true;
+    }
+    if(pcb_ptr->process_class == SYSTEM)
+    {
+        printf("PCB %s is a system class PCB cannot be suspended by user\n",name_token);
+        return true;
+    }
+
+    pcb_ptr->dispatch_state = SUSPENDED;
+    pcb_remove(pcb_ptr);
+    pcb_insert(pcb_ptr);
+    return true;
+}
+
 ///All commands within this file, terminated with NULL.
 static bool (*command[])(const char *) = {
         &pcb_create_cmd,
         &pcb_delete_cmd,
+        &pcb_block_cmd,
+        &pcb_unblock_cmd,
+        &pcb_suspend_cmd,
         NULL,
 };
 

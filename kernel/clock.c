@@ -296,7 +296,7 @@ bool set_date_clock(unsigned int month, unsigned int day, unsigned int year)
         return false;
 
     //Check the days in the month.
-    unsigned int days_in_month = get_days_in_month(month, bcd_to_decimal(year));
+    unsigned int days_in_month = get_days_in_month(month, year);
     if(day > days_in_month)
         return false;
 
