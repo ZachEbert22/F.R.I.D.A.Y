@@ -296,7 +296,7 @@ bool set_date_clock(unsigned int month, unsigned int day, unsigned int year)
         return false;
 
     //Check the days in the month.
-    unsigned int days_in_month = get_days_in_month((int) month, (int) year);
+    unsigned int days_in_month = get_days_in_month(month, bcd_to_decimal(year));
     if(day > days_in_month)
         return false;
 
@@ -328,4 +328,10 @@ unsigned char decimal_to_bcd(unsigned int decimal)
     unsigned int first_half = decimal / 10;
     unsigned int second_half = decimal % 10;
     return ((first_half << 4) + second_half);
+}
+int bcd_to_decimal(unsigned char bcd)
+{
+    int first_half = (bcd & 0xF0) >> 4;
+    int  second_half = bcd & 0x0F;
+    return ((first_half*10) + second_half);
 }

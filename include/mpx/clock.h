@@ -70,6 +70,13 @@ bool set_date_clock(unsigned int month, unsigned int day, unsigned int year);
 unsigned char decimal_to_bcd(unsigned int decimal);
 
 /**
+ * @brief Converts the given BCD number to decimal.
+ * @param bcd the number to convert.
+ * @return the converted number.
+ */
+int  bcd_to_decimal(unsigned char bcd);
+
+/**
  * @brief Checks if the given array of time values is validly defined.
  *        All strings in the array must be valid, positive, 2 digit numbers.
  * @param word_len the length of 2nd dimension of the array.
