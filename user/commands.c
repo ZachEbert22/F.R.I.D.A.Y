@@ -148,6 +148,25 @@ bool cmd_set_date(const char *comm)
     unsigned char day_dec = atoi(date_array[1]);
     unsigned char year_dec = atoi(date_array[2]);
 
+    //Check pre-emptively.
+    if (month_dec < 1 || month_dec > 12)
+    {
+        println("Month is out of range 1-12!");
+        return true;
+    }
+
+    if (day_dec < 1)
+    {
+        println("Day cannot be negative!");
+        return true;
+    }
+
+    if (year_dec < 0 || year_dec > 99)
+    {
+        println("Year is out of range 0-100!");
+        return true;
+    }
+
     //Get the current time.
     int current_time[7] = {0};
     get_time(current_time);
@@ -166,19 +185,19 @@ bool cmd_set_date(const char *comm)
     unsigned int month = decimal_to_bcd(month_dec);
     unsigned int day = decimal_to_bcd(day_dec);
     unsigned int year = decimal_to_bcd(year_dec);
-    if (month < 0x01 | month > 0x12)
+    if (month < 0x01 || month > 0x12)
     {
         println("Month is out of range 1-12!");
         return true;
     }
 
-    if (year < 0x00 | year > 0x99)
+    if (year < 0x00 || year > 0x99)
     {
         println("Year is out of range 0-100!");
         return true;
     }
 
-    if (day < 0x01 | day > get_days_in_month((int) month, (int) year))
+    if (day < 0x01 || day > get_days_in_month((int) month, (int) year))
     {
         println("Day is out of range for that month!");
         return true;
@@ -229,6 +248,23 @@ bool cmd_set_time(const char *comm)
     unsigned char minute_dec = atoi(time_array[1]);
     unsigned char second_dec = atoi(time_array[2]);
 
+    //Do some pre error checking.
+    if (hour_dec < 0 || hour_dec > 23)
+    {
+        println("Hour is out of range 0-23!");
+        return true;
+    }
+    if (minute_dec < 0 || minute_dec > 59)
+    {
+        println("Minutes is out of range 0-59!");
+        return true;
+    }
+    if (second_dec < 0 || second_dec > 59)
+    {
+        println("Seconds is out of range 0-59!");
+        return true;
+    }
+
     //Get the current time.
     int current_time[7] = {0};
     get_time(current_time);
@@ -247,17 +283,17 @@ bool cmd_set_time(const char *comm)
     unsigned char second = decimal_to_bcd(second_dec);
 
     //Do some error checking
-    if (hour < 0x00 | hour > 0x23)
+    if (hour < 0x00 || hour > 0x23)
     {
         println("Hour is out of range 0-23!");
         return true;
     }
-    if (minute < 0x00 | minute > 0x59)
+    if (minute < 0x00 || minute > 0x59)
     {
         println("Minutes is out of range 0-59!");
         return true;
     }
-    if (second < 0x00 | second > 0x59)
+    if (second < 0x00 || second > 0x59)
     {
         println("Seconds is out of range 0-59!");
         return true;
