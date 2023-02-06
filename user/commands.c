@@ -195,7 +195,7 @@ bool cmd_set_date(const char *comm)
         return true;
     }
 
-    if (day < 0x01 | day > get_days_in_month((int) month, (int) year))
+    if (day < 0x01 | day > get_days_in_month(month, (int) year_dec))
     {
         println("Day is out of range for that month!");
         return true;
