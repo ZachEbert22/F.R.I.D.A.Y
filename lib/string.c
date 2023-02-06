@@ -53,6 +53,18 @@ char *s_changecase(char *str, char *buffer, int buf_len, int letter_case)
     return str_buf;
 }
 
+bool first_label_matches(const char *str1, const char *label)
+{
+    //Create a copy.
+    size_t comm_len = strlen(str1);
+    char comm_cpy[comm_len + 1];
+    memcpy(comm_cpy, str1, comm_len + 1);
+
+    //Token the command.
+    char *str_token = strtok(comm_cpy, " ");
+    return strcicmp(str_token, label) == 0;
+}
+
 void *memcpy(void *restrict s1, const void *restrict s2, size_t n)
 {
     unsigned char *dst = s1;
@@ -89,7 +101,7 @@ void *memset(void *s, int c, size_t n)
 
 char *strcpy(char *str_dest, const char *str_src, size_t maxlen)
 {
-    if(str_dest == NULL || str_src == NULL)
+    if (str_dest == NULL || str_src == NULL)
         return NULL;
 
     size_t src_len = strlen(str_src);

@@ -47,33 +47,16 @@ static const char *CMD_LABELS[] = {
         CMD_SET_DATE_LABEL,
         CMD_CLEAR_LABEL,
         CMD_COLOR_LABEL,
+        CMD_PCB_LABEL,
         NULL,
 };
-
-/**
- * @brief Checks if the given command matches the label.
- * @param comm the command.
- * @param label the label.
- * @return if the command matches the label.
- */
-bool matches_cmd(const char *comm, const char *label)
-{
-    //Create a copy.
-    size_t comm_len = strlen(comm);
-    char comm_cpy[comm_len + 1];
-    memcpy(comm_cpy, comm, comm_len + 1);
-
-    //Token the command.
-    char *str_token = strtok(comm_cpy, " ");
-    return strcicmp(str_token, label) == 0;
-}
 
 bool command_exists(const char *cmd)
 {
     int index = 0;
     while(CMD_LABELS[index] != NULL)
     {
-        if(matches_cmd(cmd, CMD_LABELS[index]))
+        if(first_label_matches(cmd, CMD_LABELS[index]))
             return true;
         index++;
     }
@@ -86,10 +69,10 @@ bool cmd_version(const char *comm)
     const char *label = CMD_VERSION_LABEL;
 
     //Check if it matched.
-    if (!matches_cmd(comm, label))
+    if (!first_label_matches(comm, label))
         return false;
 
-    println("Module: R1");
+    println("Module: R2");
     println(__DATE__);
     println(__TIME__);
     return true;
@@ -99,7 +82,7 @@ bool cmd_shutdown(const char *comm)
 {
     const char *label = CMD_SHUTDOWN_LABEL;
 
-    if (!matches_cmd(comm, label))
+    if (!first_label_matches(comm, label))
         return false;
 
     print("Are you sure you want to shutdown? (y/N): ");
@@ -123,7 +106,7 @@ bool cmd_get_time_menu(const char *comm)
     const char *label = CMD_GET_TIME_LABEL;
 
     //Check if it matched.
-    if (!matches_cmd(comm, label))
+    if (!first_label_matches(comm, label))
         return false;
 
     print_time();
@@ -135,7 +118,7 @@ bool cmd_set_date(const char *comm)
 {
     const char *label = CMD_SET_DATE_LABEL;
     // Means that it did not start with label therefore it is not a valid input
-    if (!matches_cmd(comm, label))
+    if (!first_label_matches(comm, label))
     {
         return false;
     }
@@ -165,6 +148,25 @@ bool cmd_set_date(const char *comm)
     unsigned char day_dec = atoi(date_array[1]);
     unsigned char year_dec = atoi(date_array[2]);
 
+    //Check pre-emptively.
+    if (month_dec < 1 || month_dec > 12)
+    {
+        println("Month is out of range 1-12!");
+        return true;
+    }
+
+    if (day_dec < 1)
+    {
+        println("Day cannot be negative!");
+        return true;
+    }
+
+    if (year_dec < 0 || year_dec > 99)
+    {
+        println("Year is out of range 0-100!");
+        return true;
+    }
+
     //Get the current time.
     int current_time[7] = {0};
     get_time(current_time);
@@ -183,13 +185,13 @@ bool cmd_set_date(const char *comm)
     unsigned int month = decimal_to_bcd(month_dec);
     unsigned int day = decimal_to_bcd(day_dec);
     unsigned int year = decimal_to_bcd(year_dec);
-    if (month < 0x01 | month > 0x12)
+    if (month < 0x01 || month > 0x12)
     {
         println("Month is out of range 1-12!");
         return true;
     }
 
-    if (year < 0x00 | year > 0x99)
+    if (year < 0x00 || year > 0x99)
     {
         println("Year is out of range 0-100!");
         return true;
@@ -215,7 +217,7 @@ bool cmd_set_time(const char *comm)
 {
     const char *label = CMD_SET_TIME_LABEL;
     // Means that it did not start with label therefore it is not a valid input
-    if (!matches_cmd(comm, label))
+    if (!first_label_matches(comm, label))
     {
         return false;
     }
@@ -246,6 +248,23 @@ bool cmd_set_time(const char *comm)
     unsigned char minute_dec = atoi(time_array[1]);
     unsigned char second_dec = atoi(time_array[2]);
 
+    //Do some pre error checking.
+    if (hour_dec < 0 || hour_dec > 23)
+    {
+        println("Hour is out of range 0-23!");
+        return true;
+    }
+    if (minute_dec < 0 || minute_dec > 59)
+    {
+        println("Minutes is out of range 0-59!");
+        return true;
+    }
+    if (second_dec < 0 || second_dec > 59)
+    {
+        println("Seconds is out of range 0-59!");
+        return true;
+    }
+
     //Get the current time.
     int current_time[7] = {0};
     get_time(current_time);
@@ -264,17 +283,17 @@ bool cmd_set_time(const char *comm)
     unsigned char second = decimal_to_bcd(second_dec);
 
     //Do some error checking
-    if (hour < 0x00 | hour > 0x23)
+    if (hour < 0x00 || hour > 0x23)
     {
         println("Hour is out of range 0-23!");
         return true;
     }
-    if (minute < 0x00 | minute > 0x59)
+    if (minute < 0x00 || minute > 0x59)
     {
         println("Minutes is out of range 0-59!");
         return true;
     }
-    if (second < 0x00 | second > 0x59)
+    if (second < 0x00 || second > 0x59)
     {
         println("Seconds is out of range 0-59!");
         return true;
@@ -359,7 +378,7 @@ bool cmd_help(const char *comm)
     const char *label = CMD_HELP_LABEL;
 
     //Check if it matched.
-    if (!matches_cmd(comm, label))
+    if (!first_label_matches(comm, label))
         return false;
 
     const char *split_label = " ";
@@ -402,6 +421,7 @@ bool cmd_help(const char *comm)
     println("If you help to shutdown, enter 'help shutdown' down below");
     println("if you wnt to know what the command color does, enter 'help color'");
     println("If you want to know what clear does, enter 'help clear'");
+    println("If you want help with PCB and its commands, enter 'help pcb'");
     //println("If you need help in a class, dont use Stack Overflow");
     //println("Hope this helps!");
     return true;
@@ -410,7 +430,7 @@ bool cmd_help(const char *comm)
 bool cmd_set_tz(const char *comm)
 {
     const char *label = CMD_SET_TIMEZONE_LABEL;
-    if (!matches_cmd(comm, label))
+    if (!first_label_matches(comm, label))
     {
         return false;
     }
@@ -466,7 +486,7 @@ bool cmd_set_tz(const char *comm)
 bool cmd_clear(const char *comm)
 {
     //Check if the label matches.
-    if(!matches_cmd(comm, CMD_CLEAR_LABEL))
+    if(!first_label_matches(comm, CMD_CLEAR_LABEL))
         return false;
 
     clearscr();
@@ -475,7 +495,7 @@ bool cmd_clear(const char *comm)
 
 bool cmd_color(const char *comm)
 {
-    if(!matches_cmd(comm, CMD_COLOR_LABEL))
+    if(!first_label_matches(comm, CMD_COLOR_LABEL))
         return false;
 
     size_t comm_len = strlen(comm);
@@ -525,80 +545,14 @@ bool cmd_color(const char *comm)
     printf("Set the color to '%s'!\n", color->color_label);
     return true;
 }
-bool cmd_unblock_pcb(const char* comm)
-{
-    if(!matches_cmd(comm,CMD_PCBUNBLOCK_LABEL))
-        return false;
-    size_t comm_strlen = strlen(comm);
-    char comm_cpy[comm_strlen + 1];
-    memcpy(comm_cpy, comm, comm_strlen + 1);
-    char *name_token = strtok(comm_cpy, " ");
-    name_token = strtok(NULL, " ");
-    struct pcb* pcb_ptr = pcb_find(name_token);
-    if(pcb_ptr == NULL) {
-        printf("PCB with name: %s, not found\n",name_token);
-        return true;
-    }
-    if(pcb_ptr->exec_state != BLOCKED)
-    {
-        printf("PCB %s is not blocked\n",name_token);
-        return true;
-    }
 
-    pcb_ptr->exec_state = READY;
-    pcb_remove(pcb_ptr);
-    pcb_insert(pcb_ptr);
-    return true;
-}
-bool cmd_block_pcb(const char* comm)
+bool cmd_pcb(const char *comm)
 {
-    if(!matches_cmd(comm,CMD_PCBBLOCK_LABEL))
+    if(!first_label_matches(comm, CMD_PCB_LABEL))
         return false;
-    size_t comm_strlen = strlen(comm);
-    
-    char comm_cpy[comm_strlen + 1];
-    memcpy(comm_cpy, comm, comm_strlen + 1);
-    char *name_token = strtok(comm_cpy, " ");
-    name_token = strtok(NULL, " ");
-    struct pcb* pcb_ptr = pcb_find(name_token);
-    if(pcb_ptr == NULL) {
-        printf("PCB with name: %s, not found\n",name_token);
-        return true;
-    }
-    if(pcb_ptr->exec_state == BLOCKED)
-    {
-        printf("PCB %s is blocked already\n", name_token);
-        return true;
-    }
 
-    pcb_ptr->exec_state = BLOCKED;
-    pcb_remove(pcb_ptr);
-    pcb_insert(pcb_ptr);
-    return true;
-}
-bool cmd_suspend_pcb(const char* comm)
-{
-    if(!matches_cmd(comm,CMD_PCBSUSPEND_LABEL))
-        return false;
-    size_t comm_strlen = strlen(comm);
-    //Get the time.
-    char comm_cpy[comm_strlen + 1];
-    memcpy(comm_cpy, comm, comm_strlen + 1);
-    char *name_token = strtok(comm_cpy, " ");
-    name_token = strtok(NULL, " ");
-    struct pcb* pcb_ptr = pcb_find(name_token);
-    if(pcb_ptr == NULL) {
-        printf("PCB with name: %s, not found\n",name_token);
-        return true;
-    }
-    if(pcb_ptr->process_class != SYSTEM)
-    {
-        printf("PCB %s is a system class PCB cannot be suspended by user\n",name_token);
-        return true;
-    }
-
-    pcb_ptr->dispatch_state = SUSPENDED;
-    pcb_remove(pcb_ptr);
-    pcb_insert(pcb_ptr);
+    //Pass the command to the pcb.
+    size_t label_len = strlen(CMD_PCB_LABEL);
+    exec_pcb_cmd(comm + label_len);
     return true;
 }

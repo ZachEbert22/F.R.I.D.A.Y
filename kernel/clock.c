@@ -221,12 +221,15 @@ int get_index(int a)
 
 unsigned int get_days_in_month(int month, int year)
 {
+    int decimal_year = ((year >> 4) & 0xF) * 10;
+    decimal_year += year & 0xF;
+
     switch (month)
     {
         case 1:
             return 0x31;
         case 2:
-            if (year % 4 == 0)
+            if (decimal_year % 4 == 0)
                 return 0x29;
             return 0x28;
         case 3:
@@ -297,13 +300,24 @@ bool set_date_clock(unsigned int month, unsigned int day, unsigned int year)
     if(day > days_in_month)
         return false;
 
+    //It appears that it is necessary to 'refresh' the times in the clock.
+    //If this is not done, the hours, minutes, and seconds reset to whatever they were
+    //at the time of the previous read.
+    get_index(YEAR);
+    get_index(MONTH);
+    get_index(DATE);
+    get_index(DAY);
+    get_index(HOURS);
+    get_index(MINUTES);
+    get_index(SECONDS);
+
     cli();
+    outb(0x70, DATE);
+    outb(0x71, day);
     outb(0x70, MONTH);
     outb(0x71, month);
     outb(0x70, YEAR);
     outb(0x71, year);
-    outb(0x70, DATE);
-    outb(0x71, day);
     sti();
     return true;
 }

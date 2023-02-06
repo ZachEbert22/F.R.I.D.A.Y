@@ -6,6 +6,8 @@
 #include <stddef.h>
 #include "memory.h"
 #include "string.h"
+#include "stdio.h"
+#include "mpx/pcb.h"
 
 ///Contains the structure of the nodes in our linked list.
 struct linked_list_node_

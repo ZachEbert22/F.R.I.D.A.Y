@@ -28,9 +28,7 @@ bool (*comm_funcs[])(const char *comm) = {
         &cmd_set_tz,
         &cmd_clear,
         &cmd_color,
-        &cmd_block_pcb,
-        &cmd_unblock_pcb,
-        &cmd_suspend_pcb
+        &cmd_pcb
 };
 
 /// Used to denote if the comm hand should stop.

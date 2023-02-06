@@ -50,6 +50,8 @@ void setup_queue()
 
 struct pcb *pcb_alloc(void)
 {
+    setup_queue();
+
     struct pcb *pcb_ptr = sys_alloc_mem(sizeof (struct pcb));
     if(pcb_ptr == NULL) return NULL;
     memset(pcb_ptr->stack,0,sizeof(pcb_ptr->stack));
@@ -59,6 +61,8 @@ struct pcb *pcb_alloc(void)
 
 int pcb_free(struct pcb* pcb_ptr)
 {
+    setup_queue();
+
     if(pcb_ptr == NULL)
         return 1;
 
@@ -67,6 +71,8 @@ int pcb_free(struct pcb* pcb_ptr)
 
 struct pcb *pcb_setup(const char *name, int class, int priority)
 {
+    setup_queue();
+
     //Don't allow null names or names that are too long.
     if(name == NULL || strlen(name) > PCB_MAX_NAME_LEN)
         return NULL;
@@ -83,7 +89,14 @@ struct pcb *pcb_setup(const char *name, int class, int priority)
     if(pcb_ptr == NULL)
         return NULL;
 
-    pcb_ptr->name = name;
+    //We need to malloc the string,
+    size_t str_len = strlen(name);
+    char *malloc_name = sys_alloc_mem(str_len + 1);
+    if(malloc_name == NULL)
+        return NULL;
+    memcpy(malloc_name, name, str_len + 1);
+
+    pcb_ptr->name = malloc_name;
     pcb_ptr->process_class = class;
     pcb_ptr->priority = priority;
     return pcb_ptr;
@@ -91,17 +104,21 @@ struct pcb *pcb_setup(const char *name, int class, int priority)
 
 void pcb_insert(struct pcb* pcb_ptr)
 {
+    setup_queue();
+
     if(pcb_ptr == NULL) return;
     add_item(running_pcb_queue,pcb_ptr);
 }
 struct pcb *pcb_find(const char *name)
 {
+    setup_queue();
+
     // get size of linked list
     int size = list_size(running_pcb_queue);
 
     for (int i = 0; i < size; ++i) {
         struct pcb* pcb_ptr = get_item(running_pcb_queue, i);
-        if(strcmp(pcb_ptr->name,name) == 0)
+        if(strcmp(pcb_ptr->name, name) == 0)
             return pcb_ptr;
     }
     return NULL;
@@ -109,6 +126,8 @@ struct pcb *pcb_find(const char *name)
 
 int pcb_remove(struct pcb *name)
 {
+    setup_queue();
+
     // get size of linked list
     int size = list_size(running_pcb_queue);
 
@@ -122,3 +141,184 @@ int pcb_remove(struct pcb *name)
     return 1;
 }
 
+///The label for the create label.
+#define CMD_CREATE_LABEL "create"
+#define CMD_DELETE_LABEL "delete"
+
+/**
+ * The 'create' sub command.
+ * @param comm the string command.
+ * @return true if it matched, false if not.
+ */
+bool pcb_create_cmd(const char *comm)
+{
+    if(!first_label_matches(comm, CMD_CREATE_LABEL))
+        return false;
+
+    //Copy the string.
+    size_t str_len = strlen(comm);
+    char comm_cpy[str_len + 1];
+    memcpy(comm_cpy, comm, str_len + 1);
+
+    //Tokenize the string.
+    char *token = strtok(comm_cpy, " ");
+    //Push it forward.
+    token = strtok(NULL, " ");
+
+    //Initialize pointers, all null for error checking.
+    char *name = NULL;
+    int class = -1;
+    int priority = -1;
+
+    if(token == NULL)
+    {
+        println("Missing Arguments! Do it like this: 'pcb create (name) (class) (priority)'");
+        return true;
+    }
+
+    //Copy the name.
+    size_t token_size = strlen(token);
+    if(token_size > PCB_MAX_NAME_LEN)
+    {
+        printf("Invalid Argument! '%s' exceeds maximum name length of %d!\n", token, PCB_MAX_NAME_LEN);
+        return true;
+    }
+
+    if(pcb_find(token) != NULL)
+    {
+        printf("Invalid Argument! The PCB '%s' already exists!\n", token);
+        return true;
+    }
+
+    char name_cpy[token_size + 1];
+    memcpy(name_cpy, token, token_size + 1);
+    name = name_cpy;
+
+    token = strtok(NULL, " ");
+    if(token == NULL)
+    {
+        println("Missing Arguments! Do it like this: 'pcb create (name) (class) (priority)'");
+        return true;
+    }
+
+    //Check which type it was.
+    if(strcicmp(token, "USER") == 0)
+    {
+        class = USER;
+    }
+    else if(strcicmp(token, "SYSTEM") == 0)
+    {
+        class = SYSTEM;
+    }
+    else
+    {
+        printf("Invalid Argument! %s isn't a valid class! Try 'USER' or 'SYSTEM'!\n", token);
+        return true;
+    }
+
+    token = strtok(NULL, " ");
+    if(token == NULL)
+    {
+        println("Missing Arguments! Do it like this: 'pcb create (name) (class) (priority)'");
+        return true;
+    }
+
+    priority = atoi(token);
+    if(priority < 0 || priority > 9)
+    {
+        printf("Invalid Argument! %d isn't a valid priority! Try 0-9 instead.\n", priority);
+        return true;
+    }
+
+    //Alloc the pcb.
+    struct pcb *pcb_ptr = pcb_setup(name, class, priority);
+    if(pcb_ptr == NULL)
+    {
+        println("There was an error setting up the PCB!");
+        return true;
+    }
+
+    //Insert it.
+    pcb_insert(pcb_ptr);
+
+    printf("Successfully created a new PCB with the following info.\nName: %s\nClass: %s\nPriority: %d\n",
+           name,
+           class == 0 ? "USER" : "SYSTEM",
+           priority);
+    return true;
+}
+
+/**
+ * The 'delete' sub command.
+ * @param comm the string command.
+ * @return true if it matched, false if not.
+ */
+bool pcb_delete_cmd(const char *comm)
+{
+    if(!first_label_matches(comm, CMD_DELETE_LABEL))
+        return false;
+
+    //Copy the command.
+    size_t s_len = strlen(comm);
+    char comm_cpy[s_len + 1];
+    memcpy(comm_cpy, comm, s_len + 1);
+
+    //Tokenize.
+    char *token = strtok(comm_cpy, " ");
+    token = strtok(NULL, " ");
+
+    if(token == NULL)
+    {
+        println("Missing Arguments! Do it like this: 'pcb delete (name)'");
+        return true;
+    }
+
+    //Find the PCB.
+    struct pcb *pcb_ptr = pcb_find(token);
+    if(pcb_ptr == NULL)
+    {
+        printf("Could not find PCB named '%s'!\n", token);
+        return true;
+    }
+
+    if(pcb_ptr->process_class == SYSTEM)
+    {
+        println("You cannot delete PCBs with the 'SYSTEM' class.");
+        return true;
+    }
+
+    pcb_remove(pcb_ptr);
+    printf("Removed PCB named '%s'!\n", pcb_ptr->name);
+    return true;
+}
+
+///All commands within this file, terminated with NULL.
+static bool (*command[])(const char *) = {
+        &pcb_create_cmd,
+        &pcb_delete_cmd,
+        NULL,
+};
+
+void exec_pcb_cmd(const char *comm)
+{
+    size_t str_len = strlen(comm);
+    char comm_cpy[str_len + 1];
+    memcpy(comm_cpy, comm, str_len + 1);
+
+    str_strip_whitespace(comm_cpy, NULL, 0);
+
+    int index = 0;
+    while(command[index] != NULL)
+    {
+        bool result = command[index](comm_cpy);
+        if(result)
+            return;
+        index++;
+    }
+
+    //Inform the user that there wasn't any matches.
+    if(strlen(comm) > 0)
+        printf("PCB sub command '%s' does not exist! Type 'help pcb' for more info!\n", comm_cpy);
+    else
+        println("Please provide a PCB sub command!");
+}

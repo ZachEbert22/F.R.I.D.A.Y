@@ -11,6 +11,14 @@
 */
 
 /**
+ * @brief Checks if the given string's first part matches the label.
+ * @param str1 the string.
+ * @param label the label.
+ * @return if the string matches the label.
+ */
+bool first_label_matches(const char *str1, const char *label);
+
+/**
  Copy a region of memory.
  @param dst The destination memory region
  @param src The source memory region
