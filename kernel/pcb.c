@@ -295,6 +295,12 @@ bool pcb_delete_cmd(const char *comm)
     return true;
 }
 
+/**
+ * The 'unblock' sub command.
+ * @param comm the string command.
+ * @return true if it matched, false if not.
+ * @author Kolby Eisenhauer
+ */
 bool pcb_unblock_cmd(const char* comm)
 {
      if(!first_label_matches(comm, CMD_UNBLOCK_LABEL))
@@ -318,9 +324,16 @@ bool pcb_unblock_cmd(const char* comm)
     pcb_ptr->exec_state = READY;
     pcb_remove(pcb_ptr);
     pcb_insert(pcb_ptr);
+        printf("The pcb named: %s was unblocked\n", pcb_ptr->name);
     return true;
 }
 
+/**
+ * The 'block' sub command.
+ * @param comm the string command.
+ * @return true if it matched, false if not.
+ * @author Kolby Eisenhauer
+ */
 bool pcb_block_cmd(const char* comm)
 {
     if(!first_label_matches(comm, CMD_BLOCK_LABEL))
@@ -345,9 +358,16 @@ bool pcb_block_cmd(const char* comm)
     pcb_ptr->exec_state = BLOCKED;
     pcb_remove(pcb_ptr);
     pcb_insert(pcb_ptr);
+        printf("The pcb named: %s was blocked\n", pcb_ptr->name);
     return true;
 }
 
+/**
+ * The 'suspend' sub command.
+ * @param comm the string command.
+ * @return true if it matched, false if not.
+ * @author Kolby Eisenhauer
+ */
 bool pcb_suspend_cmd(const char* comm)
 {
     if(!first_label_matches(comm, CMD_SUSPEND_LABEL))
@@ -372,6 +392,7 @@ bool pcb_suspend_cmd(const char* comm)
     pcb_ptr->dispatch_state = SUSPENDED;
     pcb_remove(pcb_ptr);
     pcb_insert(pcb_ptr);
+    printf("The pcb named: %s was suspended\n", pcb_ptr->name);
     return true;
 }
 
