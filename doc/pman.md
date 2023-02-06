@@ -94,4 +94,4 @@ return the `help_message` formatted with the command's name.
 
 The information above covers most important information on how to extend F.R.I.D.A.Y. 
 Please use the included Doxygen documentation for more information on how the internal systems work.
-If you'd like to learn how to use the system from a user's perspective, please refer to our **LINK USER MANUAL**
+If you'd like to learn how to use the system from a user's perspective, please refer to our [User Manual](UserManual.docx.pdf)
