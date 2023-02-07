@@ -109,6 +109,12 @@ void pcb_insert(struct pcb* pcb_ptr)
     if(pcb_ptr == NULL) return;
     add_item(running_pcb_queue,pcb_ptr);
 }
+/**
+ *
+ * @param name
+ * @return
+ * @authors Jared Crowley
+ */
 struct pcb *pcb_find(const char *name)
 {
     setup_queue();
@@ -123,7 +129,12 @@ struct pcb *pcb_find(const char *name)
     }
     return NULL;
 }
-
+/**
+ *
+ * @param name
+ * @return
+ * @authors Jared Crowley
+ */
 int pcb_remove(struct pcb *name)
 {
     setup_queue();
