@@ -147,6 +147,9 @@ int pcb_remove(struct pcb *name)
 #define CMD_BLOCK_LABEL "block"
 #define CMD_UNBLOCK_LABEL "unblock"
 #define CMD_SUSPEND_LABEL "suspend"
+#define CMD_RESUME_LABEL "resume"
+#define CMD_SETPRIORITY_LABEL "priority"
+#define CMD_SHOW_LABEL "show"
 
 /**
  * The 'create' sub command.
@@ -395,7 +398,74 @@ bool pcb_suspend_cmd(const char* comm)
     printf("The pcb named: %s was suspended\n", pcb_ptr->name);
     return true;
 }
+bool pcb_resume_cmd(const char* comm)
+{
+    if(!first_label_matches(comm, CMD_RESUME_LABEL))
+        return false;
+    size_t comm_strlen = strlen(comm);
 
+    char comm_cpy[comm_strlen + 1];
+    memcpy(comm_cpy, comm, comm_strlen + 1);
+    char *name_value = strtok(comm_cpy, " ");
+    name_value = strtok(NULL, " ");
+
+    struct pcb* pcb_ptr = pcb_find(name_value);
+    if(pcb_ptr == NULL) {
+        printf("PCB with name: %s, cannot be found \n",name_value);
+        return true;
+    }
+    if(pcb_ptr->process_class == SYSTEM)
+    {
+        printf("PCB %s is a system class PCB cannot be suspended nor resumed by user\n",name_value);
+        return true;
+    }
+
+    pcb_ptr->dispatch_state = NOT_SUSPENDED;
+    pcb_remove(pcb_ptr);
+    pcb_insert(pcb_ptr);
+    printf("The pcb named: %s was resumed\n", pcb_ptr->name);
+    return true;
+}
+bool pcb_priority_cmd(const char* comm){
+    if(!first_label_matches(comm, CMD_SETPRIORITY_LABEL))
+        return false;
+    size_t comm_strlen = strlen(comm);
+
+    char comm_cpy[comm_strlen + 1];
+    memcpy(comm_cpy, comm, comm_strlen + 1);
+    char *parameters = strtok(comm_cpy, " ");
+    parameters = strtok(NULL, " ");
+
+    struct pcb* pcb_ptr = pcb_find(parameters);
+    if(pcb_ptr == NULL) {
+        printf("PCB with name: %s, cannot be found \n", parameters);
+        return true;
+    }
+
+    parameters = strtok(NULL, " ");
+    int priority;
+    if(parameters != NULL && parameters[0] <= '9'  && parameters[0] >= '0') {
+        priority = atoi(parameters);
+    }else{
+        println("Priority is Invalid: Priority must be a number");
+        return true;
+    }
+
+    if(priority > 9 || priority < 0){
+        println("The Number is Out of Range. Enter a Number between 0-9");
+        return true;
+    }
+
+    pcb_ptr->priority = priority;
+    pcb_remove(pcb_ptr);
+    pcb_insert(pcb_ptr);
+    printf("The pcb named: %s was changed to priority %d\n", pcb_ptr->name, pcb_ptr->priority);
+    return true;
+}
+
+// pcb_show(const char* comm){
+
+// }
 ///All commands within this file, terminated with NULL.
 static bool (*command[])(const char *) = {
         &pcb_create_cmd,
@@ -403,6 +473,8 @@ static bool (*command[])(const char *) = {
         &pcb_block_cmd,
         &pcb_unblock_cmd,
         &pcb_suspend_cmd,
+        &pcb_resume_cmd,
+        &pcb_priority_cmd,
         NULL,
 };
 
