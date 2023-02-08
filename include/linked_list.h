@@ -36,6 +36,33 @@ linked_list
 *nl_maxsize(int max_size);
 
 /**
+ * @brief Gets the first node in the linked list.
+ *
+ * @param list the list.
+ * @return the first node in the list, or NULL.
+ */
+ll_node
+*get_first_node(linked_list *list);
+
+/**
+ * @brief Gets the next node after the given node.
+ *
+ * @param node the node.
+ * @return the next node, or NULL if no such node exists.
+ */
+ll_node
+*next_node(ll_node *node);
+
+/**
+ * @brief Gets the item out of the given node.
+ *
+ * @param node the node.
+ * @return the item.
+ */
+void
+*get_item_node(ll_node *node);
+
+/**
  * @brief Gets the size of the linked list.
  * @return the size of the linked list.
  */
@@ -127,6 +154,15 @@ void
  */
 void
 remove_item(linked_list *list, int index);
+
+/**
+ * @brief The pointer of the item to remove.
+ *
+ * @param list the list to remove from.
+ * @return 0 if removed, -1 if not found.
+ */
+int
+remove_item_ptr(linked_list *list, void *item_ptr);
 
 /**
  * @brief Removes an item from the linked list at the given index.

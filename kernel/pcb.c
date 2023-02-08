@@ -184,13 +184,15 @@ struct pcb *pcb_find(const char *name)
 {
     setup_queue();
 
-    // get size of linked list
-    int size = list_size(running_pcb_queue);
+    //Iterate over and find the item.
+    ll_node *first_node = get_first_node(running_pcb_queue);
+    while(first_node != NULL)
+    {
+        struct pcb *item_ptr = (struct pcb *) get_item_node(first_node);
+        if(strcmp(item_ptr->name, name) == 0)
+            return item_ptr;
 
-    for (int i = 0; i < size; ++i) {
-        struct pcb* pcb_ptr = get_item(running_pcb_queue, i);
-        if(strcmp(pcb_ptr->name, name) == 0)
-            return pcb_ptr;
+        first_node = next_node(first_node);
     }
     return NULL;
 }
@@ -205,15 +207,7 @@ int pcb_remove(struct pcb *name)
     setup_queue();
 
     // get size of linked list
-    int size = list_size(running_pcb_queue);
-
-    for (int i = 0; i < size; ++i) {
-        struct pcb* pcb_ptr = get_item(running_pcb_queue, i);
-        if(pcb_ptr == name) {
-            remove_item(running_pcb_queue,i);
-            return 0;
-        }
-    }
+    remove_item_ptr(running_pcb_queue, name);
     return 1;
 }
 

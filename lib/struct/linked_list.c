@@ -65,6 +65,33 @@ linked_list
     return created_ptr;
 }
 
+ll_node
+*get_first_node(linked_list *list)
+{
+    if(list == NULL || list->_size == 0)
+        return NULL;
+
+    return list->_first;
+}
+
+ll_node
+*next_node(ll_node *current)
+{
+    if(current == NULL)
+        return NULL;
+
+    return current->_next;
+}
+
+void
+*get_item_node(ll_node *node)
+{
+    if(node == NULL)
+        return NULL;
+
+    return node->_item;
+}
+
 int
 list_size(linked_list *list)
 {
@@ -282,6 +309,47 @@ remove_item(linked_list *list, int index)
     //Free the memory.
     if(to_free != NULL)
         sys_free_mem(to_free);
+}
+
+int
+remove_item_ptr(linked_list *list, void *item_ptr)
+{
+    if (list == NULL)
+        return -1;
+
+    int walk_index = 0;
+    ll_node *first = list->_first;
+    ll_node *last_iterated = NULL;
+    while (first != NULL && first->_item != item_ptr)
+    {
+        //If we haven't reached the index, move the pointer forward.
+        last_iterated = first;
+        first = first->_next;
+        walk_index++;
+    }
+
+    //Update the list.
+    if(first == NULL)
+        return -1;
+
+    //Remove ourselves from the previous node.
+    if(last_iterated != NULL)
+        last_iterated->_next = first->_next;
+
+    //Ensure the first pointer is correct.
+    if(walk_index == 0)
+        list->_first = first->_next;
+    else if(walk_index == list->_size)
+        list->_last = last_iterated;
+
+    list->_size--;
+
+    //Free the pointer to the node.
+    sys_free_mem(first);
+    first = NULL;
+
+    //Success!
+    return 0;
 }
 
 void
