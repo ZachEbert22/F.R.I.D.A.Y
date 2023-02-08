@@ -154,7 +154,7 @@ add_item_index(linked_list *list, int index, void *item)
         int walk = 0;
         while(curr_next != NULL)
         {
-            if(list->sort_func(curr_next->_item, created->_item) < 0)
+            if(list->sort_func(created->_item, curr_next->_item) < 0)
                 break;
 
             curr_next = curr_next->_next;

@@ -19,8 +19,8 @@ enum pcb_exec_state {
 
 ///An enum of dispatch state for PCBs.
 enum pcb_dispatch_state {
-    SUSPENDED = 0,
-    NOT_SUSPENDED = 1,
+    NOT_SUSPENDED = 0,
+    SUSPENDED = 1,
 };
 
 ///The definition of a process control block.

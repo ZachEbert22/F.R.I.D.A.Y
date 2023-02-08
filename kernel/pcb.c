@@ -17,6 +17,68 @@
 static linked_list *running_pcb_queue;
 
 /**
+ * @brief Gets the class name from the given enum.
+ *
+ * @param state the class of the execution.
+ * @return the string representation.
+ * @authors Andrew Bowie
+ */
+const char *get_class_name(enum pcb_class class)
+{
+    switch (class)
+    {
+        case USER:
+            return "User";
+        case SYSTEM:
+            return "System";
+        default:
+            return "Unknown";
+    }
+}
+
+/**
+ * @brief Gets the dispatch state name from the given enum.
+ *
+ * @param state the dispatch state of the execution.
+ * @return the string representation.
+ * @authors Andrew Bowie
+ */
+const char *get_dispatch_state(enum pcb_dispatch_state dispatch)
+{
+    switch (dispatch)
+    {
+        case SUSPENDED:
+            return "Suspended";
+        case NOT_SUSPENDED:
+            return "Not Suspended";
+        default:
+            return "Unknown";
+    }
+}
+
+/**
+ * @brief Gets the execution state name from the given enum.
+ *
+ * @param state the state of the execution.
+ * @return the string representation.
+ * @authors Andrew Bowie
+ */
+const char *get_exec_state_name(enum pcb_exec_state state)
+{
+    switch (state)
+    {
+        case BLOCKED:
+            return "Blocked";
+        case RUNNING:
+            return "Running";
+        case READY:
+            return "Ready";
+        default:
+            return "Unknown";
+    }
+}
+
+/**
  * A pointer for comparing PCBs.
  * @param ptr1
  * @param ptr2
@@ -27,12 +89,15 @@ int pcb_cmpr(void *ptr1, void *ptr2)
     struct pcb *pcb_ptr1 = (struct pcb *) ptr1;
     struct pcb *pcb_ptr2 = (struct pcb *) ptr2;
 
-    if(pcb_ptr1->exec_state == BLOCKED || pcb_ptr1->dispatch_state == SUSPENDED)
-        return 1;
+    if(pcb_ptr1->dispatch_state != pcb_ptr2->dispatch_state)
+    {
+        return (int) pcb_ptr1->dispatch_state - (int) pcb_ptr2->dispatch_state;
+    }
 
-    if(pcb_ptr2->exec_state == BLOCKED || pcb_ptr2->dispatch_state == SUSPENDED)
-        return -1;
-
+    if(pcb_ptr1->process_class != pcb_ptr2->process_class)
+    {
+        return (int) pcb_ptr1->process_class - (int) pcb_ptr2->dispatch_state;
+    }
     return pcb_ptr1->priority - pcb_ptr2->priority;
 }
 
@@ -472,6 +537,27 @@ bool pcb_priority_cmd(const char* comm){
     pcb_insert(pcb_ptr);
     printf("The pcb named: %s was changed to priority %d\n", pcb_ptr->name, pcb_ptr->priority);
     return true;
+}
+
+/**
+ * @brief Prints the given PCB to standard output.
+ *
+ * @param pcb_ptr the pointer to the pcb.
+ */
+void print_pcb(struct pcb *pcb_ptr)
+{
+    printf("PCB \"%s\"\n", pcb_ptr->name);
+    printf("  - Priority: %d\n", pcb_ptr->priority);
+    printf("  - Class: %s\n", get_class_name(pcb_ptr->process_class));
+    printf("  - State: %s\n", get_exec_state_name(pcb_ptr->exec_state));
+    printf("  - Suspended: %s\n", get_dispatch_state(pcb_ptr->dispatch_state));
+}
+
+void pcb_debug()
+{
+    setup_queue();
+
+    for_each_il(running_pcb_queue, (void (*)(void *)) &print_pcb);
 }
 
 // pcb_show(const char* comm){
