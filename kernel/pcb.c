@@ -94,10 +94,11 @@ void print_pcb(struct pcb *pcb_ptr)
 }
 
 /**
- * A pointer for comparing PCBs.
- * @param ptr1
- * @param ptr2
- * @return
+ * @brief A pointer for comparing PCBs.
+ *
+ * @param ptr1 the first pcb.
+ * @param ptr2 the second pcb.
+ * @return the comparison value of the two pcbs.
  */
 int pcb_cmpr(void *ptr1, void *ptr2)
 {
@@ -116,9 +117,6 @@ int pcb_cmpr(void *ptr1, void *ptr2)
     return pcb_ptr1->priority - pcb_ptr2->priority;
 }
 
-/**
- * @brief Sets up the backing pcb queues.
- */
 void setup_queue()
 {
     if(running_pcb_queue != NULL)
@@ -240,6 +238,7 @@ int pcb_remove(struct pcb *name)
  * The 'create' sub command.
  * @param comm the string command.
  * @return true if it matched, false if not.
+ * @authors Andrew Bowie
  */
 bool pcb_create_cmd(const char *comm)
 {
@@ -343,6 +342,7 @@ bool pcb_create_cmd(const char *comm)
  * The 'delete' sub command.
  * @param comm the string command.
  * @return true if it matched, false if not.
+ * @authors Andrew Bowie
  */
 bool pcb_delete_cmd(const char *comm)
 {
