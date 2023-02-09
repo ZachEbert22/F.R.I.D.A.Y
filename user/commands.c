@@ -24,7 +24,7 @@
 //PCB Command Header
 #define CMD_PCB_LABEL "pcb"
 //PCB Commands
-#define CMD_PCBCREATE_LABEL "pcb-create"
+#define CMD_PCBCREATE_LABEL "pcb create"
 #define CMD_PCBDELETE_LABEL "pcb-delete"
 #define CMD_PCBBLOCK_LABEL "pcb-block"
 #define CMD_PCBUNBLOCK_LABEL "pcb-unblock"
@@ -316,7 +316,7 @@ struct help_info
     /**
      * @brief The label of the command for the help message.
      */
-    char *str_label;
+    char* str_label[15];
     /**
      * @brief The help message to send for this struct.
      */
@@ -327,47 +327,47 @@ struct help_info
  * @brief An array of all help info messages.
  */
 struct help_info help_messages[] = {
-        {.str_label = CMD_HELP_LABEL,
+        {.str_label = {CMD_HELP_LABEL,},
                 .help_message = "The '%s' command gives information about specific aspects of the system.\nIf you need further help, type 'help'"},
-        {.str_label = CMD_VERSION_LABEL,
+        {.str_label = {CMD_VERSION_LABEL},
                 .help_message = "The '%s' command gives you the version of the OS and the date it was compiled.\nType 'version', to get the version!"},
-        {.str_label = CMD_SHUTDOWN_LABEL,
+        {.str_label = {CMD_SHUTDOWN_LABEL},
                 .help_message = "The '%s' command prompts the user to shut down the OS.\nType 'shutdown' to turn off the machine!"},
-        {.str_label = CMD_GET_TIME_LABEL,
+        {.str_label = {CMD_GET_TIME_LABEL},
                 .help_message = "The '%s' command gets the current system time and date in the OS.\nType 'get-time-date' to get the time and date!"},
-        {.str_label = CMD_SET_TIME_LABEL,
+        {.str_label = {CMD_SET_TIME_LABEL},
                 .help_message = "The '%s' command allows the use to set the time on the system.\nThe time should follow the format HH:mm:SS.\nTo start changing the time, enter 'set-time HH:mm:SS'"},
-        {.str_label = CMD_SET_DATE_LABEL,
+        {.str_label = {CMD_SET_DATE_LABEL},
                 .help_message = "The '%s' command allows the use to set the date on the system.\nThe date should follow the format MM/DD/YY.\nTo start changing the date, enter 'set-date MM/DD/YY'"},
-        {.str_label = CMD_SET_TIMEZONE_LABEL,
+        {.str_label = {CMD_SET_TIMEZONE_LABEL},
                 .help_message = "The '%s' command allows the user to set the timezone for the system.\nMost North American and European Time Zones Are provided\nTo fix the timezone, type 'set-timezone'"},
-        {.str_label = CMD_CLEAR_LABEL,
+        {.str_label = {CMD_CLEAR_LABEL},
                 .help_message = "The '%s' command clears the screen.\nto clear your terminal, enter 'clear'"},
-        {.str_label = CMD_COLOR_LABEL,
+        {.str_label = {CMD_COLOR_LABEL},
                 .help_message = "The '%s' command sets the color of text output.\nto change your color, enter 'color'"},
-        {.str_label = CMD_PCB_LABEL,
+        {.str_label = {CMD_PCB_LABEL},
                 .help_message = "The '%s' command shows all the pcb commands available to the user. the help commands are listed below\nenter 'help pcb-create'\nenter 'help pcb-delete'\nenter 'help pcb-block'\nenter 'help pcb-unblock'\nenter 'help pcb-suspend'\nenter 'help pcb-resume'\nenter 'help pcb-priority'\nenter 'help pcb-show'\nenter 'help pcb-show-ready'\nenter 'help pcb-show-blocked'\nenter 'help pcb-show-all'"},
-        {.str_label = CMD_PCBCREATE_LABEL,
+        {.str_label = {CMD_PCB_LABEL, "create"},
                 .help_message = "The '%s' Command Creates the PCB and inserts it into the appropriate queue"},
-        {.str_label = CMD_PCBDELETE_LABEL,
+        {.str_label = {CMD_PCBDELETE_LABEL},
                 .help_message = "The '%s' Command Deletes the process and frees all associated memory"},
-        {.str_label = CMD_PCBBLOCK_LABEL,
+        {.str_label = {CMD_PCBBLOCK_LABEL},
                 .help_message = "The '%s' Command puts the PCB in a blocked state"},
-        {.str_label = CMD_PCBUNBLOCK_LABEL,
+        {.str_label = {CMD_PCBUNBLOCK_LABEL},
                 .help_message = "The '%s' Command unblocks the process (now into a ready state)"},
-        {.str_label = CMD_PCBSUSPEND_LABEL,
+        {.str_label = {CMD_PCBSUSPEND_LABEL},
                 .help_message = "The '%s' Command puts the process in a suspended state"},
-        {.str_label = CMD_PCBRESUME_LABEL,
+        {.str_label = {CMD_PCBRESUME_LABEL},
                 .help_message = "The '%s' Command resumes the process after its been suspended"},
-        {.str_label = CMD_PCBPRIORITY_LABEL,
+        {.str_label = {CMD_PCBPRIORITY_LABEL},
                 .help_message = "The '%s' Command changes the process's priority"},
-        {.str_label = CMD_PCBSHOW_LABEL,
+        {.str_label = {CMD_PCBSHOW_LABEL},
                 .help_message = "The '%s' Command displays the process's info including name, class, state, status, and priority"},
-        {.str_label = CMD_PCBSHOWREADY_LABEL,
+        {.str_label = {CMD_PCBSHOWREADY_LABEL},
                 .help_message = "The '%s' Command displays the process's info including name, class, state, status, and priority when in the ready state"},
-        {.str_label = CMD_PCBSHOWBLOCKED_LABEL,
+        {.str_label = {CMD_PCBSHOWBLOCKED_LABEL},
                 .help_message = "The '%s' Command displays the process's info including name, class, state, status, and priority when in the blocked state"},
-        {.str_label = CMD_PCBSHOWALL_LABEL,
+        {.str_label = {CMD_PCBSHOWALL_LABEL},
                 .help_message = "The '%s' Command displays the process's info including name, class, state, status, and priority no matter what state its in"},
         
 };
@@ -393,22 +393,52 @@ bool cmd_help(const char *comm)
     int help_m_len = sizeof(help_messages) / sizeof(help_messages[0]);
     if ((spl_token = strtok(NULL, split_label)) != NULL)
     {
+        int param_index = 0;
+
+        char param2D[10][50] = {0};
+        size_t total_length = 0;
+
+        do {
+            strcpy(param2D[param_index], spl_token, 49);
+            total_length += strlen(param2D[param_index]);
+            param_index++;
+        } while((spl_token = strtok(NULL, split_label)) != NULL);
+
+        char concat[total_length + (param_index - 1)];
+        int last_concat = 0;
+        for(int i = 0; i < param_index; i++) {
+            size_t len = strlen(param2D[i]);
+            strcpy(concat + last_concat, param2D[i], 49);
+            last_concat += len + 1;
+            if(i + 1 != param_index)
+                concat[last_concat - 1] = ' ';
+        }
+
         //Try to find help for the specific command.
         for (int i = 0; i < help_m_len; ++i)
         {
-            char *help_label = help_messages[i].str_label;
+            struct help_info specific_help = help_messages[i];
+
+            int help_index = 0;
+            while (help_index <= param_index && specific_help.str_label[help_index] != NULL){
+                if (strcicmp(param2D[help_index], specific_help.str_label[help_index]) != 0){
+                    break;
+                }
+                help_index++;
+            }
 
             //Check if the label matches.
-            if (strcicmp(help_label, spl_token) != 0)
+            if (specific_help.str_label[help_index] != NULL){
                 continue;
-
-            printf(help_messages[i].help_message, spl_token);
+            }
+            printf(help_messages[i].help_message, concat);
             println("");
             return true;
         }
+        
 
         //At this point, we didn't find any valid strings.
-        printf("Couldn't find any help for '%s'!\n", spl_token);
+        printf("Couldn't find any help!\n", spl_token);
         return true;
     }
     //All the help function, and the possible functions that are associated to it
