@@ -40,9 +40,10 @@ struct pcb {
     ///The stack itself.
     unsigned char stack[PCB_STACK_SIZE];
 };
-/** 
-*@brief Sets up queue for PCBS
-*/
+/**
+ *@brief Sets up queue for PCBS
+ * @authors Andrew Bowie
+ */
 void setup_queue(void);
 
 /**
