@@ -91,12 +91,13 @@ void pcb_insert(struct pcb* pcb_ptr);
 struct pcb *pcb_find(const char *name);
 
 /**
+ * @brief Removes a given PCB from the list.
  *
- * @param name
- * @return
- * @authors Jared Crowley
+ * @param pcb_ptr the pointer to the PCB.
+ * @return true if it was removed, false if not.
+ * @authors Jared Crowley, Andrew Bowie
  */
-int pcb_remove(struct pcb *name);
+bool pcb_remove(struct pcb *pcb_ptr);
 
 /**
  * @brief Runs the PCB command from the given string.

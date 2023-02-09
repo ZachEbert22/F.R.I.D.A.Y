@@ -191,10 +191,13 @@ void pcb_insert(struct pcb* pcb_ptr)
  *
  * @param name
  * @return
- * @authors Jared Crowley
+ * @authors Jared Crowley, Andrew Bowie
  */
 struct pcb *pcb_find(const char *name)
 {
+    if(name == NULL)
+        return NULL;
+
     setup_queue();
 
     //Iterate over and find the item.
@@ -209,19 +212,15 @@ struct pcb *pcb_find(const char *name)
     }
     return NULL;
 }
-/**
- *
- * @param name
- * @return
- * @authors Jared Crowley
- */
-int pcb_remove(struct pcb *name)
+
+bool pcb_remove(struct pcb *pcb_ptr)
 {
     setup_queue();
+    if(pcb_ptr == NULL)
+        return -1;
 
     // get size of linked list
-    remove_item_ptr(running_pcb_queue, name);
-    return 1;
+    return remove_item_ptr(running_pcb_queue, pcb_ptr) == 0 ? true : false;
 }
 
 ///The label for the create label.
