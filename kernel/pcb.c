@@ -36,6 +36,8 @@ const char *get_class_name(enum pcb_class class)
     }
 }
 
+
+
 /**
  * @brief Gets the dispatch state name from the given enum.
  *
@@ -76,6 +78,19 @@ const char *get_exec_state_name(enum pcb_exec_state state)
         default:
             return "Unknown";
     }
+}
+/**
+ * @brief Prints the given PCB to standard output.
+ *
+ * @param pcb_ptr the pointer to the pcb.
+ */
+void print_pcb(struct pcb *pcb_ptr)
+{
+    printf("PCB \"%s\"\n", pcb_ptr->name);
+    printf("  - Priority: %d\n", pcb_ptr->priority);
+    printf("  - Class: %s\n", get_class_name(pcb_ptr->process_class));
+    printf("  - State: %s\n", get_exec_state_name(pcb_ptr->exec_state));
+    printf("  - Suspended: %s\n", get_dispatch_state(pcb_ptr->dispatch_state));
 }
 
 /**
@@ -372,7 +387,7 @@ bool pcb_delete_cmd(const char *comm)
  * The 'unblock' sub command.
  * @param comm the string command.
  * @return true if it matched, false if not.
- * @author Kolby Eisenhauer
+ * @authors Kolby Eisenhauer, Zachary Ebert
  */
 bool pcb_unblock_cmd(const char* comm)
 {
@@ -384,6 +399,10 @@ bool pcb_unblock_cmd(const char* comm)
     char *name_token = strtok(comm_cpy, " ");
     name_token = strtok(NULL, " ");
     struct pcb* pcb_ptr = pcb_find(name_token);
+    if (name_token == NULL){
+        println("There was No Name Given for PCB: Enter pcb unblock name");
+        return true;
+    }
     if(pcb_ptr == NULL) {
         printf("PCB with name: %s, not found\n",name_token);
         return true;
@@ -405,7 +424,7 @@ bool pcb_unblock_cmd(const char* comm)
  * The 'block' sub command.
  * @param comm the string command.
  * @return true if it matched, false if not.
- * @author Kolby Eisenhauer
+ * @authors Kolby Eisenhauer, Zachary Ebert
  */
 bool pcb_block_cmd(const char* comm)
 {
@@ -418,6 +437,10 @@ bool pcb_block_cmd(const char* comm)
     char *name_token = strtok(comm_cpy, " ");
     name_token = strtok(NULL, " ");
     struct pcb* pcb_ptr = pcb_find(name_token);
+    if (name_token == NULL){
+        println("There was No Name Given for PCB: Enter pcb block name");
+        return true;
+    }
     if(pcb_ptr == NULL) {
         printf("PCB with name: %s, not found\n",name_token);
         return true;
@@ -439,7 +462,7 @@ bool pcb_block_cmd(const char* comm)
  * The 'suspend' sub command.
  * @param comm the string command.
  * @return true if it matched, false if not.
- * @author Kolby Eisenhauer
+ * @authors Kolby Eisenhauer, Zachary Ebert
  */
 bool pcb_suspend_cmd(const char* comm)
 {
@@ -452,6 +475,10 @@ bool pcb_suspend_cmd(const char* comm)
     char *name_token = strtok(comm_cpy, " ");
     name_token = strtok(NULL, " ");
     struct pcb* pcb_ptr = pcb_find(name_token);
+    if (name_token == NULL){
+        println("There was No Name Given for PCB: Enter pcb suspend name");
+        return true;
+    }
     if(pcb_ptr == NULL) {
         printf("PCB with name: %s, not found\n",name_token);
         return true;
@@ -461,13 +488,20 @@ bool pcb_suspend_cmd(const char* comm)
         printf("PCB %s is a system class PCB cannot be suspended by user\n",name_token);
         return true;
     }
-
+    
     pcb_ptr->dispatch_state = SUSPENDED;
     pcb_remove(pcb_ptr);
     pcb_insert(pcb_ptr);
+    
     printf("The pcb named: %s was suspended\n", pcb_ptr->name);
     return true;
 }
+/**
+ * The 'resume' sub command.
+ * @param comm the string command.
+ * @return true if it matched, false if not.
+ * @author Zachary Ebert
+ */
 bool pcb_resume_cmd(const char* comm)
 {
     if(!first_label_matches(comm, CMD_RESUME_LABEL))
@@ -480,6 +514,10 @@ bool pcb_resume_cmd(const char* comm)
     name_value = strtok(NULL, " ");
 
     struct pcb* pcb_ptr = pcb_find(name_value);
+    if (name_value == NULL){
+        println("There was No Name Given for PCB: Enter pcb resume name");
+        return true;
+    }
     if(pcb_ptr == NULL) {
         printf("PCB with name: %s, cannot be found \n",name_value);
         return true;
@@ -489,13 +527,20 @@ bool pcb_resume_cmd(const char* comm)
         printf("PCB %s is a system class PCB cannot be suspended nor resumed by user\n",name_value);
         return true;
     }
-
+   
     pcb_ptr->dispatch_state = NOT_SUSPENDED;
+    
     pcb_remove(pcb_ptr);
     pcb_insert(pcb_ptr);
     printf("The pcb named: %s was resumed\n", pcb_ptr->name);
     return true;
 }
+/**
+ * The 'Priority' sub command.
+ * @param comm the string command.
+ * @return true if it matched, false if not.
+ * @author Zachary Ebert
+ */
 bool pcb_priority_cmd(const char* comm){
     if(!first_label_matches(comm, CMD_SETPRIORITY_LABEL))
         return false;
@@ -507,6 +552,10 @@ bool pcb_priority_cmd(const char* comm){
     parameters = strtok(NULL, " ");
 
     struct pcb* pcb_ptr = pcb_find(parameters);
+    if (parameters == NULL){
+        println("There was No Name Given for PCB: Enter pcb priority name #");
+        return true;
+    }
     if(pcb_ptr == NULL) {
         printf("PCB with name: %s, cannot be found \n", parameters);
         return true;
@@ -525,27 +574,53 @@ bool pcb_priority_cmd(const char* comm){
         println("The Number is Out of Range. Enter a Number between 0-9");
         return true;
     }
-
+    print_pcb(pcb_ptr);
     pcb_ptr->priority = priority;
+
     pcb_remove(pcb_ptr);
     pcb_insert(pcb_ptr);
+    print_pcb(pcb_ptr);
+
     printf("The pcb named: %s was changed to priority %d\n", pcb_ptr->name, pcb_ptr->priority);
     return true;
 }
-
 /**
- * @brief Prints the given PCB to standard output.
- *
- * @param pcb_ptr the pointer to the pcb.
+ * The 'show' sub command.
+ * @param comm the string command.
+ * @return true if it matched, false if not.
+ * @author Zachary Ebert
  */
-void print_pcb(struct pcb *pcb_ptr)
-{
+bool pcb_show_cmd(const char* comm){
+
+    if(!first_label_matches(comm, CMD_SHOW_LABEL))
+        return false;
+    size_t comm_strlen = strlen(comm);
+
+    char comm_cpy[comm_strlen + 1];
+    memcpy(comm_cpy, comm, comm_strlen + 1);
+    char *name_value = strtok(comm_cpy, " ");
+    name_value = strtok(NULL, " ");
+
+    struct pcb* pcb_ptr = pcb_find(name_value);
+    if (name_value == NULL){
+        println("There was No Name Given for PCB: Enter pcb show name");
+        return true;
+    }
+    if(pcb_ptr == NULL) {
+        printf("PCB with name: %s, cannot be found \n",name_value);
+        return true;
+    }
+
     printf("PCB \"%s\"\n", pcb_ptr->name);
     printf("  - Priority: %d\n", pcb_ptr->priority);
     printf("  - Class: %s\n", get_class_name(pcb_ptr->process_class));
     printf("  - State: %s\n", get_exec_state_name(pcb_ptr->exec_state));
     printf("  - Suspended: %s\n", get_dispatch_state(pcb_ptr->dispatch_state));
+
+    return true;
 }
+
+
 
 void pcb_debug()
 {
@@ -554,9 +629,7 @@ void pcb_debug()
     for_each_il(running_pcb_queue, (void (*)(void *)) &print_pcb);
 }
 
-// pcb_show(const char* comm){
 
-// }
 ///All commands within this file, terminated with NULL.
 static bool (*command[])(const char *) = {
         &pcb_create_cmd,
@@ -566,6 +639,7 @@ static bool (*command[])(const char *) = {
         &pcb_suspend_cmd,
         &pcb_resume_cmd,
         &pcb_priority_cmd,
+        &pcb_show_cmd,
         NULL,
 };
 
