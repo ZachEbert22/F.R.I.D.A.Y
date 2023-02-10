@@ -6,6 +6,8 @@
 #include "ctype.h"
 #include "linked_list.h"
 #include "memory.h"
+#include "commands.h"
+#include "color.h"
 
 enum uart_registers
 {
@@ -118,6 +120,8 @@ static bool cli_history_enabled = false;
 static bool command_formatting_enabled = false;
 ///If the CLI input should be invisible.
 static bool cli_invisible = false;
+///If the CLI should implement tab completions.
+static bool tab_completions = false;
 
 void set_cli_history(bool hist_enabled)
 {
@@ -132,6 +136,11 @@ void set_command_formatting(bool enabled)
 void set_invisible(bool enabled)
 {
     cli_invisible = enabled;
+}
+
+void set_tab_completions(bool enabled)
+{
+    tab_completions = enabled;
 }
 
 /**
@@ -453,6 +462,23 @@ int serial_poll(device dev, char *buffer, size_t len)
         };
 
         serial_out(dev, clear_action, 4);
+
+        //Get the current color.
+        const color_t *clr = get_output_color();
+        bool cmd_exists = false;
+        if(command_formatting_enabled)
+        {
+            cmd_exists = command_exists(buffer);
+            if(cmd_exists)
+            {
+                set_output_color(get_color("bright-green"));
+            }
+            else
+            {
+                set_output_color(get_color("red"));
+            }
+        }
+
         serial_out(dev, buffer, bytes_read);
 
         if (bytes_read > 0)
@@ -461,6 +487,11 @@ int serial_poll(device dev, char *buffer, size_t len)
         //Get the string amount to move the cursor.
         if (line_pos > 0)
             move_cursor(dev, RIGHT, line_pos);
+
+        if(command_formatting_enabled)
+        {
+            set_output_color(clr);
+        }
     }
 
     //Allocate the line for storage.
