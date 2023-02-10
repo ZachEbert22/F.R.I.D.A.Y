@@ -231,6 +231,9 @@ bool pcb_remove(struct pcb *pcb_ptr)
 #define CMD_RESUME_LABEL "resume"
 #define CMD_SETPRIORITY_LABEL "priority"
 #define CMD_SHOW_LABEL "show"
+#define CMD_SHOW_READY "show-ready"
+#define CMD_SHOW_BLOCKED "show-blocked"
+#define CMD_SHOW_ALL "show-all"
 
 /**
  * The 'create' sub command.
@@ -622,8 +625,11 @@ bool pcb_show_cmd(const char* comm){
  * @return NULL
  * @authors Jared Crowley
  */
-bool pcb_show_ready()
+bool pcb_show_ready(const char *comm)
 {
+    if(!first_label_matches(comm, CMD_SHOW_READY))
+        return false;
+
     setup_queue();
 
     //Iterate over and find the item.
@@ -642,9 +648,11 @@ bool pcb_show_ready()
             printf("  - State: %s\n", get_exec_state_name(item_ptr->exec_state));
             printf("  - Suspended: %s\n", get_dispatch_state(item_ptr->dispatch_state));
         }
+        else
+            printf("Could not find any PCB's in the ready state\n");
         first_node = next_node(first_node);
     }
-    return NULL;
+    return true;
 }
 
 /**
@@ -652,8 +660,10 @@ bool pcb_show_ready()
  * @return NULL
  * @authors Jared Crowley
  */
-bool pcb_show_blocked()
+bool pcb_show_blocked(const char *comm)
 {
+    if(!first_label_matches(comm, CMD_SHOW_BLOCKED))
+        return false;
     setup_queue();
 
     //Iterate over and find the item.
@@ -663,7 +673,7 @@ bool pcb_show_blocked()
         struct pcb *item_ptr = (struct pcb *) get_item_node(first_node);
         //Check if the dispatch state is equal to suspended and the exec state is equal to blocked
         // indicating the pcb is in the blocked state
-        if(item_ptr->dispatch_state == SUSPENDED && item_ptr->exec_state == BLOCKED)
+        if(item_ptr->dispatch_state == SUSPENDED || item_ptr->exec_state == BLOCKED)
         {
             //Print the pcb
             printf("PCB \"%s\"\n", item_ptr->name);
@@ -672,17 +682,21 @@ bool pcb_show_blocked()
             printf("  - State: %s\n", get_exec_state_name(item_ptr->exec_state));
             printf("  - Suspended: %s\n", get_dispatch_state(item_ptr->dispatch_state));
         }
+        else
+            printf("Could not find any PCB's in the blocked state\n");
         first_node = next_node(first_node);
     }
-    return NULL;
+    return true;
 }
 /**
  * The 'Show All' User Command
  * @return NULL
  * @authors Jared Crowley
  */
-bool pcb_show_all()
+bool pcb_show_all(const char *comm)
 {
+    if(!first_label_matches(comm, CMD_SHOW_ALL))
+        return false;
     setup_queue();
 
     //Iterate over and find the item.
@@ -701,7 +715,7 @@ bool pcb_show_all()
         first_node = next_node(first_node);
     }
 
-    return NULL;
+    return true;
 }
 
 
@@ -723,6 +737,9 @@ static bool (*command[])(const char *) = {
         &pcb_resume_cmd,
         &pcb_priority_cmd,
         &pcb_show_cmd,
+        &pcb_show_ready,
+        &pcb_show_blocked,
+        &pcb_show_all,
         NULL,
 };
 
