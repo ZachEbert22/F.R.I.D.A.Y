@@ -641,10 +641,7 @@ bool pcb_show_ready()
             printf("  - Class: %s\n", get_class_name(item_ptr->process_class));
             printf("  - State: %s\n", get_exec_state_name(item_ptr->exec_state));
             printf("  - Suspended: %s\n", get_dispatch_state(item_ptr->dispatch_state));
-
-            return item_ptr;
         }
-
         first_node = next_node(first_node);
     }
     return NULL;
@@ -674,10 +671,7 @@ bool pcb_show_blocked()
             printf("  - Class: %s\n", get_class_name(item_ptr->process_class));
             printf("  - State: %s\n", get_exec_state_name(item_ptr->exec_state));
             printf("  - Suspended: %s\n", get_dispatch_state(item_ptr->dispatch_state));
-
-            return item_ptr;
         }
-
         first_node = next_node(first_node);
     }
     return NULL;
@@ -703,7 +697,10 @@ bool pcb_show_all()
         printf("  - Class: %s\n", get_class_name(item_ptr->process_class));
         printf("  - State: %s\n", get_exec_state_name(item_ptr->exec_state));
         printf("  - Suspended: %s\n", get_dispatch_state(item_ptr->dispatch_state));
+
+        first_node = next_node(first_node);
     }
+
     return NULL;
 }
 
