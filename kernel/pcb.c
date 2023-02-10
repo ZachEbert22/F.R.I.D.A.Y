@@ -212,7 +212,12 @@ struct pcb *pcb_find(const char *name)
     }
     return NULL;
 }
-
+/**
+ *
+ * @param pcb_ptr
+ * @return
+ * @authors Jared Crowley
+ */
 bool pcb_remove(struct pcb *pcb_ptr)
 {
     setup_queue();
@@ -618,7 +623,95 @@ bool pcb_show_cmd(const char* comm){
 
     return true;
 }
+/**
+ *
+ * @return
+ * @authors Jared Crowley
+ */
+bool pcb_show_ready()
+{
+    setup_queue();
 
+    //Iterate over and find the item.
+    ll_node *first_node = get_first_node(running_pcb_queue);
+    while(first_node != NULL)
+    {
+        struct pcb *item_ptr = (struct pcb *) get_item_node(first_node);
+        //Check if the dispatch state is equal to not suspended and the exec state is equal to ready
+        // indicating the pcb is in the ready state
+        if(item_ptr->dispatch_state == NOT_SUSPENDED && item_ptr->exec_state == READY)
+        {
+            //Print the pcb
+            printf("PCB \"%s\"\n", item_ptr->name);
+            printf("  - Priority: %d\n", item_ptr->priority);
+            printf("  - Class: %s\n", get_class_name(item_ptr->process_class));
+            printf("  - State: %s\n", get_exec_state_name(item_ptr->exec_state));
+            printf("  - Suspended: %s\n", get_dispatch_state(item_ptr->dispatch_state));
+
+            return item_ptr;
+        }
+
+        first_node = next_node(first_node);
+    }
+    return NULL;
+}
+
+/**
+ *
+ * @return
+ * @authors Jared Crowley
+ */
+bool pcb_show_blocked()
+{
+    setup_queue();
+
+    //Iterate over and find the item.
+    ll_node *first_node = get_first_node(running_pcb_queue);
+    while(first_node != NULL)
+    {
+        struct pcb *item_ptr = (struct pcb *) get_item_node(first_node);
+        //Check if the dispatch state is equal to suspended and the exec state is equal to blocked
+        // indicating the pcb is in the blocked state
+        if(item_ptr->dispatch_state == SUSPENDED && item_ptr->exec_state == BLOCKED)
+        {
+            //Print the pcb
+            printf("PCB \"%s\"\n", item_ptr->name);
+            printf("  - Priority: %d\n", item_ptr->priority);
+            printf("  - Class: %s\n", get_class_name(item_ptr->process_class));
+            printf("  - State: %s\n", get_exec_state_name(item_ptr->exec_state));
+            printf("  - Suspended: %s\n", get_dispatch_state(item_ptr->dispatch_state));
+
+            return item_ptr;
+        }
+
+        first_node = next_node(first_node);
+    }
+    return NULL;
+}
+/**
+ *
+ * @return
+ * @authors Jared Crowley
+ */
+bool pcb_show_all()
+{
+    setup_queue();
+
+    //Iterate over and find the item.
+    ll_node *first_node = get_first_node(running_pcb_queue);
+    while(first_node != NULL)
+    {
+        struct pcb *item_ptr = (struct pcb *) get_item_node(first_node);
+
+        //Print the pcb
+        printf("PCB \"%s\"\n", item_ptr->name);
+        printf("  - Priority: %d\n", item_ptr->priority);
+        printf("  - Class: %s\n", get_class_name(item_ptr->process_class));
+        printf("  - State: %s\n", get_exec_state_name(item_ptr->exec_state));
+        printf("  - Suspended: %s\n", get_dispatch_state(item_ptr->dispatch_state));
+    }
+    return NULL;
+}
 
 
 void pcb_debug()
