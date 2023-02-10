@@ -618,8 +618,8 @@ bool pcb_show_cmd(const char* comm){
     return true;
 }
 /**
- *
- * @return
+ * The 'Show Ready' User Command
+ * @return NULL
  * @authors Jared Crowley
  */
 bool pcb_show_ready()
@@ -651,8 +651,8 @@ bool pcb_show_ready()
 }
 
 /**
- *
- * @return
+ * The 'Show Blocked' User Command
+ * @return NULL
  * @authors Jared Crowley
  */
 bool pcb_show_blocked()
@@ -683,8 +683,8 @@ bool pcb_show_blocked()
     return NULL;
 }
 /**
- *
- * @return
+ * The 'Show All' User Command
+ * @return NULL
  * @authors Jared Crowley
  */
 bool pcb_show_all()
