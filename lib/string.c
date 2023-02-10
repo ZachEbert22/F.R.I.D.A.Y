@@ -370,7 +370,33 @@ char *vsprintf(const char *s, char *str, size_t buf_len, va_list va)
                     str[str_ind++] = arg[k];
                 }
                 break;
-            } else if (f_code == 'd')
+            }
+            else if (f_code == 'x')
+            {
+                i = j;
+
+                //Check the extra data.
+                char fbuffer[50] = {0};
+                char *result = f_decimal(va_arg(va, int),
+                                         arguments,
+                                         arg_count,
+                                         fbuffer,
+                                         50,
+                                         16);
+                size_t len = strlen(fbuffer);
+                if (result == NULL)
+                {
+                    return NULL;
+                }
+
+                //Insert string.
+                for (size_t k = 0; k < len; ++k)
+                {
+                    str[str_ind++] = fbuffer[k];
+                }
+                break;
+            }
+            else if (f_code == 'd')
             {
                 i = j;
 
@@ -394,7 +420,8 @@ char *vsprintf(const char *s, char *str, size_t buf_len, va_list va)
                     str[str_ind++] = fbuffer[k];
                 }
                 break;
-            } else if (f_code == 'c')
+            }
+            else if (f_code == 'c')
             {
                 //Multi args not supported.
                 if (arg_count > 0)
