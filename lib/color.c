@@ -72,8 +72,10 @@ static const color_t *COLORS[] = {
 void set_output_color(const color_t *color)
 {
     if(color == NULL)
+    {
+        println("Test");
         return;
-
+    }
     current_color = color;
 
     //Print the ANSII escape sequence.
