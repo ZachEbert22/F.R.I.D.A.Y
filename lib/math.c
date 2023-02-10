@@ -42,26 +42,28 @@ double pow(double a, double b)
 }
 
 ///The LCRNG multiplier from C++.
-#define SEED_MULTI 214013
+#define SEED_MULTI 25214903917L
 ///The LCRNG addend from C++.
-#define SEED_ADDEND 2531011
+#define SEED_ADDEND 11L
+///The bit mask to apply to the seed
+#define SEED_MASK (0xFFFFFFFFFFFFL - 1L)
 
 ///The seed for random number generation.
-static unsigned long rand_seed = 0L;
+static unsigned long long rand_seed = 0L;
 
 void s_rand(unsigned long seed)
 {
     //Apply the initial scramble of the seed.
-    rand_seed = (seed ^ SEED_MULTI);
+    rand_seed = (seed ^ SEED_MULTI) & SEED_MASK;
 }
 
 unsigned int next_random(void)
 {
     //Find the next seed.
-    unsigned long next_seed = (rand_seed * SEED_MULTI + SEED_ADDEND);
+    unsigned long long next_seed = (rand_seed * SEED_MULTI + SEED_ADDEND) & SEED_MASK;
 
     //Read 32 bits from the seed.
-    unsigned int thing = (int) rand_seed >> 2;
+    unsigned int thing = (int) (next_seed >> 16L);
     rand_seed = next_seed;
     return thing;
 }
