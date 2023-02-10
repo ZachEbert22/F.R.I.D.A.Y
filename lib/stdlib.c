@@ -2,6 +2,9 @@
 #include <ctype.h>
 #include <stddef.h>
 #include <string.h>
+#include "stdio.h"
+
+static const char *num_encoding = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 int atoi(const char *s)
 {
@@ -86,11 +89,18 @@ double atod(const char *s)
 
 char *itoa(int i, char *str_buf, int buf_len)
 {
-    if (buf_len == 0)
+    return itoa_base(i, 10, str_buf, buf_len);
+}
+
+char *itoa_base(int i, int base, char *str_buf, int buf_len)
+{
+    if (buf_len == 0) {
         return NULL;
+    }
 
     if (i == 0)
     {
+
         str_buf[0] = '0';
         return str_buf;
     }
@@ -106,18 +116,20 @@ char *itoa(int i, char *str_buf, int buf_len)
     }
 
     if (buf_len <= num_pos)
+    {
         return NULL;
+    }
 
     //Loop through the number, removing a single digit at a time.
     char swap[10] = {0};
     int num_index = 0;
     while (i > 0)
     {
-        int digit = i % 10;
+        int digit = i % base;
 
-        swap[num_index++] = (char) (digit + '0');
+        swap[num_index++] = num_encoding[digit];
 
-        i /= 10;
+        i /= base;
     }
 
     //If this is the case, we can't store the string.

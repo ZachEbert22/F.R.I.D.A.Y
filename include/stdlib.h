@@ -22,4 +22,14 @@ int atoi(const char *s);
  */
 char *itoa(int i, char *str_buf, int buf_len);
 
+/**
+ * @brief Convert a signed integer to a string
+ * @param i the integer to convert
+ * @param base the base of the number
+ * @param str_buf the buffer to store the integer in
+ * @param buf_len the string buffer length
+ * @return the created string from the integer
+ */
+char *itoa_base(int i, int base, char *str_buf, int buf_len);
+
 #endif

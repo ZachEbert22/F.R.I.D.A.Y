@@ -455,7 +455,8 @@ bool pcb_block_cmd(const char* comm)
     pcb_ptr->exec_state = BLOCKED;
     pcb_remove(pcb_ptr);
     pcb_insert(pcb_ptr);
-        printf("The pcb named: %s was blocked\n", pcb_ptr->name);
+    printf("%s\n", pcb_ptr->name);
+    printf("The pcb named: %s was blocked\n", pcb_ptr->name);
     return true;
 }
 

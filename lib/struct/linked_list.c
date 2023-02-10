@@ -6,8 +6,6 @@
 #include <stddef.h>
 #include "memory.h"
 #include "string.h"
-#include "stdio.h"
-#include "mpx/pcb.h"
 
 ///Contains the structure of the nodes in our linked list.
 struct linked_list_node_
@@ -339,7 +337,7 @@ remove_item_ptr(linked_list *list, void *item_ptr)
     //Ensure the first pointer is correct.
     if(walk_index == 0)
         list->_first = first->_next;
-    else if(walk_index == list->_size)
+    else if(walk_index + 1 == list->_size)
         list->_last = last_iterated;
 
     list->_size--;
@@ -384,7 +382,7 @@ void
     //Ensure the first pointer is correct.
     if(walk_index == 0)
         list->_first = first->_next;
-    else if(walk_index == list->_size)
+    else if(walk_index + 1 == list->_size)
         list->_last = last_iterated;
 
     list->_size--;

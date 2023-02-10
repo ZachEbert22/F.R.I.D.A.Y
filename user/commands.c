@@ -11,6 +11,7 @@
 #include "color.h"
 #include "cli.h"
 #include "mpx/pcb.h"
+#include "mpx/io.h"
 
 #define CMD_HELP_LABEL "help"
 #define CMD_VERSION_LABEL "version"
