@@ -327,7 +327,7 @@ struct help_info
  * @brief An array of all help info messages.
  */
 struct help_info help_messages[] = {
-        {.str_label = {CMD_HELP_LABEL,},
+        {.str_label = {CMD_HELP_LABEL},
                 .help_message = "The '%s' command gives information about specific aspects of the system.\nIf you need further help, type 'help'"},
         {.str_label = {CMD_VERSION_LABEL},
                 .help_message = "The '%s' command gives you the version of the OS and the date it was compiled.\nType 'version', to get the version!"},
@@ -394,44 +394,40 @@ bool cmd_help(const char *comm)
     if ((spl_token = strtok(NULL, split_label)) != NULL)
     {
         int param_index = 0;
-
         char param2D[10][50] = {0};
-        size_t total_length = 0;
 
+        //Tokenize the parameters.
         do {
             strcpy(param2D[param_index], spl_token, 49);
-            total_length += strlen(param2D[param_index]);
             param_index++;
         } while((spl_token = strtok(NULL, split_label)) != NULL);
 
-        char concat[total_length + (param_index - 1)];
-        int last_concat = 0;
-        for(int i = 0; i < param_index; i++) {
-            size_t len = strlen(param2D[i]);
-            strcpy(concat + last_concat, param2D[i], 49);
-            last_concat += len + 1;
-            if(i + 1 != param_index)
-                concat[last_concat - 1] = ' ';
-        }
+        //Get the actual string they entered.
+        size_t label_len = strlen(label);
+        const char *str_help_labels = comm + label_len;
+        while(str_help_labels[0] == ' ')
+            str_help_labels++;
 
         //Try to find help for the specific command.
         for (int i = 0; i < help_m_len; ++i)
         {
             struct help_info specific_help = help_messages[i];
-
             int help_index = 0;
+
             while (help_index <= param_index && specific_help.str_label[help_index] != NULL){
                 if (strcicmp(param2D[help_index], specific_help.str_label[help_index]) != 0){
                     break;
                 }
+
                 help_index++;
             }
 
             //Check if the label matches.
-            if (specific_help.str_label[help_index] != NULL){
+            if (help_index == -1 || help_index < param_index || specific_help.str_label[help_index] != NULL)
+            {
                 continue;
             }
-            printf(help_messages[i].help_message, concat);
+            printf(help_messages[i].help_message, str_help_labels);
             println("");
             return true;
         }
