@@ -1,7 +1,9 @@
 #ifndef MPX_PCB_H
 #define MPX_PCB_H
 
+///The maximum length of a PCB's name.
 #define PCB_MAX_NAME_LEN 8
+///The initial size of a PCB's stack.
 #define PCB_STACK_SIZE 4096
 
 ///The clas of a PCB.
@@ -77,15 +79,14 @@ struct pcb *pcb_setup(const char *name, int class, int priority);
 /**
 * @brief Inserts a PCB into appropriate queue, based on state and priority
 * @param pcb_ptr pointer to pcb
-* @return void
 * @authors Kolby Eisenhauers
 */
 void pcb_insert(struct pcb* pcb_ptr);
 
 /**
- *
- * @param name
- * @return
+ * @brief Finds the PCB with the given name.
+ * @param name the name of the pCB
+ * @return the pcb found, or NULL if not found.
  * @authors Jared Crowley
  */
 struct pcb *pcb_find(const char *name);
