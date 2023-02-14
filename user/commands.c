@@ -24,17 +24,7 @@
 //PCB Command Header
 #define CMD_PCB_LABEL "pcb"
 //PCB Commands
-#define CMD_PCBCREATE_LABEL "pcb create"
-#define CMD_PCBDELETE_LABEL "pcb-delete"
-#define CMD_PCBBLOCK_LABEL "pcb-block"
-#define CMD_PCBUNBLOCK_LABEL "pcb-unblock"
-#define CMD_PCBSUSPEND_LABEL "pcb-suspend"
-#define CMD_PCBRESUME_LABEL "pcb-resume"
-#define CMD_PCBPRIORITY_LABEL "pcb-priority"
-#define CMD_PCBSHOW_LABEL "pcb-show"
-#define CMD_PCBSHOWREADY_LABEL "pcb-show-ready"
-#define CMD_PCBSHOWBLOCKED_LABEL "pcb-show-blocked"
-#define CMD_PCBSHOWALL_LABEL "pcb-show-all"
+
 
 ///An array of all command labels, terminated with null.
 static const char *CMD_LABELS[] = {
@@ -328,15 +318,15 @@ struct help_info
  */
 struct help_info help_messages[] = {
         {.str_label = {CMD_HELP_LABEL},
-                .help_message = "The '%s' command gives information about specific aspects of the system.\nIf you need further help, type 'help'"},
+                .help_message = "The '%s' command gives information about specific aspects of the system.\n=> If you need more general command help type 'help'\n=> If you still dont understand what help is, type 'help help help'"},
         {.str_label = {CMD_HELP_LABEL, CMD_HELP_LABEL},
-                .help_message = "Really? Do you seriously need MORE help for the help command?"},
+                .help_message = "The Oxford Definition: 'make it easier for (someone) to do something by offering one's services or resources.'\n=> If you need help with actual commmands type 'help'\n=> if you are still confused, type 'help help help help'"},
         {.str_label = {CMD_HELP_LABEL, CMD_HELP_LABEL, CMD_HELP_LABEL},
-                .help_message = "You only need to specify 'help' once! There isn't any more help we can give you!"},
+                .help_message = "You only need to specify 'help' once! There isn't any more help we can give you!\n=>For Regular Help, type 'help'\n if you are still having issues with your life, type 'help help help help help'"},
         {.str_label = {CMD_HELP_LABEL, CMD_HELP_LABEL, CMD_HELP_LABEL, CMD_HELP_LABEL},
-                .help_message = "Only. One. Help. Argument."},
+                .help_message = "Only. One. Help. Argument.\n=> to go back to help, type 'help'\n=> If you got nothing better to do, type 'help help help help help help'"},
         {.str_label = {CMD_HELP_LABEL, CMD_HELP_LABEL, CMD_HELP_LABEL, CMD_HELP_LABEL, CMD_HELP_LABEL},
-                .help_message = "Ok. The 'help' command is a useful command probably originating with language itself.\nWhen using the 'help' command, parts of your dignity as a programmer are lost, especially when repeating it FIVE TIMES.\nThat good enough?"},
+                .help_message = "Orgin: Old English helpan (verb), help (noun), of Germanic origin; related to Dutch helpen and German helfen.'\n=> Please go back to 'help'\n=> Go Ahead, 'help help help help help help help'"},
         {.str_label = {CMD_HELP_LABEL, CMD_HELP_LABEL, CMD_HELP_LABEL, CMD_HELP_LABEL, CMD_HELP_LABEL, CMD_HELP_LABEL},
                 .help_message = "Nope."},
         {.str_label = {CMD_VERSION_LABEL},
@@ -356,28 +346,28 @@ struct help_info help_messages[] = {
         {.str_label = {CMD_COLOR_LABEL},
                 .help_message = "The '%s' command sets the color of text output.\nto change your color, enter 'color'"},
         {.str_label = {CMD_PCB_LABEL},
-                .help_message = "The '%s' command shows all the pcb commands available to the user. the help commands are listed below\nenter 'help pcb-create'\nenter 'help pcb-delete'\nenter 'help pcb-block'\nenter 'help pcb-unblock'\nenter 'help pcb-suspend'\nenter 'help pcb-resume'\nenter 'help pcb-priority'\nenter 'help pcb-show'\nenter 'help pcb-show-ready'\nenter 'help pcb-show-blocked'\nenter 'help pcb-show-all'"},
+                .help_message = "The '%s' command shows all the pcb commands available to the user. the help commands are listed below\n=> enter 'help pcb-create'\n=> enter 'help pcb-delete'\n=> enter 'help pcb-block'\n=> enter 'help pcb-unblock'\n=> enter 'help pcb-suspend'\n=> enter 'help pcb-resume'\n=> enter 'help pcb-priority'\n=> enter 'help pcb-show'\n=> enter 'help pcb-show-ready'\n=> enter 'help pcb-show-blocked'\n=> enter 'help pcb-show-all'"},
         {.str_label = {CMD_PCB_LABEL, "create"},
                 .help_message = "The '%s' Command Creates the PCB and inserts it into the appropriate queue"},
-        {.str_label = {CMD_PCBDELETE_LABEL},
+        {.str_label = {CMD_PCB_LABEL, "delete"},
                 .help_message = "The '%s' Command Deletes the process and frees all associated memory"},
-        {.str_label = {CMD_PCBBLOCK_LABEL},
+        {.str_label = {CMD_PCB_LABEL, "block"},
                 .help_message = "The '%s' Command puts the PCB in a blocked state"},
-        {.str_label = {CMD_PCBUNBLOCK_LABEL},
+        {.str_label = {CMD_PCB_LABEL, "unblock"},
                 .help_message = "The '%s' Command unblocks the process (now into a ready state)"},
-        {.str_label = {CMD_PCBSUSPEND_LABEL},
+        {.str_label = {CMD_PCB_LABEL, "suspend"},
                 .help_message = "The '%s' Command puts the process in a suspended state"},
-        {.str_label = {CMD_PCBRESUME_LABEL},
+        {.str_label = {CMD_PCB_LABEL, "resume"},
                 .help_message = "The '%s' Command resumes the process after its been suspended"},
-        {.str_label = {CMD_PCBPRIORITY_LABEL},
+        {.str_label = {CMD_PCB_LABEL, "priority"},
                 .help_message = "The '%s' Command changes the process's priority"},
-        {.str_label = {CMD_PCBSHOW_LABEL},
+        {.str_label = {CMD_PCB_LABEL, "show"},
                 .help_message = "The '%s' Command displays the process's info including name, class, state, status, and priority"},
-        {.str_label = {CMD_PCBSHOWREADY_LABEL},
+        {.str_label = {CMD_PCB_LABEL, "show-ready"},
                 .help_message = "The '%s' Command displays the process's info including name, class, state, status, and priority when in the ready state"},
-        {.str_label = {CMD_PCBSHOWBLOCKED_LABEL},
+        {.str_label = {CMD_PCB_LABEL, "show-blocked"},
                 .help_message = "The '%s' Command displays the process's info including name, class, state, status, and priority when in the blocked state"},
-        {.str_label = {CMD_PCBSHOWALL_LABEL},
+        {.str_label = {CMD_PCB_LABEL, "show-all"},
                 .help_message = "The '%s' Command displays the process's info including name, class, state, status, and priority no matter what state its in"},
         
 };
@@ -448,18 +438,17 @@ bool cmd_help(const char *comm)
         return true;
     }
     //All the help function, and the possible functions that are associated to it
-    println("If You want to set the Time for the OS, enter 'help set-time'");
-    println("If You want to set the Date for the OS, enter 'help set-date'");
-    println("if You want to get the Time & Date for the OS, enter 'help get-time-date'");
-    println("If you want to know what the help does, enter 'help help'");
-    println("if you need help setting the timezone enter 'help set-timezone'");
-    println("If you want to get the version history, enter 'help version'");
-    println("If you help to shutdown, enter 'help shutdown' down below");
-    println("if you wnt to know what the command color does, enter 'help color'");
-    println("If you want to know what clear does, enter 'help clear'");
-    println("If you want help with PCB and its commands, enter 'help pcb'");
-    //println("If you need help in a class, dont use Stack Overflow");
-    //println("Hope this helps!");
+    println("If you need help, enter one of the Statments below!");
+    println("=> enter 'help set-time'");
+    println("=> enter 'help set-date'");
+    println("=> enter 'help get-time-date'");
+    println("=> enter 'help help'");
+    println("=> enter 'help set-timezone'");
+    println("=> enter 'help version'");
+    println("=> enter 'help shutdown'");
+    println("=> enter 'help color'");
+    println("=> enter 'help clear'");
+    println("=> enter 'help pcb'");
     return true;
 }
 

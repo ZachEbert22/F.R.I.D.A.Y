@@ -44,7 +44,7 @@ void signal_shutdown(void)
  */
 void print_welcome(void)
 {
-    set_output_color(get_color("red"));
+    set_output_color(get_color("bright-red"));
     println("*********      **********      **      ****                  **         **        **");
     println("**             **     **       **      **   **             **  **         **    **");
     println("**             **    **        **      **    **           **     **         ****");
