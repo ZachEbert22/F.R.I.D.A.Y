@@ -105,7 +105,7 @@ char *strcpy(char *str_dest, const char *str_src, size_t maxlen)
         return NULL;
 
     size_t src_len = strlen(str_src);
-    size_t copy_len = maxlen < src_len ? maxlen : src_len;
+    size_t copy_len = maxlen < src_len && maxlen > 0 ? maxlen : src_len;
 
     //Copy the data.
     memcpy(str_dest, str_src, copy_len + 1);
@@ -268,9 +268,10 @@ char *strtok(char *restrict s1, const char *restrict s2)
  * @param arg_len the length of the arguments.
  * @param buf the buffer to store the resulting string.
  * @param buf_len the length of this buffer.
+ * @param base the base of the number
  * @return a pointer to the resulting string, or NULL.
  */
-char *f_decimal(int num, const char *args, size_t arg_len, char *buf, size_t buf_len)
+char *f_decimal(int num, const char *args, size_t arg_len, char *buf, size_t buf_len, int base)
 {
     //Check the extra data.
     bool fill_zeros = arg_len > 1 ? args[0] == '0' : false;
@@ -280,7 +281,7 @@ char *f_decimal(int num, const char *args, size_t arg_len, char *buf, size_t buf
         return NULL;
 
     //Convert the argument.
-    size_t total_possible_count = fill_count >= 12 ? fill_count : 12;
+    size_t total_possible_count = fill_count >= 34 ? fill_count : 34;
 
     //Check bounds.
     if (total_possible_count + 1 > buf_len)
@@ -288,7 +289,7 @@ char *f_decimal(int num, const char *args, size_t arg_len, char *buf, size_t buf
 
     //Convert the number.
     memset(buf, 0, total_possible_count + 1);
-    itoa(num, buf, 12);
+    itoa_base(num, base, buf, 34);
     int len = (int) strlen(buf);
     int total_fill_amount = fill_count - len;
 
@@ -298,7 +299,7 @@ char *f_decimal(int num, const char *args, size_t arg_len, char *buf, size_t buf
         bool negative = buf[0] == '-';
 
         int start_pos = negative ? 1 : 0;
-        memcpy(buf + start_pos + total_fill_amount, buf, 12);
+        memcpy(buf + start_pos + total_fill_amount, buf, 34);
 
         for (int k = 0; k < total_fill_amount; ++k)
         {
@@ -320,105 +321,16 @@ char *sprintf(const char *s, char *str, size_t buf_len, ...)
 
 char *vsprintf(const char *s, char *str, size_t buf_len, va_list va)
 {
-    //Copy the arguments for the 2nd pass.
-    va_list copy;
-    va_copy(copy, va);
-
     //Get the string length and try to format it.
     int str_len = (int) strlen(s);
 
+    char str_cpy[str_len + 1];
+    strcpy(str_cpy, str, str_len);
+    str_cpy[str_len] = '\0';
+
     //Loop through the string, formatting each.
-    int net_str_len = 0;
-    for (int i = 0; i < str_len; ++i)
-    {
-        char at = s[i];
+    bool failed = false;
 
-        //If we've found the formatting symbol, try to format.
-        if (at != '%')
-        {
-            net_str_len++;
-            continue;
-        }
-
-        //Find the appropriate formatting
-        char arguments[10] = {0};
-        int arg_count = 0;
-        int found_any = 0;
-        for (int j = i + 1; j < str_len; ++j)
-        {
-            char f_code = s[j];
-            if (f_code == 's')
-            {
-                //Arguments not supported for strings.
-                if (arg_count > 0)
-                    return NULL;
-
-                i = j;
-
-                int arg_len = (int) strlen(va_arg(va, char *));
-                net_str_len += arg_len;
-                found_any = 1;
-                break;
-            } else if (f_code == 'd')
-            {
-                i = j;
-
-                char fbuffer[50] = {0};
-                char *result = f_decimal(va_arg(va, int),
-                                         arguments,
-                                         arg_count,
-                                         fbuffer,
-                                         50);
-                if (result == NULL)
-                    return NULL;
-
-                //Calculate the total length.
-                int arg_len = (int) strlen(result);
-                net_str_len += arg_len;
-                found_any = 1;
-                break;
-            } else if (f_code == 'c')
-            {
-                //Multi args not supported.
-                if (arg_count > 0)
-                    return NULL;
-
-                i = j;
-                net_str_len++;
-                va_arg(va, int);
-                found_any = 1;
-                break;
-            } else if (f_code == '%')
-            {
-                //Multiple arguments not supported.
-                if (arg_count > 0)
-                    return NULL;
-
-                i = j;
-                net_str_len++;
-                found_any = 1;
-                break;
-            }
-
-            //If the argument was improperly defined, return.
-            if (arg_count >= 9)
-                return NULL;
-
-            arguments[arg_count++] = f_code;
-        }
-
-        if (!found_any)
-            return NULL;
-    }
-
-    //Check the string buffer length.
-    if ((int) buf_len < net_str_len + 1)
-        return NULL;
-
-    //Now, build the actual string.
-    //The second loop is used to avoid using dynamically allocated
-    //memory. If freeing memory was possible, it would be easier
-    //to build the strings in one loop and place them in the 2nd.
     int str_ind = 0;
     for (int i = 0; i < str_len; ++i)
     {
@@ -445,25 +357,32 @@ char *vsprintf(const char *s, char *str, size_t buf_len, va_list va)
 
                 i = j;
 
-                char *arg = va_arg(copy, char *);
+                char *arg = va_arg(va, char *);
 
-                int len = (int) strlen(arg);
-                for (int k = 0; k < len; ++k)
+                size_t len = strlen(arg);
+                if(len + str_ind >= buf_len)
+                {
+                    failed = true;
+                    break;
+                }
+                for (size_t k = 0; k < len; ++k)
                 {
                     str[str_ind++] = arg[k];
                 }
                 break;
-            } else if (f_code == 'd')
+            }
+            else if (f_code == 'x')
             {
                 i = j;
 
                 //Check the extra data.
                 char fbuffer[50] = {0};
-                char *result = f_decimal(va_arg(copy, int),
+                char *result = f_decimal(va_arg(va, int),
                                          arguments,
                                          arg_count,
                                          fbuffer,
-                                         50);
+                                         50,
+                                         16);
                 size_t len = strlen(fbuffer);
                 if (result == NULL)
                 {
@@ -476,14 +395,40 @@ char *vsprintf(const char *s, char *str, size_t buf_len, va_list va)
                     str[str_ind++] = fbuffer[k];
                 }
                 break;
-            } else if (f_code == 'c')
+            }
+            else if (f_code == 'd')
+            {
+                i = j;
+
+                //Check the extra data.
+                char fbuffer[50] = {0};
+                char *result = f_decimal(va_arg(va, int),
+                                         arguments,
+                                         arg_count,
+                                         fbuffer,
+                                         50,
+                                         10);
+                size_t len = strlen(fbuffer);
+                if (result == NULL)
+                {
+                    return NULL;
+                }
+
+                //Insert string.
+                for (size_t k = 0; k < len; ++k)
+                {
+                    str[str_ind++] = fbuffer[k];
+                }
+                break;
+            }
+            else if (f_code == 'c')
             {
                 //Multi args not supported.
                 if (arg_count > 0)
                     return NULL;
 
                 i = j;
-                char val = va_arg(copy, int);
+                char val = va_arg(va, int);
 
                 str[str_ind++] = val;
                 break;
@@ -506,7 +451,12 @@ char *vsprintf(const char *s, char *str, size_t buf_len, va_list va)
         }
     }
 
-    str[net_str_len] = '\0';
+    if(failed)
+    {
+        //Restore original string.
+        strcpy(str, str_cpy, -1);
+    }
+    str[str_ind] = '\0';
     return str;
 }
 

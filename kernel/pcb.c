@@ -104,6 +104,11 @@ int pcb_cmpr(void *ptr1, void *ptr2)
         return (int) pcb_ptr1->dispatch_state - (int) pcb_ptr2->dispatch_state;
     }
 
+    if(pcb_ptr1->exec_state != pcb_ptr2->exec_state)
+    {
+        return (int) pcb_ptr1->exec_state - (int) pcb_ptr2->exec_state;
+    }
+
     if(pcb_ptr1->process_class != pcb_ptr2->process_class)
     {
         return (int) pcb_ptr1->process_class - (int) pcb_ptr2->dispatch_state;
@@ -231,6 +236,9 @@ bool pcb_remove(struct pcb *pcb_ptr)
 #define CMD_RESUME_LABEL "resume"
 #define CMD_SETPRIORITY_LABEL "priority"
 #define CMD_SHOW_LABEL "show"
+#define CMD_SHOW_READY "show-ready"
+#define CMD_SHOW_BLOCKED "show-blocked"
+#define CMD_SHOW_ALL "show-all"
 
 /**
  * The 'create' sub command.
@@ -414,7 +422,7 @@ bool pcb_unblock_cmd(const char* comm)
     pcb_ptr->exec_state = READY;
     pcb_remove(pcb_ptr);
     pcb_insert(pcb_ptr);
-        printf("The pcb named: %s was unblocked\n", pcb_ptr->name);
+    printf("The pcb named: %s was unblocked\n", pcb_ptr->name);
     return true;
 }
 
@@ -452,7 +460,7 @@ bool pcb_block_cmd(const char* comm)
     pcb_ptr->exec_state = BLOCKED;
     pcb_remove(pcb_ptr);
     pcb_insert(pcb_ptr);
-        printf("The pcb named: %s was blocked\n", pcb_ptr->name);
+    printf("The pcb named: %s was blocked\n", pcb_ptr->name);
     return true;
 }
 
@@ -583,7 +591,7 @@ bool pcb_priority_cmd(const char* comm){
     return true;
 }
 /**
- * The 'show' sub command.
+ * @brief The 'show' sub command.
  * @param comm the string command.
  * @return true if it matched, false if not.
  * @author Zachary Ebert
@@ -609,25 +617,25 @@ bool pcb_show_cmd(const char* comm){
         return true;
     }
 
-    printf("PCB \"%s\"\n", pcb_ptr->name);
-    printf("  - Priority: %d\n", pcb_ptr->priority);
-    printf("  - Class: %s\n", get_class_name(pcb_ptr->process_class));
-    printf("  - State: %s\n", get_exec_state_name(pcb_ptr->exec_state));
-    printf("  - Suspended: %s\n", get_dispatch_state(pcb_ptr->dispatch_state));
-
+    print_pcb(pcb_ptr);
     return true;
 }
 /**
- * The 'Show Ready' User Command
- * @return NULL
+ * @brief The 'Show Ready' User Command
+ * @param comm the command to handle.
+ * @return true if the command was handled
  * @authors Jared Crowley
  */
-bool pcb_show_ready()
+bool pcb_show_ready(const char *comm)
 {
+    if(!first_label_matches(comm, CMD_SHOW_READY))
+        return false;
+
     setup_queue();
 
     //Iterate over and find the item.
     ll_node *first_node = get_first_node(running_pcb_queue);
+    int printed = 0;
     while(first_node != NULL)
     {
         struct pcb *item_ptr = (struct pcb *) get_item_node(first_node);
@@ -636,53 +644,64 @@ bool pcb_show_ready()
         if(item_ptr->dispatch_state == NOT_SUSPENDED && item_ptr->exec_state == READY)
         {
             //Print the pcb
-            printf("PCB \"%s\"\n", item_ptr->name);
-            printf("  - Priority: %d\n", item_ptr->priority);
-            printf("  - Class: %s\n", get_class_name(item_ptr->process_class));
-            printf("  - State: %s\n", get_exec_state_name(item_ptr->exec_state));
-            printf("  - Suspended: %s\n", get_dispatch_state(item_ptr->dispatch_state));
+            print_pcb(item_ptr);
+            printed++;
         }
         first_node = next_node(first_node);
     }
-    return NULL;
+
+    if(printed == 0)
+    {
+        printf("Could not find any PCB's in the ready state\n");
+    }
+    return true;
 }
 
 /**
- * The 'Show Blocked' User Command
- * @return NULL
+ * @brief The 'Show Blocked' User Command
+ * @param comm the command to handle.
+ * @return true if the command was handled
  * @authors Jared Crowley
  */
-bool pcb_show_blocked()
+bool pcb_show_blocked(const char *comm)
 {
+    if(!first_label_matches(comm, CMD_SHOW_BLOCKED))
+        return false;
     setup_queue();
 
     //Iterate over and find the item.
     ll_node *first_node = get_first_node(running_pcb_queue);
+    int printed = 0;
     while(first_node != NULL)
     {
         struct pcb *item_ptr = (struct pcb *) get_item_node(first_node);
         //Check if the dispatch state is equal to suspended and the exec state is equal to blocked
         // indicating the pcb is in the blocked state
-        if(item_ptr->dispatch_state == SUSPENDED && item_ptr->exec_state == BLOCKED)
+        if(item_ptr->dispatch_state == SUSPENDED || item_ptr->exec_state == BLOCKED)
         {
             //Print the pcb
-            printf("PCB \"%s\"\n", item_ptr->name);
-            printf("  - Priority: %d\n", item_ptr->priority);
-            printf("  - Class: %s\n", get_class_name(item_ptr->process_class));
-            printf("  - State: %s\n", get_exec_state_name(item_ptr->exec_state));
-            printf("  - Suspended: %s\n", get_dispatch_state(item_ptr->dispatch_state));
+            print_pcb(item_ptr);
+            printed++;
         }
         first_node = next_node(first_node);
     }
-    return NULL;
+
+    if(printed == 0)
+    {
+        printf("Could not find any PCBs in the blocked state\n");
+    }
+    return true;
 }
 /**
- * The 'Show All' User Command
- * @return NULL
+ * @brief The 'Show All' User Command
+ * @param comm the command to handle.
+ * @return true if the command was handled
  * @authors Jared Crowley
  */
-bool pcb_show_all()
+bool pcb_show_all(const char *comm)
 {
+    if(!first_label_matches(comm, CMD_SHOW_ALL))
+        return false;
     setup_queue();
 
     //Iterate over and find the item.
@@ -692,24 +711,12 @@ bool pcb_show_all()
         struct pcb *item_ptr = (struct pcb *) get_item_node(first_node);
 
         //Print the pcb
-        printf("PCB \"%s\"\n", item_ptr->name);
-        printf("  - Priority: %d\n", item_ptr->priority);
-        printf("  - Class: %s\n", get_class_name(item_ptr->process_class));
-        printf("  - State: %s\n", get_exec_state_name(item_ptr->exec_state));
-        printf("  - Suspended: %s\n", get_dispatch_state(item_ptr->dispatch_state));
+        print_pcb(item_ptr);
 
         first_node = next_node(first_node);
     }
 
-    return NULL;
-}
-
-
-void pcb_debug()
-{
-    setup_queue();
-
-    for_each_il(running_pcb_queue, (void (*)(void *)) &print_pcb);
+    return true;
 }
 
 
@@ -723,6 +730,9 @@ static bool (*command[])(const char *) = {
         &pcb_resume_cmd,
         &pcb_priority_cmd,
         &pcb_show_cmd,
+        &pcb_show_ready,
+        &pcb_show_blocked,
+        &pcb_show_all,
         NULL,
 };
 

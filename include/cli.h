@@ -28,4 +28,10 @@ void set_command_formatting(bool enabled);
  */
 void set_invisible(bool enabled);
 
+/**
+ * @brief Sets if the input should use tab completions.
+ * @param enabled if it's enabled or not.
+ */
+void set_tab_completions(bool enabled);
+
 #endif //F_R_I_D_A_Y_CLI_H
