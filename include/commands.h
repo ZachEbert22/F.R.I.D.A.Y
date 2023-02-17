@@ -14,6 +14,14 @@
  */
 
 /**
+ * @brief Finds the best match for the given command,
+ *        or NULL if it doesn't match OR matches multiple OR is equal to the command.
+ * @param cmd the command.
+ * @return the best match for it.
+ */
+const char *find_best_match(const char *cmd);
+
+/**
  * @brief Checks if the given command exists.
  * @param cmd the command to check for.
  * @return true if it does, false if not.

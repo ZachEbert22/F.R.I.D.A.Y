@@ -98,6 +98,7 @@ struct line_entry
 enum key_code
 {
     BACKSPACE = 8,
+    TAB = 9,
     NEWLINE = 10,
     CARRIAGE_RETURN = 13,
     ESCAPE = 27,
@@ -122,6 +123,21 @@ static bool command_formatting_enabled = false;
 static bool cli_invisible = false;
 ///If the CLI should implement tab completions.
 static bool tab_completions = false;
+///The prompt to print when requesting input.
+static const char *prompt = NULL;
+
+void set_cli_prompt(const char *str)
+{
+    if(str != NULL)
+    {
+        size_t len = strlen(str);
+        //Don't allow prompts longer than 40 chars.
+        if(len > 40)
+            return;
+    }
+
+    prompt = str;
+}
 
 void set_cli_history(bool hist_enabled)
 {
@@ -227,6 +243,12 @@ int serial_poll(device dev, char *buffer, size_t len)
     int cli_index = cli_history != NULL && cli_history_enabled ? list_size(cli_history) : 0;
     size_t bytes_read = 0;
     int line_pos = 0;
+
+    if(prompt != NULL)
+    {
+        print(prompt);
+    }
+
     while (bytes_read < len)
     {
         //Check the LSR.
@@ -442,6 +464,23 @@ int serial_poll(device dev, char *buffer, size_t len)
                 {
                     matched = 1;
                 }
+            }
+        }
+
+        //Check if it was a TAB completion.
+        if(keycode == TAB && tab_completions)
+        {
+            //Find the best match.
+            const char *best = find_best_match(buffer);
+            if(best != NULL)
+            {
+                size_t best_len = strlen(best);
+                bytes_read = best_len;
+                line_pos = (int) bytes_read;
+
+                //Empty the buffer.
+                memset(buffer, 0, len);
+                strcpy(buffer, best, -1);
             }
         }
 

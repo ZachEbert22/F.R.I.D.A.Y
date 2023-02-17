@@ -11,6 +11,13 @@
  */
 
 /**
+ * @brief Sets the CLI prompt to be used when prompting input.
+ *        Can be set to NULL if no prompt should be printed.
+ * @param prompt the prompt to use.
+ */
+void set_cli_prompt(const char *prompt);
+
+/**
  * @brief Sets if the CLI is enabled.
  * @param enabled if the CLI should be enabled.
  */

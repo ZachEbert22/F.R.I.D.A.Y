@@ -78,11 +78,15 @@ void comhand(void)
         //60 + 1 for the null terminator.
         char buf[61] = {0};
 
-        print(CMD_PROMPT);
-
         set_cli_history(true);
+        set_command_formatting(true);
+        set_tab_completions(true);
+        set_cli_prompt(CMD_PROMPT);
         gets(buf, 60);
         set_cli_history(false);
+        set_command_formatting(false);
+        set_tab_completions(false);
+        set_cli_prompt(NULL);
 
         //Strip whitespace.
         str_strip_whitespace(buf, NULL, 0);

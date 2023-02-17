@@ -42,6 +42,24 @@ static const char *CMD_LABELS[] = {
         NULL,
 };
 
+const char *find_best_match(const char *cmd)
+{
+    const char *best_match = NULL;
+    int index = 0;
+    while(CMD_LABELS[index] != NULL)
+    {
+        const char *potential = CMD_LABELS[index++];
+
+        if(ci_starts_with(potential, cmd))
+        {
+            if(best_match != NULL)
+                return NULL;
+            best_match = potential;
+        }
+    }
+    return best_match;
+}
+
 bool command_exists(const char *cmd)
 {
     int index = 0;
