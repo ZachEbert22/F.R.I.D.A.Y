@@ -77,6 +77,7 @@ const char *get_exec_state_name(enum pcb_exec_state state)
  * @brief Prints the given PCB to standard output.
  *
  * @param pcb_ptr the pointer to the pcb.
+ * @authors Andrew Bowie
  */
 void print_pcb(struct pcb *pcb_ptr)
 {
@@ -93,6 +94,7 @@ void print_pcb(struct pcb *pcb_ptr)
  * @param ptr1 the first pcb.
  * @param ptr2 the second pcb.
  * @return the comparison value of the two pcbs.
+ * @authors Andrew Bowie
  */
 int pcb_cmpr(void *ptr1, void *ptr2)
 {
@@ -136,6 +138,9 @@ int pcb_free(struct pcb* pcb_ptr)
     setup_queue();
 
     if(pcb_ptr == NULL)
+        return 1;
+
+    if(sys_free_mem((void *) pcb_ptr->name) != 0)
         return 1;
 
     return sys_free_mem(pcb_ptr);
@@ -380,6 +385,7 @@ bool pcb_delete_cmd(const char *comm)
     }
 
     pcb_remove(pcb_ptr);
+    pcb_free(pcb_ptr);
     printf("Removed PCB named '%s'!\n", pcb_ptr->name);
     return true;
 }
