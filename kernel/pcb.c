@@ -108,11 +108,6 @@ int pcb_cmpr(void *ptr1, void *ptr2)
     {
         return (int) pcb_ptr1->exec_state - (int) pcb_ptr2->exec_state;
     }
-
-    if(pcb_ptr1->process_class != pcb_ptr2->process_class)
-    {
-        return (int) pcb_ptr1->process_class - (int) pcb_ptr2->dispatch_state;
-    }
     return pcb_ptr1->priority - pcb_ptr2->priority;
 }
 
@@ -580,12 +575,10 @@ bool pcb_priority_cmd(const char* comm){
         println("The Number is Out of Range. Enter a Number between 0-9");
         return true;
     }
-    print_pcb(pcb_ptr);
     pcb_ptr->priority = priority;
 
     pcb_remove(pcb_ptr);
     pcb_insert(pcb_ptr);
-    print_pcb(pcb_ptr);
 
     printf("The pcb named: %s was changed to priority %d\n", pcb_ptr->name, pcb_ptr->priority);
     return true;
@@ -705,6 +698,7 @@ bool pcb_show_all(const char *comm)
     setup_queue();
 
     //Iterate over and find the item.
+    int printed = 0;
     ll_node *first_node = get_first_node(running_pcb_queue);
     while(first_node != NULL)
     {
@@ -714,6 +708,12 @@ bool pcb_show_all(const char *comm)
         print_pcb(item_ptr);
 
         first_node = next_node(first_node);
+        printed++;
+    }
+
+    if(printed == 0)
+    {
+        println("Could not find any PCBs!");
     }
 
     return true;
