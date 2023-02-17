@@ -185,6 +185,10 @@ void irq_init(void)
 	idt_set_gate(0x60, sys_call_isr, sel, flags);
 }
 
+// ********************************************************************************
+#include "stdio.h"
+#include "mpx/pcb.h"
+
 struct context {
     ///The segment registers.
     short cs, ds, es, fs, gs, ss;
@@ -193,7 +197,8 @@ struct context {
     ///The general purpose registers.
     int eax, ebx, ecx, edx, esi, edi, ebp, esp;
 };
-
+static struct pcb *pcb_ptr = NULL;
+static struct context *context_ptr = NULL;
 /**
  *
  */
