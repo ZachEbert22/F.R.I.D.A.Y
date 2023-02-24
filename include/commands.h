@@ -109,6 +109,13 @@ bool cmd_unblock_pcb(const char *comm);
  */
 bool cmd_suspend_pcb(const char *comm);
 
+/**
+ * @brief the yield command, causes the command handler to yield immediately.
+ * @param comm the command string.
+ * @return true if it was handled, false if not.
+ */
+bool cmd_yield(const char *comm);
+
 
 /**
  * @brief The pcb command, used to interact with the pcb system.
