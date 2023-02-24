@@ -22,6 +22,7 @@
 #define CMD_SET_DATE_LABEL "set-date"
 #define CMD_CLEAR_LABEL "clear"
 #define CMD_COLOR_LABEL "color"
+#define CMD_YIELD "yield"
 //PCB Command Header
 #define CMD_PCB_LABEL "pcb"
 //PCB Commands
@@ -39,6 +40,7 @@ static const char *CMD_LABELS[] = {
         CMD_CLEAR_LABEL,
         CMD_COLOR_LABEL,
         CMD_PCB_LABEL,
+        CMD_YIELD,
         NULL,
 };
 
@@ -76,12 +78,12 @@ bool cmd_version(const char *comm)
 {
     //The command's label.
     const char *label = CMD_VERSION_LABEL;
-    
+
     //Check if it matched.
     if (!first_label_matches(comm, label))
         return false;
 
-    println("Module: R3");
+    println("Module: R2");
     println(__DATE__);
     println(__TIME__);
     return true;
@@ -587,6 +589,20 @@ bool cmd_color(const char *comm)
 
     set_output_color(color);
     printf("Set the color to '%s'!\n", color->color_label);
+    return true;
+}
+
+/**
+ * @brief the yield command, causes the command handler to yield immediately.
+ * @param comm the command string.
+ * @return true if it was handled, false if not.
+ */
+bool cmd_yield(const char *comm)
+{
+    if(!first_label_matches(comm, CMD_YIELD))
+        return false;
+
+    sys_req(IDLE);
     return true;
 }
 

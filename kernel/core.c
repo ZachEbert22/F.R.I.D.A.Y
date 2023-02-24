@@ -185,6 +185,23 @@ void irq_init(void)
 	idt_set_gate(0x60, sys_call_isr, sel, flags);
 }
 
+struct context {
+    ///The segment registers.
+    short cs, ds, es, fs, gs, ss;
+    ///The status control registers.
+    int eip, eflags;
+    ///The general purpose registers.
+    int eax, ebx, ecx, edx, esi, edi, ebp, esp;
+};
+
+/**
+ *
+ */
+struct context *sys_call(struct context *ctx) {
+
+    return NULL;
+}
+
 void pic_init(void)
 {
 	outbwait(PIC1, ICW1);   //send initialization code words 1 to PIC1
