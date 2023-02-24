@@ -11,7 +11,6 @@ static linked_list *running_pcb_queue;
 
 /**
  * @brief Gets the class name from the given enum.
- *
  * @param state the class of the execution.
  * @return the string representation.
  * @authors Andrew Bowie
