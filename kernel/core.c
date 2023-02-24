@@ -193,18 +193,30 @@ static struct pcb *pcb_ptr = NULL;
 static struct context *context_ptr = NULL;
 
 #include "sys_req.h"
+#include "string.h"
 
-struct context load_from_pcb(struct pcb *to_load)
+struct context *load_from_pcb(struct pcb *to_load)
 {
-    struct context *loaded = (struct context *) to_load->stack;
-    to_load->stack_ptr += sizeof (struct context);
-    return *loaded;
+    size_t stack_len = sizeof (to_load->stack);
+    size_t new_pos = stack_len - sizeof (struct context);
+
+    struct context *loaded = (struct context *) (to_load->stack + new_pos);
+    return loaded;
+}
+
+void save_context(struct context *ctx, struct pcb *to_save)
+{
+    size_t stack_len = sizeof (to_save->stack);
+    size_t new_pos = stack_len - sizeof (struct context);
+    memcpy(to_save->stack + new_pos, ctx, sizeof (struct context));
+    struct context *loaded = load_from_pcb(to_save);
+    (void) loaded;
 }
 
 /**
  *
  */
-struct context *sys_call(struct context *ctx, op_code action)
+struct context *sys_call(op_code action, struct context *ctx)
 {
     if(context_ptr == NULL)
     {
@@ -221,8 +233,13 @@ struct context *sys_call(struct context *ctx, op_code action)
 
         struct pcb *current = pcb_ptr;
         pcb_ptr = next;
-        pcb_insert(current);
-        return ctx;
+        struct context *new_ctx = load_from_pcb(next);
+        if(current != NULL)
+        {
+            pcb_insert(current);
+            save_context(ctx, current);
+        }
+        return new_ctx;
     }
 
     return ctx;

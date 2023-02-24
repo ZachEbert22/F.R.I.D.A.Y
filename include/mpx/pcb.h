@@ -46,11 +46,11 @@ struct pcb {
 ///The context to save onto a PCB.
 struct context {
     ///The segment registers.
-    short cs, ds, es, fs, gs, ss;
-    ///The status control registers.
-    int eip, eflags;
+    int gs, fs, es, ds;
     ///The general purpose registers.
-    int eax, ebx, ecx, edx, esi, edi, ebp, esp;
+    int edi, esi, ebp, esp, ebx, edx, ecx, eax;
+    ///The status control registers.
+    int eip, cs, eflags;
 };
 
 /**

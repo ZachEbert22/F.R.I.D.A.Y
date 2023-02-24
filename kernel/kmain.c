@@ -20,6 +20,8 @@
 #include "processes.h"
 #include <memory.h>
 #include "mpx/comhand.h"
+#include "stdlib.h"
+int acc = 0;
 
 static void klogv(device dev, const char *msg)
 {
@@ -28,6 +30,7 @@ static void klogv(device dev, const char *msg)
 	serial_out(dev, msg, strlen(msg));
 	serial_out(dev, "\r\n", 2);
 }
+
 
 void kmain(void)
 {
@@ -77,19 +80,26 @@ void kmain(void)
 	// (which has a maximum of 64kiB until you implement a full memory manager).
 	klogv(COM1, "Initializing virtual memory...");
 	vm_init();
+    acc++;
 
 	// 8) MPX Modules -- *headers vary*
 	// Module specific initialization -- not all modules require this
 	klogv(COM1, "Initializing MPX modules...");
 	// R5: sys_set_heap_functions(...);
     generate_new_pcb("test", sys_idle_process);
+    generate_new_pcb("p1", proc1);
+    generate_new_pcb("p2", proc2);
+    generate_new_pcb("p3", proc3);
 	// R4: create commhand and idle processes
 
 	// 9) YOUR command handler -- *create and #include an appropriate .h file*
 	// Pass execution to your command handler so the user can interact with the system.
 	klogv(COM1, "Transferring control to commhand...");
-    comhand();
-//	 __asm__ volatile ("int $0x60" :: "a"(IDLE));
+    __asm__ volatile ("int $0x60" :: "a"(IDLE));
+    while(1)
+    {
+        klogv(COM1, "Test1");
+    }
 
 	// 10) System Shutdown -- *headers to be determined by your design*
 	// After your command handler returns, take care of any clean up that is necessary.

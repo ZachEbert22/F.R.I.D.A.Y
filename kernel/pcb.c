@@ -641,11 +641,11 @@ void generate_new_pcb(const char *name, void *begin_ptr)
 {
     struct pcb *new_pcb = pcb_setup(name, SYSTEM, 0);
     //Save the context into pcb.
-    struct context pcb_context = {.cs = 0x08, .ds = 0, .es = 0, .fs = 0, .gs = 0, .ss = 0,
-                                  .ebp = (int) new_pcb->stack, .esp = (int) (new_pcb->stack + 4096), .eip = (int) begin_ptr,
+    struct context pcb_context = {.cs = 0x08,
+            .ebp = (int) new_pcb->stack, .esp = (int) (new_pcb->stack + PCB_STACK_SIZE - sizeof (struct context)), .eip = (int) begin_ptr,
                                   .eflags = 0x0202};
 
-    new_pcb->stack_ptr -= sizeof (pcb_context);
+    new_pcb->stack_ptr -= sizeof (struct context) - 1;
     memcpy(new_pcb->stack + new_pcb->stack_ptr, &pcb_context, sizeof (struct context));
 
     pcb_insert(new_pcb);

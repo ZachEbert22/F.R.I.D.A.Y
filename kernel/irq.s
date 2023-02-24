@@ -26,13 +26,19 @@ sys_call_isr:
     cmp eax, 2
     je pre_exit         ; Check if we should jump to the end
     pusha               ; Push all the general things into the stack
-    push eax
+    push ds
+    push es
+    push fs
+    push gs
     push esp
+    push eax
 	call sys_call
 	mov ESP, EAX
+	pop gs
+	pop fs
+	pop es
+	pop ds
 	popa
-	pop eax
-	mov eax, 0
 	iret
 	pre_exit:
 	mov eax, -1
