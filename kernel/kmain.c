@@ -16,6 +16,8 @@
 #include <mpx/vm.h>
 #include <sys_req.h>
 #include <string.h>
+#include "mpx/pcb.h"
+#include "processes.h"
 #include <memory.h>
 #include "mpx/comhand.h"
 
@@ -80,13 +82,14 @@ void kmain(void)
 	// Module specific initialization -- not all modules require this
 	klogv(COM1, "Initializing MPX modules...");
 	// R5: sys_set_heap_functions(...);
+    generate_new_pcb("test", sys_idle_process);
 	// R4: create commhand and idle processes
 
 	// 9) YOUR command handler -- *create and #include an appropriate .h file*
 	// Pass execution to your command handler so the user can interact with the system.
 	klogv(COM1, "Transferring control to commhand...");
     comhand();
-	// R4: __asm__ volatile ("int $0x60" :: "a"(IDLE));
+//	 __asm__ volatile ("int $0x60" :: "a"(IDLE));
 
 	// 10) System Shutdown -- *headers to be determined by your design*
 	// After your command handler returns, take care of any clean up that is necessary.

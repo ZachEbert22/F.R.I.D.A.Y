@@ -625,7 +625,6 @@ bool pcb_show_all(const char *comm)
 
 ///All commands within this file, terminated with NULL.
 static bool (*command[])(const char *) = {
-        &pcb_create_cmd,
         &pcb_delete_cmd,
         &pcb_block_cmd,
         &pcb_unblock_cmd,
@@ -638,6 +637,36 @@ static bool (*command[])(const char *) = {
         &pcb_show_all,
         NULL,
 };
+
+void generate_new_pcb(const char *name, void *begin_ptr)
+{
+    struct pcb *new_pcb = pcb_setup(name, SYSTEM, 0);
+    //Save the context into pcb.
+    struct context pcb_context = {.cs = 0x08, .ds = 0, .es = 0, .fs = 0, .gs = 0, .ss = 0,
+                                  .ebp = (int) new_pcb->stack, .esp = (int) (new_pcb->stack + 4096), .eip = (int) begin_ptr,
+                                  .eflags = 0x0202};
+
+    new_pcb->stack_ptr -= sizeof (pcb_context);
+    memcpy(new_pcb->stack + new_pcb->stack_ptr, &pcb_context, sizeof (struct context));
+
+    pcb_insert(new_pcb);
+}
+
+struct pcb *peek_next_pcb(void)
+{
+    if(list_size(running_pcb_queue) == 0)
+        return NULL;
+
+    return get_item(running_pcb_queue, 0);
+}
+
+struct pcb *poll_next_pcb(void)
+{
+    if(list_size(running_pcb_queue) == 0)
+        return NULL;
+
+    return remove_item_unsafe(running_pcb_queue, 0);
+}
 
 void exec_pcb_cmd(const char *comm)
 {

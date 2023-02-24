@@ -42,11 +42,34 @@ struct pcb {
     ///The stack itself.
     unsigned char stack[PCB_STACK_SIZE];
 };
+
+///The context to save onto a PCB.
+struct context {
+    ///The segment registers.
+    short cs, ds, es, fs, gs, ss;
+    ///The status control registers.
+    int eip, eflags;
+    ///The general purpose registers.
+    int eax, ebx, ecx, edx, esi, edi, ebp, esp;
+};
+
 /**
  *@brief Sets up queue for PCBS
  * @authors Andrew Bowie
  */
 void setup_queue(void);
+
+/**
+ * @brief Peeks the next available PCB, or returns NULL if it's empty.
+ * @return the next PCB or NULL.
+ */
+struct pcb *peek_next_pcb(void);
+
+/**
+ * @brief Polls the next available PCB, or returns NULL if it's empty.
+ * @return the next PCB or NULL.
+ */
+struct pcb *poll_next_pcb(void);
 
 /**
  * @brief Allocates memory for a PCB block.
@@ -99,6 +122,13 @@ struct pcb *pcb_find(const char *name);
  * @authors Jared Crowley, Andrew Bowie
  */
 bool pcb_remove(struct pcb *pcb_ptr);
+
+/**
+ * @brief Generates a new PCB with the new and the pointer to the given function.
+ * @param name the name of the pcb.
+ * @param begin_ptr the pointer of the function to start.
+ */
+void generate_new_pcb(const char *name, void *begin_ptr);
 
 /**
  * @brief Runs the PCB command from the given string.

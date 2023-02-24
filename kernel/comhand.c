@@ -11,6 +11,7 @@
 #include "print_format.h"
 #include "mpx/pcb.h"
 #include "stdlib.h"
+#include "sys_req.h"
 
 ///The message to send to the user if a command hasn't been recognized.
 #define UNKNOWN_CMD_MSG "Unknown command '%s'. Type 'help' for help!"

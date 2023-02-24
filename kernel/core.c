@@ -189,22 +189,43 @@ void irq_init(void)
 #include "stdio.h"
 #include "mpx/pcb.h"
 
-struct context {
-    ///The segment registers.
-    short cs, ds, es, fs, gs, ss;
-    ///The status control registers.
-    int eip, eflags;
-    ///The general purpose registers.
-    int eax, ebx, ecx, edx, esi, edi, ebp, esp;
-};
 static struct pcb *pcb_ptr = NULL;
 static struct context *context_ptr = NULL;
+
+#include "sys_req.h"
+
+struct context load_from_pcb(struct pcb *to_load)
+{
+    struct context *loaded = (struct context *) to_load->stack;
+    to_load->stack_ptr += sizeof (struct context);
+    return *loaded;
+}
+
 /**
  *
  */
-struct context *sys_call(struct context *ctx) {
+struct context *sys_call(struct context *ctx, op_code action)
+{
+    if(context_ptr == NULL)
+    {
+        context_ptr = ctx;
+    }
 
-    return NULL;
+    if(action == IDLE)
+    {
+        struct pcb *next = poll_next_pcb();
+        if(next == NULL)
+        {
+            return ctx;
+        }
+
+        struct pcb *current = pcb_ptr;
+        pcb_ptr = next;
+        pcb_insert(current);
+        return ctx;
+    }
+
+    return ctx;
 }
 
 void pic_init(void)
