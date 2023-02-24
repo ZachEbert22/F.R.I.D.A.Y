@@ -76,7 +76,7 @@ bool cmd_version(const char *comm)
 {
     //The command's label.
     const char *label = CMD_VERSION_LABEL;
-
+    
     //Check if it matched.
     if (!first_label_matches(comm, label))
         return false;
