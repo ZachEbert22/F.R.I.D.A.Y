@@ -197,13 +197,19 @@ struct context {
     ///The general purpose registers.
     int eax, ebx, ecx, edx, esi, edi, ebp, esp;
 };
-static struct pcb *pcb_ptr = NULL;
+struct pcb *pcb_ptr = NULL;
 static struct context *context_ptr = NULL;
+
+
 /**
  *
  */
 struct context *sys_call(struct context *ctx) {
-
+	
+	if (context_ptr == NULL){
+	context_ptr = ctx;
+	}
+	
     return NULL;
 }
 
