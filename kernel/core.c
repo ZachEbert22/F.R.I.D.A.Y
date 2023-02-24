@@ -208,6 +208,7 @@ struct context *sys_call(struct context *ctx) {
 	
 	if (context_ptr == NULL){
 	context_ptr = ctx;
+
 	}
 	
     return NULL;
