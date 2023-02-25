@@ -21,7 +21,6 @@
 #include <memory.h>
 #include "mpx/comhand.h"
 #include "stdlib.h"
-int acc = 0;
 
 static void klogv(device dev, const char *msg)
 {
@@ -80,7 +79,6 @@ void kmain(void)
 	// (which has a maximum of 64kiB until you implement a full memory manager).
 	klogv(COM1, "Initializing virtual memory...");
 	vm_init();
-    acc++;
 
 	// 8) MPX Modules -- *headers vary*
 	// Module specific initialization -- not all modules require this
@@ -88,8 +86,8 @@ void kmain(void)
 	// R5: sys_set_heap_functions(...);
     generate_new_pcb("test", sys_idle_process);
     generate_new_pcb("p1", proc1);
-    generate_new_pcb("p2", proc2);
-    generate_new_pcb("p3", proc3);
+//    generate_new_pcb("p2", proc2);
+//    generate_new_pcb("p3", proc3);
 	// R4: create commhand and idle processes
 
 	// 9) YOUR command handler -- *create and #include an appropriate .h file*

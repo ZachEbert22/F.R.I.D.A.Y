@@ -4,7 +4,7 @@
 ///The maximum length of a PCB's name.
 #define PCB_MAX_NAME_LEN 8
 ///The initial size of a PCB's stack.
-#define PCB_STACK_SIZE 4096
+#define PCB_STACK_SIZE 512
 
 ///The clas of a PCB.
 enum pcb_class {
@@ -46,7 +46,7 @@ struct pcb {
 ///The context to save onto a PCB.
 struct context {
     ///The segment registers.
-    int gs, fs, es, ds;
+    int gs, fs, es, ds, ss;
     ///The general purpose registers.
     int edi, esi, ebp, esp, ebx, edx, ecx, eax;
     ///The status control registers.

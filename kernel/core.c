@@ -233,7 +233,8 @@ struct context *sys_call(op_code action, struct context *ctx)
 
         struct pcb *current = pcb_ptr;
         pcb_ptr = next;
-        struct context *new_ctx = load_from_pcb(next);
+        struct context *new_ctx = load_from_pcb(next); //After re-loading a saved PCB, the stack isn't properly reloading.
+                                                                //It returns from sys_req and jumps to 0x10 and dies. Not sure why, going to figure out later.
         if(current != NULL)
         {
             pcb_insert(current);

@@ -26,6 +26,7 @@ sys_call_isr:
     cmp eax, 2
     je pre_exit         ; Check if we should jump to the end
     pusha               ; Push all the general things into the stack
+    push ss
     push ds
     push es
     push fs
@@ -38,6 +39,7 @@ sys_call_isr:
 	pop fs
 	pop es
 	pop ds
+	pop ss
 	popa
 	iret
 	pre_exit:
