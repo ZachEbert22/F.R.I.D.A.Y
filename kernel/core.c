@@ -235,6 +235,8 @@ struct context *sys_call(op_code action, struct context *ctx)
         pcb_ptr = next;
         struct context *new_ctx = load_from_pcb(next); //After re-loading a saved PCB, the stack isn't properly reloading.
                                                                 //It returns from sys_req and jumps to 0x10 and dies. Not sure why, going to figure out later.
+                                                                //Other note: It appears that the stacks are the issue. Calling another function
+                                                                //(after Context Switch) does NOT save the previous call to the call stack, for whatever reason.
         if(current != NULL)
         {
             pcb_insert(current);
