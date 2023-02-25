@@ -174,6 +174,7 @@ struct pcb *pcb_setup(const char *name, int class, int priority)
     pcb_ptr->name = malloc_name;
     pcb_ptr->process_class = class;
     pcb_ptr->priority = priority;
+    pcb_ptr->ctx_ptr = (struct context *) (pcb_ptr->stack + PCB_STACK_SIZE - (sizeof(struct context)));
     return pcb_ptr;
 }
 
@@ -642,14 +643,21 @@ void generate_new_pcb(const char *name, void *begin_ptr)
     struct pcb *new_pcb = pcb_setup(name, SYSTEM, 0);
     //Save the context into pcb.
     new_pcb->stack_ptr -= sizeof (struct context);
-    struct context pcb_context = {.cs = 0x08, .fs = 0x10, .gs = 0x10, .ds = 0x10, .es = 0x10, .ss = 0x10,
-            .esp = (int) new_pcb->stack, .ebp = (int) (new_pcb->stack + PCB_STACK_SIZE - sizeof (struct context)), .eip = (int) begin_ptr,
-                                  .eflags = 0x0202};
+    struct context *pcb_context = new_pcb->ctx_ptr;
+    pcb_context->cs = 0x08;
+    pcb_context->ds = 0x10;
+    pcb_context->fs = 0x10;
+    pcb_context->ds = 0x10;
+    pcb_context->es = 0x10;
+    pcb_context->gs = 0x10;
+    pcb_context->ss = 0x10;
+    pcb_context->ebp = (int) new_pcb->stack;
+    pcb_context->esp = (int) (new_pcb->stack + PCB_STACK_SIZE);
+    pcb_context->eip = (int) begin_ptr;
+    pcb_context->eflags = 0x0202;
 
-    memcpy(new_pcb->stack + PCB_STACK_SIZE - sizeof (struct context), &pcb_context, sizeof (struct context));
-
-    printf("First %x\n", pcb_context.esp);
-    printf("Second %x\n", pcb_context.ebp);
+    printf("First %x\n", pcb_context->esp);
+    printf("Second %x\n", pcb_context->ebp);
 
     pcb_insert(new_pcb);
 }

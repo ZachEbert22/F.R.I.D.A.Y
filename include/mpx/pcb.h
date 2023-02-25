@@ -39,6 +39,8 @@ struct pcb {
     enum pcb_dispatch_state dispatch_state;
     ///A pointer to the next available byte in the stack.
     int stack_ptr;
+    ///A pointer to the section of the stack that defines the context.
+    struct context *ctx_ptr;
     ///The stack itself.
     unsigned char stack[PCB_STACK_SIZE];
 };

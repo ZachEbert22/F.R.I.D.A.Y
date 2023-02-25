@@ -195,24 +195,6 @@ static struct context *context_ptr = NULL;
 #include "sys_req.h"
 #include "string.h"
 
-struct context *load_from_pcb(struct pcb *to_load)
-{
-    size_t stack_len = sizeof (to_load->stack);
-    size_t new_pos = stack_len - sizeof (struct context);
-
-    struct context *loaded = (struct context *) (to_load->stack + new_pos);
-    return loaded;
-}
-
-void save_context(struct context *ctx, struct pcb *to_save)
-{
-    size_t stack_len = sizeof (to_save->stack);
-    size_t new_pos = stack_len - sizeof (struct context);
-    memcpy(to_save->stack + new_pos, ctx, sizeof (struct context));
-    struct context *loaded = load_from_pcb(to_save);
-    (void) loaded;
-}
-
 /**
  *
  */
@@ -233,14 +215,14 @@ struct context *sys_call(op_code action, struct context *ctx)
 
         struct pcb *current = pcb_ptr;
         pcb_ptr = next;
-        struct context *new_ctx = load_from_pcb(next); //After re-loading a saved PCB, the stack isn't properly reloading.
+        struct context *new_ctx = next->ctx_ptr; //After re-loading a saved PCB, the stack isn't properly reloading.
                                                                 //It returns from sys_req and jumps to 0x10 and dies. Not sure why, going to figure out later.
                                                                 //Other note: It appears that the stacks are the issue. Calling another function
                                                                 //(after Context Switch) does NOT save the previous call to the call stack, for whatever reason.
         if(current != NULL)
         {
             pcb_insert(current);
-            save_context(ctx, current);
+            memcpy(current->ctx_ptr, ctx, sizeof (struct context));
         }
         return new_ctx;
     }
