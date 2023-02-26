@@ -13,6 +13,7 @@ typedef enum {
 	IDLE,
 	READ,
 	WRITE,
+    SHUTDOWN
 } op_code;
     
 // error codes

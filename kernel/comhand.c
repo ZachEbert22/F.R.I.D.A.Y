@@ -9,8 +9,6 @@
 #include "string.h"
 #include "cli.h"
 #include "print_format.h"
-#include "mpx/pcb.h"
-#include "stdlib.h"
 #include "sys_req.h"
 
 ///The message to send to the user if a command hasn't been recognized.
@@ -39,6 +37,8 @@ static bool sig_shutdown = false;
 void signal_shutdown(void)
 {
     sig_shutdown = true;
+    sys_req(SHUTDOWN);
+    sys_req(EXIT);
 }
 
 /**
@@ -73,8 +73,8 @@ void print_welcome(void)
 void comhand(void)
 {
     print_welcome();
-    sig_shutdown = false;
-    while (!sig_shutdown)
+    bool running = true;
+    while (running)
     {
         //60 + 1 for the null terminator.
         char buf[61] = {0};
@@ -114,5 +114,8 @@ void comhand(void)
             printf(UNKNOWN_CMD_MSG, buf);
             println("");
         }
+        sys_req(IDLE);
     }
+
+    sys_req(EXIT); //Exit ourselves as a fail-safe.
 }

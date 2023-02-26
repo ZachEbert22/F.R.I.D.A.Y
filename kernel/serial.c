@@ -221,6 +221,21 @@ int find_next_word(enum direction direc, int cursor_index, const char *str, int 
     return index;
 }
 
+/**
+ * @brief Sets the output color using serial_out instead of printf. (Avoids sys_req call)
+ * @param color the color to set.
+ */
+void internal_soc(const color_t *color)
+{
+    static const char format_arr[2] = {27, '['};
+    char color_arr[3] = {0};
+    itoa(color->color_num, color_arr, 3);
+
+    serial_out(COM1, format_arr, 2);
+    serial_out(COM1, color_arr, strlen(color_arr));
+    serial_out(COM1, "m", 1);
+}
+
 ///The CLI history from the serial_poll function.
 static linked_list *cli_history = NULL;
 
@@ -246,7 +261,7 @@ int serial_poll(device dev, char *buffer, size_t len)
 
     if(prompt != NULL)
     {
-        print(prompt);
+        serial_out(COM1, prompt, strlen(prompt));
     }
 
     while (bytes_read < len)
@@ -510,11 +525,11 @@ int serial_poll(device dev, char *buffer, size_t len)
             cmd_exists = command_exists(buffer);
             if(cmd_exists)
             {
-                set_output_color(get_color("bright-green"));
+                internal_soc(get_color("bright-green"));
             }
             else
             {
-                set_output_color(get_color("red"));
+                internal_soc(get_color("red"));
             }
         }
 
@@ -529,7 +544,7 @@ int serial_poll(device dev, char *buffer, size_t len)
 
         if(command_formatting_enabled)
         {
-            set_output_color(clr);
+            internal_soc(clr);
         }
     }
 

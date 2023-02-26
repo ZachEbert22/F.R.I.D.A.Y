@@ -189,8 +189,8 @@ void irq_init(void)
 #include "stdio.h"
 #include "mpx/pcb.h"
 
-static struct pcb *pcb_ptr = NULL;
-static struct context *context_ptr = NULL;
+static struct pcb *active_pcb_ptr = NULL;
+static struct context *first_context_ptr = NULL;
 
 #include "sys_req.h"
 #include "string.h"
@@ -200,21 +200,22 @@ static struct context *context_ptr = NULL;
  */
 struct context *sys_call(op_code action, struct context *ctx)
 {
-    if(context_ptr == NULL)
+    if(first_context_ptr == NULL)
     {
-        context_ptr = ctx;
+        first_context_ptr = ctx;
     }
 
     if(action == IDLE)
     {
-        struct pcb *next = poll_next_pcb();
-        if(next == NULL)
+        struct pcb *next = peek_next_pcb();
+        if(next == NULL || next->exec_state == BLOCKED)
         {
             return ctx;
         }
 
-        struct pcb *current = pcb_ptr;
-        pcb_ptr = next;
+        poll_next_pcb();
+        struct pcb *current = active_pcb_ptr;
+        active_pcb_ptr = next;
         struct context *new_ctx = next->ctx_ptr;
         if(current != NULL)
         {
@@ -229,17 +230,41 @@ struct context *sys_call(op_code action, struct context *ctx)
     else if(action == EXIT)
     {
         //Exiting PCB.
-        struct pcb *exiting_pcb = pcb_ptr;
+        struct pcb *exiting_pcb = active_pcb_ptr;
         if(exiting_pcb == NULL) //We can't exit if there's no PCB.
             return ctx;
 
         pcb_remove(exiting_pcb);
         struct pcb *next_to_load = peek_next_pcb();
-        if(next_to_load == NULL) //No next process to load? Try loading the global one.
-            return context_ptr;
+        if(next_to_load == NULL || next_to_load->exec_state == BLOCKED) //No next process to load? Try loading the global one.
+            return first_context_ptr;
 
+        poll_next_pcb();
         next_to_load->exec_state = RUNNING;
+        pcb_free(exiting_pcb);
         return next_to_load->ctx_ptr;
+    }
+    else if(action == SHUTDOWN)
+    {
+        if(active_pcb_ptr != NULL && active_pcb_ptr->process_class != SYSTEM) //Only system processes may invoke a shutdown.
+            return ctx;
+
+        //This should kill all active processes and return the proper value.
+        struct pcb *next = NULL;
+        while((next = poll_next_pcb()) != NULL)
+        {
+            pcb_remove(next);
+            pcb_free(next);
+        }
+
+        //Free the active pointer.
+        if(active_pcb_ptr != NULL)
+        {
+            pcb_remove(active_pcb_ptr);
+            pcb_free(active_pcb_ptr);
+        }
+        active_pcb_ptr = NULL;
+        return first_context_ptr;
     }
 
     return ctx;

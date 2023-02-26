@@ -638,11 +638,37 @@ static bool (*command[])(const char *) = {
         NULL,
 };
 
-void generate_new_pcb(const char *name, void *begin_ptr)
+#include "sys_req.h"
+
+/**
+ * @brief Serves as a wrapper for starting a process. This exists to ENSURE that processes properly exit.
+ * @param initial_offset_ptr the initial function offset.
+ */
+void pcb_start_wrapper(void initial_offset_ptr(void))
 {
-    struct pcb *new_pcb = pcb_setup(name, SYSTEM, 0);
+    initial_offset_ptr();
+    for(;;)
+    {
+        sys_req(EXIT); //Continually request to exit if the initial process forgot to.
+        println("Process failed to exit self!");
+    }
+}
+
+bool generate_new_pcb(const char *name, int priority, enum pcb_class class, void *begin_ptr)
+{
+    if(priority < 0 || priority > 9)
+        return false;
+
+    if(class != USER && class != SYSTEM)
+        return false;
+
+    struct pcb *new_pcb = pcb_setup(name, class, priority);
+    if(new_pcb == NULL)
+        return false;
+
     //Save the context into pcb.
     new_pcb->stack_ptr -= sizeof (struct context);
+    new_pcb->ctx_ptr = (struct context *) (((int) new_pcb->ctx_ptr) - sizeof (int) * 2); //Make room for extra offset.
     struct context *pcb_context = new_pcb->ctx_ptr;
     pcb_context->cs = 0x08;
     pcb_context->ds = 0x10;
@@ -653,10 +679,19 @@ void generate_new_pcb(const char *name, void *begin_ptr)
     pcb_context->ss = 0x10;
     pcb_context->ebp = (int) (new_pcb->stack + PCB_STACK_SIZE - sizeof(struct context));
     pcb_context->esp = (int) (new_pcb->stack + PCB_STACK_SIZE - sizeof(struct context));
-    pcb_context->eip = (int) begin_ptr;
+    pcb_context->eip = (int) pcb_start_wrapper;
     pcb_context->eflags = 0x0202;
 
+    //Put the extra offset at end of stack.
+    int *offset_ptr = (int *) (((int) new_pcb->ctx_ptr) + sizeof (struct context) + sizeof (int));
+    *offset_ptr = (int) begin_ptr;
+
+    printf("Wrapper Offset: 0x%x\n", offset_ptr);
+    printf("Stack Pointer: 0x%x\n", new_pcb->stack_ptr);
+    printf("Initial Offset: 0x%x\n", begin_ptr);
+
     pcb_insert(new_pcb);
+    return true;
 }
 
 struct pcb *peek_next_pcb(void)

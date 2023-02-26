@@ -9,7 +9,7 @@
 ///The maximum length of a PCB's name.
 #define PCB_MAX_NAME_LEN 8
 ///The initial size of a PCB's stack.
-#define PCB_STACK_SIZE 512
+#define PCB_STACK_SIZE 4096
 
 ///The clas of a PCB.
 enum pcb_class {
@@ -133,9 +133,12 @@ bool pcb_remove(struct pcb *pcb_ptr);
 /**
  * @brief Generates a new PCB with the new and the pointer to the given function.
  * @param name the name of the pcb.
+ * @param priority the priority of the process.
+ * @param class the class of the process.
  * @param begin_ptr the pointer of the function to start.
+ * @return true if the PCB was successfully scheduled and started.
  */
-void generate_new_pcb(const char *name, void *begin_ptr);
+bool generate_new_pcb(const char *name, int priority, enum pcb_class class, void *begin_ptr);
 
 /**
  * @brief Runs the PCB command from the given string.

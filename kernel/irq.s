@@ -21,8 +21,11 @@ rtc_isr:
 ;;; System call interrupt handler. To be implemented in Module R3.
 extern sys_call			; The C function that sys_call_isr will call
 sys_call_isr:
-    cmp eax, 2
-    jge pre_exit         ; Check if we should jump to the end
+    cmp eax, 2          ; Check for the read and write ops, if they're present just return -1.
+    je pre_exit
+    cmp eax, 3
+    je pre_exit
+
     pusha               ; Push all the general things into the stack
     push ss
     push ds
