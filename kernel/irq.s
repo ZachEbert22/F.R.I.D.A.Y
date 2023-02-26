@@ -21,10 +21,8 @@ rtc_isr:
 ;;; System call interrupt handler. To be implemented in Module R3.
 extern sys_call			; The C function that sys_call_isr will call
 sys_call_isr:
-    cmp eax, 3
-    je pre_exit         ; Check if we should jump to the end
     cmp eax, 2
-    je pre_exit         ; Check if we should jump to the end
+    jge pre_exit         ; Check if we should jump to the end
     pusha               ; Push all the general things into the stack
     push ss
     push ds
@@ -40,7 +38,8 @@ sys_call_isr:
 	pop es
 	pop ds
 	pop ss
-	popa                ; It appears that the issue is stemming from ESP not being set properly. Apparently popa does not set esp, but iret does?
+	popa
+	mov eax, 0
 	iret
 	pre_exit:
 	mov eax, -1

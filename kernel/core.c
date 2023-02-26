@@ -215,16 +215,31 @@ struct context *sys_call(op_code action, struct context *ctx)
 
         struct pcb *current = pcb_ptr;
         pcb_ptr = next;
-        struct context *new_ctx = next->ctx_ptr; //After re-loading a saved PCB, the stack isn't properly reloading.
-                                                                //It returns from sys_req and jumps to 0x10 and dies. Not sure why, going to figure out later.
-                                                                //Other note: It appears that the stacks are the issue. Calling another function
-                                                                //(after Context Switch) does NOT save the previous call to the call stack, for whatever reason.
+        struct context *new_ctx = next->ctx_ptr;
         if(current != NULL)
         {
+            current->exec_state = READY;
             pcb_insert(current);
-            memcpy(current->ctx_ptr, ctx, sizeof (struct context));
+            //Update where the PCB's context pointer is pointing.
+            current->ctx_ptr = ctx;
         }
+        next->exec_state = RUNNING;
         return new_ctx;
+    }
+    else if(action == EXIT)
+    {
+        //Exiting PCB.
+        struct pcb *exiting_pcb = pcb_ptr;
+        if(exiting_pcb == NULL) //We can't exit if there's no PCB.
+            return ctx;
+
+        pcb_remove(exiting_pcb);
+        struct pcb *next_to_load = peek_next_pcb();
+        if(next_to_load == NULL) //No next process to load? Try loading the global one.
+            return context_ptr;
+
+        next_to_load->exec_state = RUNNING;
+        return next_to_load->ctx_ptr;
     }
 
     return ctx;

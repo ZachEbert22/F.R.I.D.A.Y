@@ -651,13 +651,10 @@ void generate_new_pcb(const char *name, void *begin_ptr)
     pcb_context->es = 0x10;
     pcb_context->gs = 0x10;
     pcb_context->ss = 0x10;
-    pcb_context->ebp = (int) new_pcb->stack;
-    pcb_context->esp = (int) (new_pcb->stack + PCB_STACK_SIZE);
+    pcb_context->ebp = (int) (new_pcb->stack + PCB_STACK_SIZE - sizeof(struct context));
+    pcb_context->esp = (int) (new_pcb->stack + PCB_STACK_SIZE - sizeof(struct context));
     pcb_context->eip = (int) begin_ptr;
     pcb_context->eflags = 0x0202;
-
-    printf("First %x\n", pcb_context->esp);
-    printf("Second %x\n", pcb_context->ebp);
 
     pcb_insert(new_pcb);
 }
