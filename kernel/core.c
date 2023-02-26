@@ -196,7 +196,10 @@ static struct context *first_context_ptr = NULL;
 #include "string.h"
 
 /**
- *
+ * @brief The main system call function, implementing the IDLE, EXIT, and SHUTDOWN system requests.
+ * @param action the action to perform.
+ * @param ctx the current PCB context.
+ * @return a pointer to the next context to load.
  */
 struct context *sys_call(op_code action, struct context *ctx)
 {

@@ -686,10 +686,6 @@ bool generate_new_pcb(const char *name, int priority, enum pcb_class class, void
     int *offset_ptr = (int *) (((int) new_pcb->ctx_ptr) + sizeof (struct context) + sizeof (int));
     *offset_ptr = (int) begin_ptr;
 
-    printf("Wrapper Offset: 0x%x\n", offset_ptr);
-    printf("Stack Pointer: 0x%x\n", new_pcb->stack_ptr);
-    printf("Initial Offset: 0x%x\n", begin_ptr);
-
     pcb_insert(new_pcb);
     return true;
 }
