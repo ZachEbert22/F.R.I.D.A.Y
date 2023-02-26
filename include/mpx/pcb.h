@@ -1,6 +1,11 @@
 #ifndef MPX_PCB_H
 #define MPX_PCB_H
 
+/**
+ * @file pcb.h
+ * @brief This file contains all of the structure and functions for a PCB and its context.
+ */
+
 ///The maximum length of a PCB's name.
 #define PCB_MAX_NAME_LEN 8
 ///The initial size of a PCB's stack.
