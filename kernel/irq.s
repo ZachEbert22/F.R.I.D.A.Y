@@ -40,7 +40,7 @@ sys_call_isr:
 	pop es
 	pop ds
 	pop ss
-	popa
+	popa                ; It appears that the issue is stemming from ESP not being set properly. Apparently popa does not set esp, but iret does?
 	iret
 	pre_exit:
 	mov eax, -1
