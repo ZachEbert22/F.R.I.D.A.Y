@@ -164,7 +164,7 @@ add_item_index(linked_list *list, int index, void *item)
         return 0;
 
     //Create the node and assign the values.
-    ll_node *created = sys_alloc_mem(sizeof(ll_node));
+    ll_node *created = (ll_node *) item;//sys_alloc_mem(sizeof(ll_node));
 
     //We were not able to allocate the memory required.
     if(created == NULL)
@@ -235,6 +235,8 @@ add_item_index(linked_list *list, int index, void *item)
 void
 set_item_i(linked_list *list, int index, int new_item)
 {
+    (void) list;
+    (void) index;
     //Create the new integer pointer.
     int *new_ptr = sys_alloc_mem(sizeof (new_item));
 
@@ -242,8 +244,8 @@ set_item_i(linked_list *list, int index, int new_item)
     *new_ptr = new_item;
 
     //Free the old ptr.
-    void *old = set_item(list, index, new_ptr);
-    sys_free_mem(old);
+//    void *old = set_item(list, index, new_ptr);
+//    sys_free_mem(old);
 }
 
 void
@@ -301,12 +303,13 @@ remove_item(linked_list *list, int index)
 {
     if(list == NULL)
         return;
+    (void) index;
 
-    void *to_free = remove_item_unsafe(list, index);
+    remove_item_unsafe(list, index);
 
     //Free the memory.
-    if(to_free != NULL)
-        sys_free_mem(to_free);
+//    if(to_free != NULL)
+//        sys_free_mem(to_free);
 }
 
 int
@@ -343,7 +346,7 @@ remove_item_ptr(linked_list *list, void *item_ptr)
     list->_size--;
 
     //Free the pointer to the node.
-    sys_free_mem(first);
+//    sys_free_mem(first);
     first = NULL;
 
     //Success!
@@ -390,7 +393,7 @@ void
     void *item = first->_item;
 
     //Free the pointer to the node.
-    sys_free_mem(first);
+//    sys_free_mem(first);
     first = NULL;
 
     //Success!
@@ -431,13 +434,13 @@ destroy_list(linked_list *to_destroy_ptr, int destroy_values)
         nodes[index] = first_ptr;
         if (destroy_values)
         {
-            sys_free_mem(first_ptr->_item);
+//            sys_free_mem(first_ptr->_item);
         }
 
         //Step the pointer forward, then free the old one.
-        ll_node *temporary = first_ptr;
+//        ll_node *temporary = first_ptr;
         first_ptr = first_ptr->_next;
-        sys_free_mem(temporary);
+//        sys_free_mem(temporary);
         index++;
     }
 

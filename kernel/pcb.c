@@ -182,8 +182,9 @@ void pcb_insert(struct pcb* pcb_ptr)
 {
     setup_queue();
 
-    if(pcb_ptr == NULL) return;
-    add_item(running_pcb_queue,pcb_ptr);
+    if(pcb_ptr == NULL)
+        return;
+    add_item(running_pcb_queue, pcb_ptr);
 }
 /**
  *
