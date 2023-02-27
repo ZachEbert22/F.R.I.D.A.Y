@@ -33,9 +33,9 @@ enum pcb_dispatch_state {
 ///The definition of a process control block.
 struct pcb {
     ///This exists as an extremely hacky way to use them in the linked list without allocating memory.
-    void *_dont_use_1;
+    void *_dont_use_next;
     ///This exists as an extremely hacky way to use them in the linked list without allocating memory.
-    void *_dont_use_2;
+    void *_dont_use_item;
 
     ///The name of the PCB, max length of 8.
     const char *name;

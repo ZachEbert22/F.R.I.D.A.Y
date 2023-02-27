@@ -84,6 +84,11 @@ int serial_out(device dev, const char *buffer, size_t len)
 ///Used to store a specific line previously entered.
 struct line_entry
 {
+    ///These are a hacky way to use linked lists without excessive allocation (temp until R5)
+    void *_dont_use_1;
+    ///These are a hacky way to use linked lists without excessive allocation (temp until R5)
+    void *_dont_use_2;
+
     /**
      * The line that was entered. Does not include null terminator.
      */

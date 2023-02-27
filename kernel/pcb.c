@@ -173,6 +173,7 @@ struct pcb *pcb_setup(const char *name, int class, int priority)
 
     pcb_ptr->name = malloc_name;
     pcb_ptr->process_class = class;
+    pcb_ptr->_dont_use_item = pcb_ptr;
     pcb_ptr->priority = priority;
     pcb_ptr->ctx_ptr = (struct context *) (pcb_ptr->stack + PCB_STACK_SIZE - (sizeof(struct context)));
     return pcb_ptr;
