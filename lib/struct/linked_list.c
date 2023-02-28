@@ -7,30 +7,6 @@
 #include "memory.h"
 #include "string.h"
 
-///Contains the structure of the nodes in our linked list.
-struct linked_list_node_
-{
-    ///The pointer to the item we're storing.
-    void *_item; //8 bytes
-    ///The next node in the list.
-    ll_node *_next; //8 bytes
-};
-
-///Contains the definition of our linked list.
-struct linked_list_
-{
-    ///The size of the linked list.
-    int _size;
-    ///The maximum size of the linked list, set to -1 for infinite.
-    int _max_size;
-    ///A pointer to the sorting function.
-    int (*sort_func)(void*, void*);
-    ///The first node in the linked list.
-    ll_node *_first;
-    ///The second node in the linked list.
-    ll_node *_last;
-};
-
 /**
  * @brief Sets the item in the given list to the value given.
  * @param list the list to set the item in.
@@ -122,28 +98,6 @@ void
 }
 
 int
-add_item_i(linked_list *list, int item)
-{
-    return add_item_index_i(list, list->_size, item);
-}
-
-int
-add_item_index_i(linked_list *list, int index, const int item)
-{
-    //Create the new integer pointer.
-    int *new_ptr = sys_alloc_mem(sizeof (item));
-
-    //We weren't able to allocate the memory.
-    if(new_ptr == NULL)
-        return 0;
-
-    //Copy the value.
-    *new_ptr = item;
-
-    return add_item_index(list, index, new_ptr);
-}
-
-int
 add_item(linked_list *list, void *item)
 {
     return add_item_index(list, list->_size, item);
@@ -230,33 +184,6 @@ add_item_index(linked_list *list, int index, void *item)
 
     //Success!
     return 1;
-}
-
-void
-set_item_i(linked_list *list, int index, int new_item)
-{
-    (void) list;
-    (void) index;
-    //Create the new integer pointer.
-    int *new_ptr = sys_alloc_mem(sizeof (new_item));
-
-    //Copy the value.
-    *new_ptr = new_item;
-
-    //Free the old ptr.
-//    void *old = set_item(list, index, new_ptr);
-//    sys_free_mem(old);
-}
-
-void
-*set_item_i_unsafe(linked_list *list, int index, int new_item)
-{
-    //Create the new integer pointer.
-    int *new_ptr = sys_alloc_mem(sizeof (new_item));
-
-    //Copy the value.
-    *new_ptr = new_item;
-    return set_item(list, index, new_ptr);
 }
 
 void

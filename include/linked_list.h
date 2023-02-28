@@ -8,18 +8,35 @@
 /**
  * @file linked_list.h
  * @brief This file represents the functionality and structure of a linked list.
- * Nodes added to the list ARE allocated dynamically. All add methods except
- * @code add_item_index allocate memory to store the value of the item.
+ * Any item added to this list, MUST contain the necessary data as defined by the ll_node type.
  */
 
 /**
- * @brief The node used for all linked lists.
+ * @brief The node used for all linked lists. Note that
  */
-typedef struct linked_list_node_ ll_node;
+typedef struct linked_list_node_
+{
+    ///The pointer to the item we're storing.
+    void *_item; //8 bytes
+    ///The next node in the list.
+    struct linked_list_node_ *_next; //8 bytes
+} ll_node;
+
 /**
  * @brief The main linked list structure.
  */
-typedef struct linked_list_ linked_list;
+typedef struct linked_list_ {
+    ///The size of the linked list.
+    int _size;
+    ///The maximum size of the linked list, set to -1 for infinite.
+    int _max_size;
+    ///A pointer to the sorting function.
+    int (*sort_func)(void*, void*);
+    ///The first node in the linked list.
+    ll_node *_first;
+    ///The second node in the linked list.
+    ll_node *_last;
+} linked_list;
 
 /**
  * @brief Creates a new unbounded linked list. You should call @code destroy_list(list, 1) when finished with it.
@@ -88,25 +105,6 @@ void
 destroy_list(linked_list *list, int destroy_values);
 
 /**
- * @brief Adds an item to the end of the linked list.
- * @param list the list to add to.
- * @param item the item to add.
- * @return 1 if successful, 0 if the item was not added.
- */
-int
-add_item_i(linked_list *list, int item);
-
-/**
- * @brief Adds an item to the end of the linked list.
- * @param list the list to add to.
- * @param index the index to add the item to.
- * @param item the item to add.
- * @return 1 if successful, 0 if the item was not added.
- */
-int
-add_item_index_i(linked_list *list, int index, int item);
-
-/**
  * @brief A function for adding an unknown type to the list.
  * @param list the list to add to.
  * @param item the item to add.
@@ -124,27 +122,6 @@ add_item(linked_list *list, void *item);
  */
 int
 add_item_index(linked_list *list, int index, void *item);
-
-/**
- * @brief Sets the value of the item at an index within the list.
- * @param list the list to set in.
- * @param index the index to set at.
- * @param new_item the item to set to.
- * @return the previous value, or NULL if the operation was unsuccessful.
- */
-void
-set_item_i(linked_list *list, int index, int new_item);
-
-/**
- * @brief Sets the value of the item at an index within the list.
- * YOU are responsible for freeing this pointer if used!
- * @param list the list to set in.
- * @param index the index to set at.
- * @param new_item the item to set to.
- * @return the previous value, or NULL if the operation was unsuccessful.
- */
-void
-*set_item_i_unsafe(linked_list *list, int index, int new_item);
 
 /**
  * @brief Removes an item from the linked list at the given index.
