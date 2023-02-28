@@ -23,7 +23,7 @@
 #define CMD_CLEAR_LABEL "clear"
 #define CMD_COLOR_LABEL "color"
 #define CMD_YIELD "yield"
-#define CMD_LOADR3 "loadr3"
+#define CMD_LOADR3 "load-r3"
 //PCB Command Header
 #define CMD_PCB_LABEL "pcb"
 //PCB Commands

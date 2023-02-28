@@ -69,6 +69,8 @@ void print_welcome(void)
     println("=> set-timezone");
     println("=> version");
     println("=> shutdown");
+    println("=> Load-R3");
+    println("=> Yield");
     println("=> color");
     println("=> clear");
 }

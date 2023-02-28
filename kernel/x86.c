@@ -10,9 +10,9 @@
 bool loadr3(const char *comm){
 
     //The command's label.
-    const char *label = "loadr3";
+    const char *label = "Load-R3";
 
-    //Check if it matched.
+    //Check if it matched.s
     if (!first_label_matches(comm, label))
         return false;
     
