@@ -10,6 +10,7 @@
 #include "cli.h"
 #include "print_format.h"
 #include "sys_req.h"
+#include "mpx/x86.h"
 
 ///The message to send to the user if a command hasn't been recognized.
 #define UNKNOWN_CMD_MSG "Unknown command '%s'. Type 'help' for help!"
@@ -28,7 +29,8 @@ bool (*comm_funcs[])(const char *comm) = {
         &cmd_set_tz,
         &cmd_clear,
         &cmd_color,
-        &cmd_pcb
+        &cmd_pcb,
+        &loadr3
 };
 
 /// Used to denote if the comm hand should stop.
@@ -66,8 +68,10 @@ void print_welcome(void)
     println("=> set-timezone");
     println("=> version");
     println("=> shutdown");
+    println("=> loadr3");
     println("=> color");
     println("=> clear");
+    
 }
 
 void comhand(void)
