@@ -9,7 +9,8 @@ kernel/kmain.o\
 kernel/serial.o\
 kernel/comhand.o\
 kernel/clock.o\
-kernel/pcb.o
+kernel/pcb.o\
+kernel/sys_call.o
 
 LIB_OBJECTS =\
 lib/ctype.o\
