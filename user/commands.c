@@ -23,6 +23,7 @@
 #define CMD_CLEAR_LABEL "clear"
 #define CMD_COLOR_LABEL "color"
 #define CMD_YIELD "yield"
+#define CMD_LOADR3 "loadr3"
 //PCB Command Header
 #define CMD_PCB_LABEL "pcb"
 //PCB Commands
@@ -41,6 +42,7 @@ static const char *CMD_LABELS[] = {
         CMD_COLOR_LABEL,
         CMD_PCB_LABEL,
         CMD_YIELD,
+        CMD_LOADR3,
         NULL,
 };
 
@@ -592,11 +594,6 @@ bool cmd_color(const char *comm)
     return true;
 }
 
-/**
- * @brief the yield command, causes the command handler to yield immediately.
- * @param comm the command string.
- * @return true if it was handled, false if not.
- */
 bool cmd_yield(const char *comm)
 {
     if(!first_label_matches(comm, CMD_YIELD))

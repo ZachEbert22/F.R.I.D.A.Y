@@ -1,7 +1,11 @@
 #include "mpx/pcb.h"
 #include "string.h"
 #include "sys_req.h"
-#include "stdbool.h"
+
+/**
+ * @file sys_call.c
+ * @brief This file contains the sys_call function which is used to do context switching.
+ */
 
 ///The currently running PCB.
 static struct pcb *active_pcb_ptr = NULL;
@@ -61,6 +65,7 @@ struct context *sys_call(op_code action, struct context *ctx)
 
             poll_next_pcb();
             next_to_load->exec_state = RUNNING;
+            active_pcb_ptr = next_to_load;
             pcb_free(exiting_pcb);
             return next_to_load->ctx_ptr;
         }

@@ -173,7 +173,7 @@ struct pcb *pcb_setup(const char *name, int class, int priority)
 
     pcb_ptr->name = malloc_name;
     pcb_ptr->process_class = class;
-    pcb_ptr->_dont_use_item = pcb_ptr;
+    pcb_ptr->_item = pcb_ptr;
     pcb_ptr->priority = priority;
     pcb_ptr->ctx_ptr = (struct context *) (pcb_ptr->stack + PCB_STACK_SIZE - (sizeof(struct context)));
     return pcb_ptr;
@@ -767,6 +767,10 @@ bool generate_new_pcb(const char *name, int priority, enum pcb_class class, void
         return false;
 
     if(class != USER && class != SYSTEM)
+        return false;
+
+    //Can't duplicate names.
+    if(pcb_find(name) != NULL)
         return false;
 
     struct pcb *new_pcb = pcb_setup(name, class, priority);

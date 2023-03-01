@@ -80,6 +80,7 @@ int serial_out(device dev, const char *buffer, size_t len)
 #include "commands.h"
 
 #define ANSI_CODE_READ_LEN 15
+#define MAX_CLI_HISTORY_LEN (100)
 
 ///Used to store a specific line previously entered.
 struct line_entry
@@ -251,6 +252,12 @@ int serial_poll(device dev, char *buffer, size_t len)
         cli_history = nl_unbounded();
     }
 
+    //Check if the CLI should be forcefully disabled.
+    if(cli_history_enabled && list_size(cli_history) > MAX_CLI_HISTORY_LEN)
+    {
+        cli_history_enabled = false;
+    }
+
     //Keeps track of the current line entry. Used when command line
     //history needs to swap.
     char swap[len];
@@ -260,7 +267,8 @@ int serial_poll(device dev, char *buffer, size_t len)
             .line_length = len
     };
 
-    int cli_index = cli_history != NULL && cli_history_enabled ? list_size(cli_history) : 0;
+    int cli_index = cli_history != NULL && cli_history_enabled
+            ? list_size(cli_history) : 0;
     size_t bytes_read = 0;
     int line_pos = 0;
 

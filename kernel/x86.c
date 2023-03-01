@@ -5,7 +5,6 @@
 #include "stdlib.h"
 #include "memory.h"
 #include "processes.h"
-#include <stdint.h>
 #include "mpx/pcb.h"
 
 bool loadr3(const char *comm){
@@ -38,8 +37,15 @@ bool loadr3(const char *comm){
         }
         char name[3] = {0};
         itoa(i, name, 2);
-        generate_new_pcb(name, 1, USER, p);
-        //pcb* loading_pcb = pcb_create_cmd("pcb create process USER 1");
+        bool generated = generate_new_pcb(name, 1, USER, p);
+        if(!generated)
+        {
+            printf("Failed to generate process %s! (It probably already exists!)\n", name);
+        }
+        else
+        {
+            printf("Created process named %s!\n", name);
+        }
     }
    
     return true;
