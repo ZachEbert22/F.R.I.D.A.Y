@@ -10,7 +10,7 @@ kernel/serial.o\
 kernel/comhand.o\
 kernel/clock.o\
 kernel/pcb.o\
-kernel/x86.o\
+kernel/r3cmd.o\
 kernel/sys_call.o
 
 LIB_OBJECTS =\

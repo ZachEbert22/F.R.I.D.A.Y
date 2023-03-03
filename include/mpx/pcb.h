@@ -143,6 +143,7 @@ bool pcb_remove(struct pcb *pcb_ptr);
  * @param class the class of the process.
  * @param begin_ptr the pointer of the function to start.
  * @return true if the PCB was successfully scheduled and started.
+ * @authors Andrew Bowie, Zachary Ebert
  */
 bool generate_new_pcb(const char *name, int priority, enum pcb_class class, void *begin_ptr);
 

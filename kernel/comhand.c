@@ -11,7 +11,7 @@
 #include "print_format.h"
 #include "sys_req.h"
 #include "mpx/clock.h"
-#include "mpx/x86.h"
+#include "mpx/r3cmd.h"
 #include "math.h"
 
 ///The message to send to the user if a command hasn't been recognized.
