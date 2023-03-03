@@ -7,6 +7,8 @@
 #include "processes.h"
 #include "mpx/pcb.h"
 
+#define LOADR3 NULL;
+
 bool loadr3(const char *comm){
 
     //The command's label.
