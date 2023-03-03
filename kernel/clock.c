@@ -146,7 +146,7 @@ int *get_time(int time[7])
     storage[4] = hours;
     storage[5] = minutes;
     storage[6] = seconds;
-    return time;
+    return storage;
 }
 
 //Tuesday, 1/17/23  @ 09:08:04

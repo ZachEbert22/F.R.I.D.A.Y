@@ -30,7 +30,7 @@ double pow(double a, double b);
  * @brief Seeds the random number generator.
  * @param seed the seed.
  */
-void s_rand(unsigned long seed);
+void s_rand(unsigned long long seed);
 
 /**
  * @brief Returns the next random 30 bits from the LCRNG.

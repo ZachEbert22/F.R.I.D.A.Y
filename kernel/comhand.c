@@ -10,7 +10,9 @@
 #include "cli.h"
 #include "print_format.h"
 #include "sys_req.h"
+#include "mpx/clock.h"
 #include "mpx/x86.h"
+#include "math.h"
 
 ///The message to send to the user if a command hasn't been recognized.
 #define UNKNOWN_CMD_MSG "Unknown command '%s'. Type 'help' for help!"
@@ -77,6 +79,18 @@ void print_welcome(void)
 
 void comhand(void)
 {
+    //Initialize random seed from clock.
+    int *time = get_time(NULL);
+
+    unsigned long long new_seed = 0L;
+    for (int i = 0; i < 7; ++i)
+    {
+        unsigned long long element = time[i];
+
+        new_seed += element * (i + 1) * 31;
+    }
+    s_rand(new_seed);
+
     print_welcome();
     bool running = true;
     while (running)
