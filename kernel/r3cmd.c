@@ -39,7 +39,7 @@ bool loadr3(const char *comm){
         }
         char name[3] = {0};
         itoa(i, name, 2);
-        bool generated = generate_new_pcb(name, 1, USER, p);
+        bool generated = generate_new_pcb(name, 1, USER, p, NULL, 0);
         if(!generated)
         {
             printf("Failed to generate process %s! (It probably already exists!)\n", name);
