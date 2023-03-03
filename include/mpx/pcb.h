@@ -1,4 +1,5 @@
 #include "stdbool.h"
+#include "stddef.h"
 #ifndef MPX_PCB_H
 #define MPX_PCB_H
 
@@ -10,7 +11,7 @@
 ///The maximum length of a PCB's name.
 #define PCB_MAX_NAME_LEN 8
 ///The initial size of a PCB's stack.
-#define PCB_STACK_SIZE 4096
+#define PCB_STACK_SIZE 4092
 
 ///The clas of a PCB.
 enum pcb_class {
@@ -49,9 +50,7 @@ struct pcb {
     ///The dispatch state of this PCB.
     enum pcb_dispatch_state dispatch_state;
     ///A pointer to the next available byte in the stack.
-    int stack_ptr;
-    ///A pointer to the section of the stack that defines the context.
-    struct context *ctx_ptr;
+    void *stack_ptr;
     ///The stack itself.
     unsigned char stack[PCB_STACK_SIZE];
 };
@@ -62,7 +61,7 @@ struct context {
     int gs, fs, es, ds, ss;
     ///The general purpose registers.
     int edi, esi, ebp, esp, ebx, edx, ecx, eax;
-    ///The status control registers.
+    ///The status control registers, ordered as they are added for interrupts.
     int eip, cs, eflags;
 };
 
@@ -143,8 +142,9 @@ bool pcb_remove(struct pcb *pcb_ptr);
  * @param class the class of the process.
  * @param begin_ptr the pointer of the function to start.
  * @return true if the PCB was successfully scheduled and started.
+ * @authors Andrew Bowie, Zachary Ebert
  */
-bool generate_new_pcb(const char *name, int priority, enum pcb_class class, void *begin_ptr);
+bool generate_new_pcb(const char *name, int priority, enum pcb_class class, void *begin_ptr, const char *input, size_t input_len);
 
 /**
  * @brief Runs the PCB command from the given string.

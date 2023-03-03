@@ -17,6 +17,7 @@ static struct context *first_context_ptr = NULL;
  * @param action the action to perform.
  * @param ctx the current PCB context.
  * @return a pointer to the next context to load.
+ * @author Andrew Bowie,  Zachary Ebert, Kolby Eisenhauer
  */
 struct context *sys_call(op_code action, struct context *ctx)
 {
@@ -40,13 +41,13 @@ struct context *sys_call(op_code action, struct context *ctx)
             poll_next_pcb();
             struct pcb *current = active_pcb_ptr;
             active_pcb_ptr = next;
-            struct context *new_ctx = next->ctx_ptr;
+            struct context *new_ctx = (struct context *) next->stack_ptr;
             if (current != NULL)
             {
                 current->exec_state = READY;
                 pcb_insert(current);
                 //Update where the PCB's context pointer is pointing.
-                current->ctx_ptr = ctx;
+                current->stack_ptr = ctx;
             }
             next->exec_state = RUNNING;
             return new_ctx;
@@ -67,7 +68,7 @@ struct context *sys_call(op_code action, struct context *ctx)
             next_to_load->exec_state = RUNNING;
             active_pcb_ptr = next_to_load;
             pcb_free(exiting_pcb);
-            return next_to_load->ctx_ptr;
+            return (struct context *) next_to_load->stack_ptr;
         }
         case SHUTDOWN:
         {

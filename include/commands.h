@@ -18,6 +18,7 @@
  *        or NULL if it doesn't match OR matches multiple OR is equal to the command.
  * @param cmd the command.
  * @return the best match for it.
+ * @authors Andrew Bowie
  */
 const char *find_best_match(const char *cmd);
 
@@ -25,6 +26,7 @@ const char *find_best_match(const char *cmd);
  * @brief Checks if the given command exists.
  * @param cmd the command to check for.
  * @return true if it does, false if not.
+ * @authors Andrew Bowie
  */
 bool command_exists(const char *cmd);
 

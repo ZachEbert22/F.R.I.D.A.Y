@@ -127,7 +127,7 @@ struct pcb *pcb_alloc(void)
     struct pcb *pcb_ptr = sys_alloc_mem(sizeof (struct pcb));
     if(pcb_ptr == NULL) return NULL;
     memset(pcb_ptr->stack,0,sizeof(pcb_ptr->stack));
-    pcb_ptr->stack_ptr = sizeof(pcb_ptr->stack)-1;
+    pcb_ptr->stack_ptr = (void *) ((int) pcb_ptr->stack) + PCB_STACK_SIZE - 4;
     return pcb_ptr;
 }
 
@@ -175,7 +175,6 @@ struct pcb *pcb_setup(const char *name, int class, int priority)
     pcb_ptr->process_class = class;
     pcb_ptr->_item = pcb_ptr;
     pcb_ptr->priority = priority;
-    pcb_ptr->ctx_ptr = (struct context *) (pcb_ptr->stack + PCB_STACK_SIZE - (sizeof(struct context)));
     return pcb_ptr;
 }
 
@@ -747,21 +746,7 @@ static bool (*command[])(const char *) = {
 
 #include "sys_req.h"
 
-/**
- * @brief Serves as a wrapper for starting a process. This exists to ENSURE that processes properly exit.
- * @param initial_offset_ptr the initial function offset.
- */
-void pcb_start_wrapper(void initial_offset_ptr(void))
-{
-    initial_offset_ptr();
-    for(;;)
-    {
-        sys_req(EXIT); //Continually request to exit if the initial process forgot to.
-        println("Process failed to exit self!");
-    }
-}
-
-bool generate_new_pcb(const char *name, int priority, enum pcb_class class, void *begin_ptr)
+bool generate_new_pcb(const char *name, int priority, enum pcb_class class, void *begin_ptr, const char *input, size_t input_len)
 {
     if(priority < 0 || priority > 9)
         return false;
@@ -778,9 +763,17 @@ bool generate_new_pcb(const char *name, int priority, enum pcb_class class, void
         return false;
 
     //Save the context into pcb.
-    new_pcb->stack_ptr -= sizeof (struct context);
-    new_pcb->ctx_ptr = (struct context *) (((int) new_pcb->ctx_ptr) - sizeof (int) * 2); //Make room for extra offset.
-    struct context *pcb_context = new_pcb->ctx_ptr;
+    if(input != NULL)
+    {
+        new_pcb->stack_ptr = (void *) (new_pcb->stack_ptr - input_len - 1);
+        for (size_t i = 0; i < input_len; ++i)
+        {
+            ((char *) new_pcb->stack_ptr)[i] = input[i];
+        }
+    }
+
+    new_pcb->stack_ptr = (void *) (new_pcb->stack_ptr - sizeof (struct context) - sizeof(int));
+    struct context *pcb_context = (struct context *)new_pcb->stack_ptr;
     pcb_context->cs = 0x08;
     pcb_context->ds = 0x10;
     pcb_context->fs = 0x10;
@@ -790,12 +783,8 @@ bool generate_new_pcb(const char *name, int priority, enum pcb_class class, void
     pcb_context->ss = 0x10;
     pcb_context->ebp = (int) (new_pcb->stack + PCB_STACK_SIZE - sizeof(struct context));
     pcb_context->esp = (int) (new_pcb->stack + PCB_STACK_SIZE - sizeof(struct context));
-    pcb_context->eip = (int) pcb_start_wrapper;
+    pcb_context->eip = (int) begin_ptr;
     pcb_context->eflags = 0x0202;
-
-    //Put the extra offset at end of stack.
-    int *offset_ptr = (int *) (((int) new_pcb->ctx_ptr) + sizeof (struct context) + sizeof (int));
-    *offset_ptr = (int) begin_ptr;
 
     pcb_insert(new_pcb);
     return true;
