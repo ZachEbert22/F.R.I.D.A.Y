@@ -12,6 +12,7 @@
 #include "cli.h"
 #include "mpx/pcb.h"
 #include "mpx/io.h"
+#include "mpx/alarm.h"
 
 #define CMD_HELP_LABEL "help"
 #define CMD_VERSION_LABEL "version"
@@ -639,10 +640,13 @@ bool cmd_alarm(const char *comm)
     char *set_time_token = strtok(comm_cpy, " ");
     set_time_token = strtok(NULL, " ");
 
+    //add buffer to accept user input
     char message_buf[200] = {0};
     str_strip_whitespace(set_time_token, NULL, 0);
 
+    //prompt user for message to be saved
     printf("Enter the message to be saved in the alarm: ");
+    //save message into the buffer
     gets(message_buf, 100);
     // time is provided
     if (set_time_token == NULL)
@@ -681,8 +685,10 @@ bool cmd_alarm(const char *comm)
         return true;
     }
 
-
+    //print users alarm with attached message
     printf("Set an alarm for: %s with the message %s\n", set_time_token, message_buf);
+    int time[3] ={hour_dec, minute_dec, second_dec};
+    create_new_alarm(time, message_buf);
     return true;
 
 }

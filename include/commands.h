@@ -109,5 +109,4 @@ bool cmd_yield(const char *comm);
 bool cmd_pcb(const char *comm);
 
 bool cmd_alarm(const char *comm);
-
 #endif //F_R_I_D_A_Y_COMMANDS_H
