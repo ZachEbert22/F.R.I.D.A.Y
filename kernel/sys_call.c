@@ -17,6 +17,7 @@ static struct context *first_context_ptr = NULL;
  * @param action the action to perform.
  * @param ctx the current PCB context.
  * @return a pointer to the next context to load.
+ * @author Andrew Bowie,  Zachary Ebert, Kolby Eisenhauer
  */
 struct context *sys_call(op_code action, struct context *ctx)
 {
