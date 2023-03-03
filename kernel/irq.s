@@ -25,7 +25,7 @@ sys_call_isr:
     je pre_exit
     cmp eax, 3
     je pre_exit
-
+    cli
     pusha               ; Push all the general things into the stack
     push ss
     push ds
@@ -43,6 +43,7 @@ sys_call_isr:
 	pop ss
 	popa
 	mov eax, 0
+	sti
 	iret
 	pre_exit:
 	mov eax, -1
