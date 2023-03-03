@@ -85,13 +85,13 @@ void kmain(void)
 	// Module specific initialization -- not all modules require this
 	klogv(COM1, "Initializing MPX modules...");
 	// R5: sys_set_heap_functions(...);
-    generate_new_pcb("comhand", 0, SYSTEM, comhand, NULL, 0);
+    generate_new_pcb("comhand", 0, SYSTEM, comhand, NULL, 0, 0);
     // generate_new_pcb("p1", 7, USER, proc1);
     // generate_new_pcb("p2", 3, USER, proc2);
     // generate_new_pcb("p3", 1, USER, proc3);
     // generate_new_pcb("p4", 8, USER, proc4);
     // generate_new_pcb("p4", 4, USER, proc5);
-    generate_new_pcb("idle", 9, SYSTEM, sys_idle_process, NULL, 0);
+    generate_new_pcb("idle", 9, SYSTEM, sys_idle_process, NULL, 0, 0);
 
 	// 9) YOUR command handler -- *create and #include an appropriate .h file*
 	// Pass execution to your command handler so the user can interact with the system.

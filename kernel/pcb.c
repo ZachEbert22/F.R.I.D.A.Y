@@ -744,9 +744,13 @@ static bool (*command[])(const char *) = {
         NULL,
 };
 
-#include "sys_req.h"
-
-bool generate_new_pcb(const char *name, int priority, enum pcb_class class, void *begin_ptr, const char *input, size_t input_len)
+bool generate_new_pcb(const char *name,
+                      int priority,
+                      enum pcb_class class,
+                      void *begin_ptr,
+                      const char *input,
+                      size_t input_len,
+                      size_t param_ptrs)
 {
     if(priority < 0 || priority > 9)
         return false;
@@ -769,6 +773,16 @@ bool generate_new_pcb(const char *name, int priority, enum pcb_class class, void
         for (size_t i = 0; i < input_len; ++i)
         {
             ((char *) new_pcb->stack_ptr)[i] = input[i];
+        }
+
+        for (size_t i = 0; i < param_ptrs; ++i)
+        {
+            size_t offset = i * sizeof (void *);
+            void **ptr = new_pcb->stack_ptr + offset;
+            size_t other_offset = (int) *ptr - (int) input;
+            *ptr = new_pcb->stack_ptr + other_offset;
+            int i = 13 + 23;
+            (void) i;
         }
     }
 

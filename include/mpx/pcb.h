@@ -144,7 +144,13 @@ bool pcb_remove(struct pcb *pcb_ptr);
  * @return true if the PCB was successfully scheduled and started.
  * @authors Andrew Bowie, Zachary Ebert
  */
-bool generate_new_pcb(const char *name, int priority, enum pcb_class class, void *begin_ptr, const char *input, size_t input_len);
+bool generate_new_pcb(const char *name,
+                      int priority,
+                      enum pcb_class class,
+                      void *begin_ptr,
+                      const char *input,
+                      size_t input_len,
+                      size_t param_ptrs);
 
 /**
  * @brief Runs the PCB command from the given string.
