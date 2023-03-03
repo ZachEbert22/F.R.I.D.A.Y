@@ -12,6 +12,7 @@
 #include "cli.h"
 #include "mpx/pcb.h"
 #include "mpx/io.h"
+#include "mpx/alarm.h"
 
 #define CMD_HELP_LABEL "help"
 #define CMD_VERSION_LABEL "version"
@@ -24,6 +25,7 @@
 #define CMD_COLOR_LABEL "color"
 #define CMD_YIELD "yield"
 #define CMD_LOADR3 "load-r3"
+#define CMD_ALARM_LABEL "alarm"
 //PCB Command Header
 #define CMD_PCB_LABEL "pcb"
 //PCB Commands
@@ -611,5 +613,13 @@ bool cmd_pcb(const char *comm)
     //Pass the command to the pcb.
     size_t label_len = strlen(CMD_PCB_LABEL);
     exec_pcb_cmd(comm + label_len);
+    return true;
+}
+bool cmd_alarm(const char* comm)
+{
+    if(!first_label_matches(comm ,CMD_ALARM_LABEL))
+        return false;
+    int array[3] = {11,50,15};
+    create_new_alarm(array, "Hello there");
     return true;
 }

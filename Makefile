@@ -11,7 +11,8 @@ kernel/comhand.o\
 kernel/clock.o\
 kernel/pcb.o\
 kernel/r3cmd.o\
-kernel/sys_call.o
+kernel/sys_call.o\
+kernel/alarm.o
 
 LIB_OBJECTS =\
 lib/ctype.o\

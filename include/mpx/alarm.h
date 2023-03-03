@@ -7,8 +7,9 @@
  * @param message message to display
  * @author Kolby Eisenhauer
  */
-void create_new_alarm(int[3] time_array, const char* message);
+void create_new_alarm(int time_array[3], const char* message);
 
+void alarm_function(int time_array[3], const char* message);
 /**
  * @brief Checks current time to see if alarm should alert
  * @param time_array the time to display message
