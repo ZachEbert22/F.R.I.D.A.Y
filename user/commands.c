@@ -684,7 +684,6 @@ bool cmd_alarm(const char *comm)
         return true;
     }
 
-
     //print users alarm with attached message
     printf("Set an alarm for: %s with the message %s\n", set_time_token, message_buf);
     return true;
