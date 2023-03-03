@@ -32,7 +32,9 @@ bool (*comm_funcs[])(const char *comm) = {
         &cmd_clear,
         &cmd_color,
         &cmd_pcb,
+        &cmd_alarm,
         &cmd_yield,
+
         &loadr3
 };
 
@@ -73,6 +75,7 @@ void print_welcome(void)
     println("=> shutdown");
     println("=> Load-R3");
     println("=> Yield");
+    println("=> Alarm");
     println("=> color");
     println("=> clear");
 }

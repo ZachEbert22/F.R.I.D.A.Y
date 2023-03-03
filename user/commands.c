@@ -26,6 +26,7 @@
 #define CMD_LOADR3 "load-r3"
 //PCB Command Header
 #define CMD_PCB_LABEL "pcb"
+#define CMD_SET_ALARM "set-alarm"
 //PCB Commands
 
 
@@ -43,6 +44,7 @@ static const char *CMD_LABELS[] = {
         CMD_PCB_LABEL,
         CMD_YIELD,
         CMD_LOADR3,
+        CMD_SET_ALARM,
         NULL,
 };
 
@@ -612,4 +614,75 @@ bool cmd_pcb(const char *comm)
     size_t label_len = strlen(CMD_PCB_LABEL);
     exec_pcb_cmd(comm + label_len);
     return true;
+}
+
+/**
+ *
+ * @param comm
+ * @param message
+ * @return
+ * @authors Jared Crowley
+ */
+bool cmd_alarm(const char *comm)
+{
+    const char *label = CMD_SET_ALARM;
+    // Means that it did not start with label therefore it is not a valid input
+    if (!first_label_matches(comm, label))
+    {
+        return false;
+    }
+
+    size_t comm_strlen = strlen(comm);
+    //Get the time.
+    char comm_cpy[comm_strlen + 1];
+    memcpy(comm_cpy, comm, comm_strlen + 1);
+    char *set_time_token = strtok(comm_cpy, " ");
+    set_time_token = strtok(NULL, " ");
+
+    char message_buf[200] = {0};
+    str_strip_whitespace(set_time_token, NULL, 0);
+
+    printf("Enter the message to be saved in the alarm: ");
+    gets(message_buf, 100);
+    // time is provided
+    if (set_time_token == NULL)
+    {
+        println("Time value must be provided. Try 'set-time HH:mm:SS'");
+        return true;
+    }
+
+    // buffer to save numbers
+    char time_array[3][3] = {0};
+    // if part after set time is not valid with form hh:mm:ss returns with invalid date
+    if (split(set_time_token, ':', 3, time_array, 3) < 0 ||
+        !is_valid_date_or_time(3, time_array, 3))
+    {
+        printf("Invalid time. You entered: %s, expecting format: HH:mm:SS\n", set_time_token);
+        return true;
+    }
+    unsigned char hour_dec = atoi(time_array[0]);
+    unsigned char minute_dec = atoi(time_array[1]);
+    unsigned char second_dec = atoi(time_array[2]);
+
+    //Do some pre error checking.
+    if (hour_dec < 0 || hour_dec > 23)
+    {
+        println("Hour is out of range 0-23!");
+        return true;
+    }
+    if (minute_dec < 0 || minute_dec > 59)
+    {
+        println("Minutes is out of range 0-59!");
+        return true;
+    }
+    if (second_dec < 0 || second_dec > 59)
+    {
+        println("Seconds is out of range 0-59!");
+        return true;
+    }
+
+
+    printf("Set an alarm for: %s with the message %s\n", set_time_token, message_buf);
+    return true;
+
 }
