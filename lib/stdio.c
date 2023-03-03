@@ -2,6 +2,8 @@
 // Created by Andrew Bowie on 1/13/23.
 //
 
+#define FUNNY_MODE false
+
 #include "stdio.h"
 #include "stdarg.h"
 #include "sys_req.h"
@@ -48,10 +50,10 @@ void print_funny(const char *s)
         if(next_rand % 250 == 0) {
             set_format_code(BLINKING, true);
             sys_req(WRITE, COM1, "\0", 1);
-        } else if (next_rand % 50 == 0 ){
+        }else if (next_rand % 30 == 0 ){
             set_format_code(ITALIC, true);
             sys_req(WRITE, COM1, "\0", 1);
-        }else if (next_rand % 25 == 0 ){
+        }else if (next_rand % 15 == 0 ){
             set_format_code(BOLD, true);
             sys_req(WRITE, COM1, "\0", 1);
         }else {
@@ -84,19 +86,25 @@ int printf(const char *s, ...)
     if (result == NULL)
         return -1;
 
-    print(result);
-//    bool should_print = true;
-//    size_t len = sizeof (result);
-//    for (size_t i = 0; i < len; ++i)
-//    {
-//        if(result[i] == 27)
-//            should_print = false;
-//    }
-//
-//    if(should_print)
-//        print_funny(result);
-//    else
-//        print(result);
+    if(FUNNY_MODE)
+    {
+        bool should_print = true;
+        size_t len = sizeof (result);
+        for (size_t i = 0; i < len; ++i)
+        {
+            if(result[i] == 27)
+                should_print = false;
+        }
+
+        if(should_print)
+            print_funny(result);
+        else
+            print(result);
+    }
+    else
+    {
+        print(result);
+    }
     return 0;
 }
 
@@ -126,6 +134,9 @@ void clearscr(void)
 
 void println(const char *s)
 {
-    print(s);
+    if(FUNNY_MODE)
+        print_funny(s);
+    else
+        print(s);
     sys_req(WRITE, COM1, "\n", 1);
 }
