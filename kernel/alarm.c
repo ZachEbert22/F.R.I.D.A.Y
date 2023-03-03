@@ -16,12 +16,11 @@ bool shouldAlarm(int *time_array)
 {
     // get current time
     int * time_buf = get_time(NULL);
-    printf("time is: %d", time_buf[4]);
-    printf("alarm time is %d", time_array[0]);
     // index 4-6 is hours - seconds
-    if(time_array[0] > time_buf[4]) return true;
-    if(time_array[0] == time_buf[4] &&  time_array[1] > time_buf[5]) return true;
-    if(time_array[0] == time_buf[4] && time_array[1] == time_buf[5] && time_array[2] > time_buf[6]) return true;
+    if(time_array[0] < time_buf[4]) return true;
+   // printf("alarm time is %d:%d:%d current time is %d:%d:%d\n", time_array[0], time_array[1], time_array[2], time_buf[4], time_buf[5], time_buf[6]);
+    if(time_array[0] == time_buf[4] &&  time_array[1] < time_buf[5]) return true;
+    if(time_array[0] == time_buf[4] && time_array[1] == time_buf[5] && time_array[2] < time_buf[6]) return true;
 
     return false;
 }

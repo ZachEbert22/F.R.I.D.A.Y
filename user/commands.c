@@ -25,7 +25,6 @@
 #define CMD_COLOR_LABEL "color"
 #define CMD_YIELD "yield"
 #define CMD_LOADR3 "load-r3"
-#define CMD_ALARM_LABEL "alarm"
 //PCB Command Header
 #define CMD_PCB_LABEL "pcb"
 #define CMD_SET_ALARM "set-alarm"
@@ -46,7 +45,7 @@ static const char *CMD_LABELS[] = {
         CMD_PCB_LABEL,
         CMD_YIELD,
         CMD_LOADR3,
-        CMD_ALARM_LABEL,
+        CMD_SET_ALARM,
         NULL,
 };
 
@@ -617,15 +616,6 @@ bool cmd_pcb(const char *comm)
     exec_pcb_cmd(comm + label_len);
     return true;
 }
-<<<<<<< HEAD
-bool cmd_alarm(const char* comm)
-{
-    if(!first_label_matches(comm ,CMD_ALARM_LABEL))
-        return false;
-    int array[3] = {11,12,15};
-    create_new_alarm(array, "Hello there");
-    return true;
-=======
 
 /**
  *
@@ -697,7 +687,8 @@ bool cmd_alarm(const char *comm)
 
     //print users alarm with attached message
     printf("Set an alarm for: %s with the message %s\n", set_time_token, message_buf);
+    int time[3] ={hour_dec, minute_dec, second_dec};
+    create_new_alarm(time, message_buf);
     return true;
 
->>>>>>> a55fe54e668e4f38cb7a434326dbf84433f2fbbe
 }
