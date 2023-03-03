@@ -45,6 +45,7 @@ static const char *CMD_LABELS[] = {
         CMD_PCB_LABEL,
         CMD_YIELD,
         CMD_LOADR3,
+        CMD_ALARM_LABEL,
         NULL,
 };
 
@@ -619,7 +620,7 @@ bool cmd_alarm(const char* comm)
 {
     if(!first_label_matches(comm ,CMD_ALARM_LABEL))
         return false;
-    int array[3] = {11,50,15};
+    int array[3] = {11,12,15};
     create_new_alarm(array, "Hello there");
     return true;
 }

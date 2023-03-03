@@ -12,30 +12,33 @@ typedef struct alarm_params {
     unsigned char buffer[150];
 } alarm_structure;
 
-bool shouldAlarm(int time_array[3])
+bool shouldAlarm(int *time_array)
 {
     // get current time
     int * time_buf = get_time(NULL);
+    printf("time is: %d", time_buf[4]);
+    printf("alarm time is %d", time_array[0]);
     // index 4-6 is hours - seconds
-    if(time_buf[4] < time_array[0]) return false;
-    if(time_buf[5] < time_array[1]) return false;
-    if(time_buf[6] < time_array[2]) return false;
+    if(time_array[0] > time_buf[4]) return true;
+    if(time_array[0] == time_buf[4] &&  time_array[1] > time_buf[5]) return true;
+    if(time_array[0] == time_buf[4] && time_array[1] == time_buf[5] && time_array[2] > time_buf[6]) return true;
 
-    return true;
+    return false;
 }
 
-void alarm_function(int time_array[3], const char* message)
+void alarm_function(int* time_array, const char* message)
 {
 /* This still need to be implemented.
 * Get parameters time_array and message from stack
 */
  while(!shouldAlarm(time_array))
     {
+        println("idling");
         sys_req(IDLE);
     }
 
     println(message);
-
+    println("Exiting alarm");
     sys_req(EXIT); 
 }
 
@@ -44,7 +47,7 @@ void alarm_function(int time_array[3], const char* message)
 
 
 
-void create_new_alarm(int time_array[3], const char* message)
+void create_new_alarm(int* time_array, const char* message)
 {
     char name[9] = {'a','l','a','r','m','1','\0'};
     int alarm_num = 1;
@@ -76,6 +79,7 @@ void create_new_alarm(int time_array[3], const char* message)
           generated = generate_new_pcb(name, 1, USER, &alarm_function, (char *) &parameters, sizeof(alarm_structure));
 
         }
+        println("alarm generated");
        
    
 

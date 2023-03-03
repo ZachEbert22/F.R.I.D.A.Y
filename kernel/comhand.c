@@ -33,7 +33,8 @@ bool (*comm_funcs[])(const char *comm) = {
         &cmd_color,
         &cmd_pcb,
         &cmd_yield,
-        &loadr3
+        &loadr3,
+        &cmd_alarm
 };
 
 /// Used to denote if the comm hand should stop.
