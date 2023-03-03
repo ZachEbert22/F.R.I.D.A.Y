@@ -62,7 +62,7 @@ struct context {
     int gs, fs, es, ds, ss;
     ///The general purpose registers.
     int edi, esi, ebp, esp, ebx, edx, ecx, eax;
-    ///The status control registers.
+    ///The status control registers, ordered as they are added for interrupts.
     int eip, cs, eflags;
 };
 

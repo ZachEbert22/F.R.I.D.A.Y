@@ -95,14 +95,14 @@ void comhand(void)
     bool running = true;
     while (running)
     {
-        //60 + 1 for the null terminator.
-        char buf[61] = {0};
+        //100 + 1 for the null terminator.
+        char buf[101] = {0};
 
         set_cli_history(true);
         set_command_formatting(true);
         set_tab_completions(true);
         set_cli_prompt(CMD_PROMPT);
-        gets(buf, 60);
+        gets(buf, 100);
         set_cli_history(false);
         set_command_formatting(false);
         set_tab_completions(false);
