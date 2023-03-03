@@ -84,7 +84,7 @@ int printf(const char *s, ...)
     if (result == NULL)
         return -1;
 
-    print(s);
+    print(result);
 //    bool should_print = true;
 //    size_t len = sizeof (result);
 //    for (size_t i = 0; i < len; ++i)
