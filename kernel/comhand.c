@@ -32,6 +32,7 @@ bool (*comm_funcs[])(const char *comm) = {
         &cmd_clear,
         &cmd_color,
         &cmd_pcb,
+        &cmd_alarm,
         &cmd_yield,
         &loadr3,
         &cmd_alarm
@@ -72,8 +73,9 @@ void print_welcome(void)
     println("=> set-timezone");
     println("=> version");
     println("=> shutdown");
-    println("=> Load-R3");
-    println("=> Yield");
+    println("=> load-R3");
+    println("=> yield");
+    println("=> alarm");
     println("=> color");
     println("=> clear");
 }
