@@ -781,6 +781,7 @@ bool generate_new_pcb(const char *name, int priority, enum pcb_class class, void
     new_pcb->stack_ptr -= sizeof (struct context);
     new_pcb->ctx_ptr = (struct context *) (((int) new_pcb->ctx_ptr) - sizeof (int) * 2); //Make room for extra offset.
     struct context *pcb_context = new_pcb->ctx_ptr;
+    
     pcb_context->cs = 0x08;
     pcb_context->ds = 0x10;
     pcb_context->fs = 0x10;
@@ -788,8 +789,12 @@ bool generate_new_pcb(const char *name, int priority, enum pcb_class class, void
     pcb_context->es = 0x10;
     pcb_context->gs = 0x10;
     pcb_context->ss = 0x10;
-    pcb_context->ebp = (int) (new_pcb->stack + PCB_STACK_SIZE - sizeof(struct context));
-    pcb_context->esp = (int) (new_pcb->stack + PCB_STACK_SIZE - sizeof(struct context));
+
+    unsigned char* stack_bottom = new_pcb->stack + PCB_STACK_SIZE - sizeof(struct context);
+    unsigned char* stack_top = new_pcb->stack + PCB_STACK_SIZE - sizeof(struct context);
+
+    pcb_context->ebp = (int) stack_bottom;
+    pcb_context->esp = (int) stack_top;
     pcb_context->eip = (int) pcb_start_wrapper;
     pcb_context->eflags = 0x0202;
 
