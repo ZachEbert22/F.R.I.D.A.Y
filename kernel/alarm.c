@@ -10,7 +10,7 @@ typedef struct alarm_params
 {
     int *time_ptr;
     char *str_ptr;
-    unsigned char buffer[35];
+    unsigned char buffer[55];
 } alarm_structure;
 
 bool shouldAlarm(int *time_array)

@@ -25,9 +25,9 @@
 #define CMD_COLOR_LABEL "color"
 #define CMD_YIELD "yield"
 #define CMD_LOADR3 "load-r3"
+#define CMD_SET_ALARM "alarm"
 //PCB Command Header
 #define CMD_PCB_LABEL "pcb"
-#define CMD_SET_ALARM "set-alarm"
 //PCB Commands
 
 
@@ -637,33 +637,30 @@ bool cmd_alarm(const char *comm)
     //Get the time.
     char comm_cpy[comm_strlen + 1];
     memcpy(comm_cpy, comm, comm_strlen + 1);
-    char *set_time_token = strtok(comm_cpy, " ");
-    set_time_token = strtok(NULL, " ");
+    char *time_token = strtok(comm_cpy, " ");
+    time_token = strtok(NULL, " ");
 
-    //add buffer to accept user input
-    char message_buf[200] = {0};
-    str_strip_whitespace(set_time_token, NULL, 0);
-
-    //prompt user for message to be saved
-    printf("Enter the message to be saved in the alarm: ");
-    //save message into the buffer
-    gets(message_buf, 100);
     // time is provided
-    if (set_time_token == NULL)
+    if (time_token == NULL)
     {
-        println("Time value must be provided. Try 'set-time HH:mm:SS'");
+        println("Time value must be provided. Try 'alarm HH:mm:SS'");
         return true;
     }
+
+    //add buffer to accept user input
+    char message_buf[51] = {0};
+    str_strip_whitespace(time_token, NULL, 0);
 
     // buffer to save numbers
     char time_array[3][3] = {0};
     // if part after set time is not valid with form hh:mm:ss returns with invalid date
-    if (split(set_time_token, ':', 3, time_array, 3) < 0 ||
+    if (split(time_token, ':', 3, time_array, 3) < 0 ||
         !is_valid_date_or_time(3, time_array, 3))
     {
-        printf("Invalid time. You entered: %s, expecting format: HH:mm:SS\n", set_time_token);
+        printf("Invalid time. You entered: %s, expecting format: HH:mm:SS\n", time_token);
         return true;
     }
+
     unsigned char hour_dec = atoi(time_array[0]);
     unsigned char minute_dec = atoi(time_array[1]);
     unsigned char second_dec = atoi(time_array[2]);
@@ -685,8 +682,14 @@ bool cmd_alarm(const char *comm)
         return true;
     }
 
+    //prompt user for message to be saved
+    printf("Enter the message to be saved in the alarm (Maximum 50 chars):\n");
+    print("> ");
+    //save message into the buffer
+    gets(message_buf, 50);
+
     //print users alarm with attached message
-    printf("Set an alarm for: %s with the message %s\n", set_time_token, message_buf);
+    printf("Set an alarm for: %s with the message %s\n", time_token, message_buf);
     int time[3] ={hour_dec, minute_dec, second_dec};
     create_new_alarm(time, message_buf);
     return true;
