@@ -63,14 +63,14 @@ void create_new_alarm(int *time_array, const char *message)
             println("Alarm not created why do u need more than 99 that's a little excessive");
             return;
         }
-        if (alarm_num > 9)
+        if (alarm_num <= 9)
         {
-            name[6] = '0' + alarm_num;
+            name[5] = '0' + alarm_num;
         } else
         {
-            name[6] = '0' + (alarm_num / 10);
-            name[7] = '0' + (alarm_num % 10);
-            name[8] = '\0';
+            name[5] = '0' + (alarm_num / 10);
+            name[6] = '0' + (alarm_num % 10);
+            name[7] = '\0';
         }
 
         generated = generate_new_pcb(name, 1, USER, &alarm_function, (char *) &parameters, sizeof(alarm_structure), 2);
