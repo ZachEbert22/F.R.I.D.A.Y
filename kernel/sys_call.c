@@ -33,7 +33,7 @@ struct context *sys_call(op_code action, struct context *ctx)
         {
             struct pcb *next = peek_next_pcb();
             //If this is the case, no PCB is ready to be loaded.
-            if (next == NULL || next->exec_state == BLOCKED)
+            if (next == NULL || next->exec_state == BLOCKED || next->dispatch_state == SUSPENDED)
             {
                 return ctx;
             }
@@ -61,7 +61,7 @@ struct context *sys_call(op_code action, struct context *ctx)
 
             pcb_remove(exiting_pcb);
             struct pcb *next_to_load = peek_next_pcb();
-            if(next_to_load == NULL || next_to_load->exec_state == BLOCKED) //No next process to load? Try loading the global one.
+            if(next_to_load == NULL || next_to_load->exec_state == BLOCKED || next_to_load->dispatch_state == SUSPENDED) //No next process to load? Try loading the global one.
                 return first_context_ptr;
 
             poll_next_pcb();
