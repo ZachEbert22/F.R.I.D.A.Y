@@ -686,9 +686,15 @@ bool cmd_alarm(const char *comm)
     gets(message_buf, 50);
 
     //print users alarm with attached message
-    printf("Set an alarm for: %s with the message %s\n", time_token, message_buf);
     int time[3] ={hour_dec, minute_dec, second_dec};
-    create_new_alarm(time, message_buf);
+    bool result = create_new_alarm(time, message_buf);
+    if(!result)
+    {
+        println("Failed to create a new alarm! (Heap may be full!)");
+        return true;
+    }
+
+    printf("Set an alarm for: %s with the message %s\n", time_token, message_buf);
     return true;
 
 }

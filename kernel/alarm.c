@@ -83,7 +83,6 @@ bool create_new_alarm(int *time_array, const char *message)
         itoa(alarms, num_buf, 9);
         strcpy(process_name + strlen(name), num_buf, -1);
         alarms++;
-        println(process_name);
     }while(pcb_find(process_name) != NULL);
 
     //Generate the actual PCB.

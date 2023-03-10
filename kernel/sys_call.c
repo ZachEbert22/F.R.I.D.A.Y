@@ -64,9 +64,12 @@ struct context *sys_call(op_code action, struct context *ctx)
             if(next_to_load == NULL || next_to_load->exec_state == BLOCKED || next_to_load->dispatch_state == SUSPENDED) //No next process to load? Try loading the global one.
                 return first_context_ptr;
 
+            //Ready the next process.
             poll_next_pcb();
             next_to_load->exec_state = RUNNING;
             active_pcb_ptr = next_to_load;
+
+            //Free the old one.
             pcb_free(exiting_pcb);
             return (struct context *) next_to_load->stack_ptr;
         }
