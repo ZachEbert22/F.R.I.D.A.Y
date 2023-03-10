@@ -18,8 +18,9 @@ bool create_new_alarm(int *time_array, const char* message);
 /**
  * @brief Checks current time to see if alarm should alert
  * @param time_array the time to display message
+ * @param time_zone the timezone the alarm was created in.
  * @return boolean if should alarm
  * @author Kolby Eisenhauer
  */
-bool shouldAlarm(const int *time_array);
+bool shouldAlarm(const int *time_array, time_zone_t *time_zone);
 #endif

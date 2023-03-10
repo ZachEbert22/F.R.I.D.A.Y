@@ -19,20 +19,57 @@ typedef struct alarm_params
     int *time_ptr;
     ///A pointer to where the message is stored.
     char *str_ptr;
+    ///The timezone used to create the alarm.
+    time_zone_t *time_zone;
     ///The data to store.
-    unsigned char buffer[75];
+    unsigned char buffer[100];
 } alarm_structure;
 
-bool shouldAlarm(const int *time_array)
+/**
+ * Check if the given time array of hours, minutes, seconds is after the other.
+ *
+ * @param now the time array considered to be 'now'
+ * @param check the time to check at.
+ * @return true if it is after.
+ */
+bool is_time_after(const int *now, const int *check)
+{
+    //Hours.
+    if(now[0] < check[1])
+        return false;
+
+    //Minutes.
+    if(now[1] < check[1])
+        return false;
+
+    //Seconds.
+    if(now[2] < check[2])
+        return false;
+    return true;
+}
+
+bool shouldAlarm(const int *time_array, time_zone_t *tz)
 {
     // get current time
     int *time_buf = get_time(NULL);
-    adj_timezone(time_buf, get_clock_timezone()->tz_hour_offset, get_clock_timezone()->tz_minute_offset);
+    adj_timezone(time_buf, tz->tz_hour_offset, tz->tz_minute_offset);
+    //Check the years.
+    if(time_array[0] > time_buf[0])
+        return false;
+
+    //Check the month.
+    if(time_array[1] > time_buf[1])
+        return false;
+
+    //Check day.
+    if(time_array[2] > time_buf[2])
+        return false;
+
     // index 4-6 is hours - seconds
-    if (time_array[0] < time_buf[4]) return true;
+    if (time_array[4] < time_buf[4]) return true;
     // printf("alarm time is %d:%d:%d current time is %d:%d:%d\n", time_array[0], time_array[1], time_array[2], time_buf[4], time_buf[5], time_buf[6]);
-    if (time_array[0] == time_buf[4] && time_array[1] < time_buf[5]) return true;
-    if (time_array[0] == time_buf[4] && time_array[1] == time_buf[5] && time_array[2] < time_buf[6]) return true;
+    if (time_array[4] == time_buf[4] && time_array[5] < time_buf[5]) return true;
+    if (time_array[4] == time_buf[4] && time_array[5] == time_buf[5] && time_array[6] < time_buf[6]) return true;
 
     return false;
 }
@@ -41,15 +78,14 @@ bool shouldAlarm(const int *time_array)
  * @brief The alarm function used by the alarm processes.
  *
  * @param time_array the time array to go off at.
+ * @param creation_time the time the alarm was created.
  * @param message the message to send to the user.
+ * @param time_zone the timezone to use for the alarm.
  * @authors Kolby Eisenhauer
  */
-void alarm_function(int *time_array, const char *message)
+void alarm_function(int *time_array, const char *message, time_zone_t *time_zone)
 {
-/* This still need to be implemented.
-* Get parameters time_array and message from stack
-*/
-    while (!shouldAlarm(time_array))
+    while (!shouldAlarm(time_array, time_zone))
     {
         sys_req(IDLE);
     }
@@ -70,11 +106,25 @@ bool create_new_alarm(int *time_array, const char *message)
     parameters.str_ptr = (char *) parameters.buffer;
     size_t len = strlen(message);
     strcpy(parameters.str_ptr, message, len);
+    parameters.time_zone = (time_zone_t *) get_clock_timezone();
+
+    int time_buf[7] = {0};
+    get_time(time_buf);
+    adj_timezone(time_buf, parameters.time_zone->tz_hour_offset, parameters.time_zone->tz_minute_offset);
+
+    //Check if we need to adjust the days.
+    if(is_time_after(time_buf + 4, time_array + 4))
+    {
+        adj_timezone(time_array, 24, 0);
+    }
+
+    //Copy in the time pointer.
     parameters.time_ptr = (int *) (parameters.buffer + len + 2);
-    memcpy(parameters.time_ptr, time_array, 3 * sizeof(int));
+    memcpy(parameters.time_ptr, time_array, 7 * sizeof(int));
 
     //Prepare the process' name.
     size_t name_len = 15;
+    println(message);
     char process_name[name_len];
     do {
         memset(process_name, 0, name_len);

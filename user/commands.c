@@ -686,8 +686,12 @@ bool cmd_alarm(const char *comm)
     gets(message_buf, 50);
 
     //print users alarm with attached message
-    int time[3] ={hour_dec, minute_dec, second_dec};
-    bool result = create_new_alarm(time, message_buf);
+    int *now_time = get_time(NULL);
+    adj_timezone(now_time, get_clock_timezone()->tz_hour_offset, get_clock_timezone()->tz_minute_offset);
+    now_time[4] = hour_dec;
+    now_time[5] = minute_dec;
+    now_time[6] = second_dec;
+    bool result = create_new_alarm(now_time, message_buf);
     if(!result)
     {
         println("Failed to create a new alarm! (Heap may be full!)");
