@@ -74,7 +74,7 @@ void print_welcome(void)
     println("=> version");
     println("=> shutdown");
     println("=> load-R3");
-    println("=> yield");
+    //println("=> yield");
     println("=> alarm HH:mm:SS");
     println("=> color");
     println("=> clear");
