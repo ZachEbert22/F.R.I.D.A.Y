@@ -69,7 +69,7 @@ bool shouldAlarm(const int *time_array, time_zone_t *tz)
     if (time_array[4] < time_buf[4]) return true;
     // printf("alarm time is %d:%d:%d current time is %d:%d:%d\n", time_array[0], time_array[1], time_array[2], time_buf[4], time_buf[5], time_buf[6]);
     if (time_array[4] == time_buf[4] && time_array[5] < time_buf[5]) return true;
-    if (time_array[4] == time_buf[4] && time_array[5] == time_buf[5] && time_array[6] < time_buf[6]) return true;
+    if (time_array[4] == time_buf[4] && time_array[5] == time_buf[5] && time_array[6] <= time_buf[6]) return true;
 
     return false;
 }
