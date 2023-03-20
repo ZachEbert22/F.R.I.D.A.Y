@@ -124,7 +124,6 @@ bool create_new_alarm(int *time_array, const char *message)
 
     //Prepare the process' name.
     size_t name_len = 15;
-    println(message);
     char process_name[name_len];
     do {
         memset(process_name, 0, name_len);
