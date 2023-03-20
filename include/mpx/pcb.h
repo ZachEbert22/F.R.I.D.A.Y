@@ -11,7 +11,7 @@
 ///The maximum length of a PCB's name.
 #define PCB_MAX_NAME_LEN 8
 ///The initial size of a PCB's stack.
-#define PCB_STACK_SIZE 8192
+#define PCB_STACK_SIZE 2048
 
 ///The clas of a PCB.
 enum pcb_class {
