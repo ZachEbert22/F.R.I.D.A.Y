@@ -76,9 +76,7 @@ bool shouldAlarm(const int *time_array, time_zone_t *tz)
 
 /**
  * @brief The alarm function used by the alarm processes.
- *
  * @param time_array the time array to go off at.
- * @param creation_time the time the alarm was created.
  * @param message the message to send to the user.
  * @param time_zone the timezone to use for the alarm.
  * @authors Kolby Eisenhauer
@@ -96,6 +94,7 @@ void alarm_function(int *time_array, const char *message, time_zone_t *time_zone
 
 ///The alarm count used to make sure names are unique.
 static int alarms = 0;
+
 
 bool create_new_alarm(int *time_array, const char *message)
 {
