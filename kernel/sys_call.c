@@ -1,5 +1,4 @@
 #include "mpx/pcb.h"
-#include "string.h"
 #include "sys_req.h"
 
 /**
