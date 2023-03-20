@@ -368,6 +368,8 @@ struct help_info help_messages[] = {
                 .help_message = "The '%s' command allows the user to set the timezone for the system.\nMost North American and European Time Zones Are provided\nTo fix the timezone, type 'set-timezone'"},
         {.str_label = {CMD_SET_ALARM},
                 .help_message = "The '%s' command allows the user to set an alarm for the system. \nThe alarm command should follow the format 'alarm 12:00:00' after this is entered you will be prompted for the message."},
+         {.str_label = {CMD_LOADR3},
+                .help_message = "The '%s' command creates all the test processes for R3.\nto load R3, enter 'load-r3'"},
         {.str_label = {CMD_CLEAR_LABEL},
                 .help_message = "The '%s' command clears the screen.\nto clear your terminal, enter 'clear'"},
         {.str_label = {CMD_COLOR_LABEL},
@@ -470,6 +472,7 @@ bool cmd_help(const char *comm)
     println("=> enter 'help help'");
     println("=> enter 'help set-timezone'");
     println("=> enter 'help alarm'");
+    println("=> enter 'help load-r3'");
     println("=> enter 'help version'");
     println("=> enter 'help shutdown'");
     println("=> enter 'help color'");
