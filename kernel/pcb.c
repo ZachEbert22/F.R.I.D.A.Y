@@ -780,8 +780,6 @@ bool generate_new_pcb(const char *name,
             void **ptr = new_pcb->stack_ptr + offset;
             size_t other_offset = (int) *ptr - (int) input;
             *ptr = new_pcb->stack_ptr + other_offset;
-            int i = 13 + 23;
-            (void) i;
         }
     }
 
