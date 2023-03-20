@@ -324,13 +324,6 @@ char *vsprintf(const char *s, char *str, size_t buf_len, va_list va)
     //Get the string length and try to format it.
     int str_len = (int) strlen(s);
 
-    char str_cpy[str_len + 1];
-    strcpy(str_cpy, str, str_len);
-    str_cpy[str_len] = '\0';
-
-    //Loop through the string, formatting each.
-    bool failed = false;
-
     int str_ind = 0;
     for (int i = 0; i < str_len; ++i)
     {
@@ -362,7 +355,6 @@ char *vsprintf(const char *s, char *str, size_t buf_len, va_list va)
                 size_t len = strlen(arg);
                 if(len + str_ind >= buf_len)
                 {
-                    failed = true;
                     break;
                 }
                 for (size_t k = 0; k < len; ++k)
@@ -449,12 +441,6 @@ char *vsprintf(const char *s, char *str, size_t buf_len, va_list va)
 
             arguments[arg_count++] = f_code;
         }
-    }
-
-    if(failed)
-    {
-        //Restore original string.
-        strcpy(str, str_cpy, -1);
     }
     str[str_ind] = '\0';
     return str;
