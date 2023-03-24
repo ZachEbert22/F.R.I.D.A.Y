@@ -29,6 +29,9 @@
 //PCB Command Header
 #define CMD_PCB_LABEL "pcb"
 //PCB Commands
+#define CMD_ALLOCATE_MEMORY "allocate-memory"
+#define CMD_FREE_MEMORY "free-memory"
+#define CMD_SHOW_ALLOC_FREE "show-allocate-free"
 
 
 ///An array of all command labels, terminated with null.
@@ -709,8 +712,16 @@ bool cmd_alarm(const char *comm)
 
 }
 
-void allocate_Memory(){
-     const char *label = CMD_SET_ALARM;
+void allocate_memory(){
+     const char *label = CMD_ALLOCATE_MEMORY;
+    // Means that it did not start with label therefore it is not a valid input
+    if (!first_label_matches(comm, label))
+    {
+        return false;
+    }
+}
+void show_allocate_free(){
+     const char *label = CMD_SHOW_ALLOC_FREE;
     // Means that it did not start with label therefore it is not a valid input
     if (!first_label_matches(comm, label))
     {
