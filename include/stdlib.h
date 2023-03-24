@@ -32,4 +32,11 @@ char *itoa(int i, char *str_buf, int buf_len);
  */
 char *itoa_base(int i, int base, char *str_buf, int buf_len);
 
+/**
+ * @brief Convert a hex string to integer
+ * @param s the string to convert
+ * @return the created integer from the string
+ */
+int atox(const char *s);
+
 #endif

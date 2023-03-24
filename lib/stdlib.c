@@ -91,7 +91,7 @@ char *itoa(int i, char *str_buf, int buf_len)
 {
     return itoa_base(i, 10, str_buf, buf_len);
 }
-
+//Converts a number to a string
 char *itoa_base(int i, int base, char *str_buf, int buf_len)
 {
     if (buf_len == 0) {
@@ -142,4 +142,28 @@ char *itoa_base(int i, int base, char *str_buf, int buf_len)
         str_buf[num_pos++] = swap[index];
     }
     return str_buf;
+}
+
+int atox(const char *s)
+{
+    while(isspace(*s)) s++;
+    char sign = ' ';
+    int value = 0;
+    if(*s == '+' || *s == '-')
+    {
+        sign = *s;
+        s++;
+    }
+
+    while((*s >= '0' && *s <= '9') || (*s <= 'F' && *s >= 'A'))
+    {
+        int digit_value = *s - '0';
+        // subtract the offset in ascii values
+        if(*s >= 'A') digit_value = digit_value - 7;
+        value = (value << 4) + digit_value;
+        s++;
+    }
+    if(sign == '-') value *= -1;
+
+    return value;
 }
