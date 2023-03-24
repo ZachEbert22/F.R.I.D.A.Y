@@ -12,8 +12,7 @@ typedef enum {
 	EXIT,
 	IDLE,
 	READ,
-	WRITE,
-    SHUTDOWN
+	WRITE
 } op_code;
     
 // error codes

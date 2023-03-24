@@ -12,7 +12,7 @@ static struct pcb *active_pcb_ptr = NULL;
 static struct context *first_context_ptr = NULL;
 
 /**
- * @brief The main system call function, implementing the IDLE, EXIT, and SHUTDOWN system requests.
+ * @brief The main system call function, implementing the IDLE and EXIT system requests.
  * @param action the action to perform.
  * @param ctx the current PCB context.
  * @return a pointer to the next context to load.
@@ -71,28 +71,6 @@ struct context *sys_call(op_code action, struct context *ctx)
             //Free the old one.
             pcb_free(exiting_pcb);
             return (struct context *) next_to_load->stack_ptr;
-        }
-        case SHUTDOWN:
-        {
-            if(active_pcb_ptr != NULL && active_pcb_ptr->process_class != SYSTEM) //Only system processes may invoke a shutdown.
-                return ctx;
-
-            //This should kill all active processes and return the proper value.
-            struct pcb *next = NULL;
-            while((next = poll_next_pcb()) != NULL)
-            {
-                pcb_remove(next);
-                pcb_free(next);
-            }
-
-            //Free the active pointer.
-            if(active_pcb_ptr != NULL)
-            {
-                pcb_remove(active_pcb_ptr);
-                pcb_free(active_pcb_ptr);
-            }
-            active_pcb_ptr = NULL;
-            return first_context_ptr;
         }
         default:
             return ctx;

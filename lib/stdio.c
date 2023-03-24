@@ -79,6 +79,8 @@ int printf(const char *s, ...)
     char buffer[PRINTF_BUF_LEN] = {0};
 
     //Format the string.
+    int len = strlen(s);
+    (void) len;
     va_list va;
     va_start(va, s);
     char *result = vsprintf(s, buffer, PRINTF_BUF_LEN, va);

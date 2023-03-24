@@ -13,6 +13,7 @@
 #include "mpx/clock.h"
 #include "mpx/r3cmd.h"
 #include "math.h"
+#include "mpx/pcb.h"
 
 ///The message to send to the user if a command hasn't been recognized.
 #define UNKNOWN_CMD_MSG "Unknown command '%s'. Type 'help' for help!"
@@ -35,7 +36,8 @@ bool (*comm_funcs[])(const char *comm) = {
         &cmd_alarm,
         &cmd_yield,
         &loadr3,
-        &cmd_alarm
+        &cmd_alarm,
+        
 };
 
 /// Used to denote if the comm hand should stop.
@@ -44,7 +46,10 @@ static bool sig_shutdown = false;
 void signal_shutdown(void)
 {
     sig_shutdown = true;
-    sys_req(SHUTDOWN);
+
+    //Empty the PCB queue.
+    while(poll_next_pcb() != NULL);
+
     sys_req(EXIT);
 }
 
