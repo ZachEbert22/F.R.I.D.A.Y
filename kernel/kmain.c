@@ -17,6 +17,7 @@
 #include <sys_req.h>
 #include <string.h>
 #include "mpx/pcb.h"
+#include "mpx/heap.h"
 #include "processes.h"
 #include <memory.h>
 #include "mpx/comhand.h"
@@ -84,6 +85,8 @@ void kmain(void)
 	// 8) MPX Modules -- *headers vary*
 	// Module specific initialization -- not all modules require this
 	klogv(COM1, "Initializing MPX modules...");
+    initialize_heap(1024);
+
 	// R5: sys_set_heap_functions(...);
     generate_new_pcb("comhand", 0, SYSTEM, comhand, NULL, 0, 0);
     // generate_new_pcb("p1", 7, USER, proc1);
