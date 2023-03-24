@@ -727,6 +727,7 @@ bool cmd_show_allocate_free(const char* comm){
     // Means that it did not start with label therefore it is not a valid input
     if (!first_label_matches(comm, label))
     {
+        printf("%x", 0b00111);
         return false;
     }
     return true;

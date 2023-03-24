@@ -91,7 +91,7 @@ char *itoa(int i, char *str_buf, int buf_len)
 {
     return itoa_base(i, 10, str_buf, buf_len);
 }
-
+//Converts a number to a string
 char *itoa_base(int i, int base, char *str_buf, int buf_len)
 {
     if (buf_len == 0) {
