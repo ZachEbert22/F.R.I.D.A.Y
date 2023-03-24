@@ -491,9 +491,9 @@ bool cmd_help(const char *comm)
     println("=> enter 'help color'");
     println("=> enter 'help clear'");
     println("=> enter 'help pcb'");
-    println("=> enter 'help allocate-memory");
-    println("=> enter 'help free-memory");
-    println("=> enter 'help show-allocate-free");
+    println("=> enter 'help allocate-memory'");
+    println("=> enter 'help free-memory'");
+    println("=> enter 'help show-allocate-free'");
     return true;
 }
 
