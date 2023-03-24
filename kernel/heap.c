@@ -80,6 +80,9 @@ void rem_mcb_free(mem_block_t *block)
     {
         block->next->prev = NULL;
     }
+
+    //Remove self from list.
+    block->next = block->prev = NULL;
 }
 
 /**
@@ -198,7 +201,7 @@ void *allocate_memory(size_t size)
     }
 
     // start an extra free block to be used as a remainder
-    mem_block_t *extra_free_block = (mem_block_t *) size + walk->start_address;
+    mem_block_t *extra_free_block = (mem_block_t *) (size + walk->start_address);
     // find remaining size of extra free block once walk is allocated
     extra_free_block->size = walk->size - size - sizeof(struct mem_block);
     // find new start address in extra free block
@@ -206,6 +209,9 @@ void *allocate_memory(size_t size)
 
     // add the extra free block back to the free list
     insert_block(extra_free_block, true);
+    //Set the size of walk.
+    walk->size = (int) extra_free_block - walk->start_address;
+
     // remove walk from the free list
     rem_mcb_free(walk);
     // add walk to the alloc list
@@ -229,7 +235,11 @@ void initialize_heap(size_t size)
     print_list(true);
     print_list(false);
 
-    rem_mcb_free(alloc_list);
+    println("ALLOCATING!");
+    mem_block_t *allocated = alloc_list;
+    rem_mcb_free(allocated);
+    insert_block(allocated, true);
+    merge_blocks(allocated);
 
     print_list(true);
     print_list(false);
