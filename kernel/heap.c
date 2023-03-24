@@ -235,10 +235,23 @@ void initialize_heap(size_t size)
     block->size = size - sizeof (struct mem_block);
     block->start_address = (int) (((int) block) + sizeof (struct mem_block));
 }
+bool block_exists(void * mcb_address)
+{
+    mem_block_t *walk = alloc_list;
+    while(walk != NULL)
+    {
+        if(mcb_address == walk) return true;
+        walk = walk->next;
+    }
+    return false;
+}
 int free_memory(void * free){
-    char* start_address = NULL;
-    if (start_address == free){
-        return 0;
-    } else
-        return 1;
+    void * mcb_address =  (free - sizeof(struct mem_block));
+    if(!block_exists(mcb_address)) return -1;
+
+    rem_mcb_free((mem_block_t *) mcb_address);
+    insert_block((mem_block_t *) mcb_address, true);
+    merge_blocks((mem_block_t *) mcb_address);
+
+    return 0;
 }
