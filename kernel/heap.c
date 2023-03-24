@@ -8,6 +8,11 @@
 #include "stdbool.h"
 #include "stdio.h"
 
+/**
+ * @file heap.c
+ * @brief The implementation file for heap.h. Contains the definition of the memory block and some other useful functions.
+ */
+
 ///A structure that contains memory.
 typedef struct mem_block {
     ///The previous memory block.
@@ -229,20 +234,6 @@ void initialize_heap(size_t size)
     //Initialize the values of the block.
     block->size = size - sizeof (struct mem_block);
     block->start_address = (int) (((int) block) + sizeof (struct mem_block));
-
-    allocate_memory(250);
-
-    print_list(true);
-    print_list(false);
-
-    println("ALLOCATING!");
-    mem_block_t *allocated = alloc_list;
-    rem_mcb_free(allocated);
-    insert_block(allocated, true);
-    merge_blocks(allocated);
-
-    print_list(true);
-    print_list(false);
 }
 int free_memory(void * free){
     char* start_address = NULL;
