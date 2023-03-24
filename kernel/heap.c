@@ -26,7 +26,9 @@ typedef struct mem_block {
     size_t size;
 } mem_block_t;
 
+///The beginning of the free list of memory blocks.
 mem_block_t *free_list;
+///The beginning of the allocated list of memory blocks.
 mem_block_t *alloc_list;
 
 /**

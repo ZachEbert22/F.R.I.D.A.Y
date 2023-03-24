@@ -82,6 +82,9 @@ void print_welcome(void)
     println("=> shutdown");
     println("=> color");
     println("=> clear");
+    println("=> allocate-memory");
+    println("=> free-memory");
+    println("=> show-allocate-free");
 }
 
 void comhand(void)

@@ -49,6 +49,9 @@ static const char *CMD_LABELS[] = {
         CMD_PCB_LABEL,
         CMD_LOADR3,
         CMD_SET_ALARM,
+        CMD_ALLOCATE_MEMORY,
+        CMD_FREE_MEMORY,
+        CMD_SHOW_ALLOC_FREE,
         NULL,
 };
 
@@ -482,6 +485,9 @@ bool cmd_help(const char *comm)
     println("=> enter 'help color'");
     println("=> enter 'help clear'");
     println("=> enter 'help pcb'");
+    println("=> enter 'help allocate-memory");
+    println("=> enter 'help free-memory");
+    println("=> enter 'help show-allocate-free");
     return true;
 }
 
@@ -714,17 +720,30 @@ bool cmd_alarm(const char *comm)
 }
 
 bool cmd_allocate_memory(const char* comm){
-     const char *label = CMD_ALLOCATE_MEMORY;
+     const char *label = CMD_ALLOCATE_MEMORY; 
     // Means that it did not start with label therefore it is not a valid input
     if (!first_label_matches(comm, label))
     {
         return false;
+    }
+    print("How many bytes do you want to allocate?");
+    char msg_buf[12] = {0};
+    set_cli_history(0);
+    gets(msg_buf[12]);
+    set_cli_history(1);
+
+    //Check confirmation.
+        size_t byte_size = atoi(msg_buf);
+        size_t allocate_size = allocate_memory(byte_size);
+        if (allocate_size= NULL){
+        printf("Not able to Allocate the Appropriate amount of bytes");
     }
     return true;
 }
 bool cmd_show_allocate_free(const char* comm){
      const char *label = CMD_SHOW_ALLOC_FREE;
     // Means that it did not start with label therefore it is not a valid input
+    
     if (!first_label_matches(comm, label))
     {
         printf("%x", 0b00111);
