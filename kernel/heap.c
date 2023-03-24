@@ -45,6 +45,7 @@ void print_block(mem_block_t *block)
  */
 void print_list(bool list)
 {
+    printf("Memory Control Block List %s\n", list ? "Free" : "Allocated");
     mem_block_t *block = list ? free_list : alloc_list;
     int count = 0;
     while(block != NULL)
@@ -168,6 +169,51 @@ void insert_block(mem_block_t *mblock, bool list)
         mblock->next->prev = mblock;
 }
 
+void *allocate_memory(size_t size)
+{
+    if(size <= 0)
+        return NULL;
+
+    mem_block_t *walk = free_list;
+    //This while loop stops when we first find a block that can fit the size.
+    while(walk != NULL)
+    {
+        if(walk->size >= size)
+        {
+            break;
+        }
+        walk = walk->next;
+    }
+
+    //In this case, we couldn't find memory large enough for the size.
+    if(walk == NULL)
+        return NULL;
+
+    //Now at this point, walk is the MCB that can contain our new memory.
+    if(walk->size - size <= sizeof (struct mem_block))
+    {
+        rem_mcb_free(walk);
+        insert_block(walk, false);
+        return (void *) walk->start_address;
+    }
+
+    // start an extra free block to be used as a remainder
+    mem_block_t *extra_free_block = (mem_block_t *) size + walk->start_address;
+    // find remaining size of extra free block once walk is allocated
+    extra_free_block->size = walk->size - size - sizeof(struct mem_block);
+    // find new start address in extra free block
+    extra_free_block->start_address = (int) ((int) extra_free_block + sizeof (mem_block_t));
+
+    // add the extra free block back to the free list
+    insert_block(extra_free_block, true);
+    // remove walk from the free list
+    rem_mcb_free(walk);
+    // add walk to the alloc list
+    insert_block(walk, false);
+    //return a pointer to the new starting address
+    return (void *) walk->start_address;
+}
+
 void initialize_heap(size_t size)
 {
     //Malloc the full free block.
@@ -177,6 +223,16 @@ void initialize_heap(size_t size)
     //Initialize the values of the block.
     block->size = size - sizeof (struct mem_block);
     block->start_address = (int) (((int) block) + sizeof (struct mem_block));
+
+    allocate_memory(250);
+
+    print_list(true);
+    print_list(false);
+
+    rem_mcb_free(alloc_list);
+
+    print_list(true);
+    print_list(false);
 }
 int free_memory(void * free){
     char* start_address = NULL;
