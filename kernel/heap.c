@@ -44,3 +44,10 @@ void initialize_heap(size_t size)
     block->size = size - sizeof (struct mem_block);
     block->start_address = (int) (((int) block) + sizeof (struct mem_block));
 }
+int free_memory(void * free){
+    char* start_address = NULL;
+    if (start_address == free){
+        return 0;
+    } else
+        return 1;
+}
