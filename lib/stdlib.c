@@ -143,3 +143,26 @@ char *itoa_base(int i, int base, char *str_buf, int buf_len)
     }
     return str_buf;
 }
+int atox(char *s)
+{
+    while(isspace(*s)) s++;
+    sign = ' ';
+    int value = 0;
+    if(*s == '+' || *s == '-')
+    {
+        sign = *s;
+        s++;
+    }
+
+    while((*s >= '0' && *s <= '9') || (*s <= 'F' && *s >= 'A'))
+    {
+        int digit_value = *s - '0';
+        // subtract the offset in ascii values
+        if(*s >= 'A') digit_value - 7;
+        value = (value << 4) + digit_value;
+        s++;
+    }
+    if(sign == '-') value *= -1;
+
+    return value;
+}
