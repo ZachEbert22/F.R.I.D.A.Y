@@ -708,3 +708,12 @@ bool cmd_alarm(const char *comm)
     return true;
 
 }
+
+void allocate_Memory(){
+     const char *label = CMD_SET_ALARM;
+    // Means that it did not start with label therefore it is not a valid input
+    if (!first_label_matches(comm, label))
+    {
+        return false;
+    }
+}
