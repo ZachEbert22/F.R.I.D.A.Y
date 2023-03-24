@@ -108,25 +108,25 @@ bool cmd_yield(const char *comm);
  */
 bool cmd_pcb(const char *comm);
 /**
- * @brief The pcb command, used to interact with the pcb system.
+ * @brief The alarm command, used to create the alarm function.
  * @param comm the command string.
  * @return true if it was handled, false if not.
  */
 bool cmd_alarm(const char *comm);
 /**
- * @brief The pcb command, used to interact with the pcb system.
+ * @brief The free memory command, frees heap memory.
  * @param comm the command string.
  * @return true if it was handled, false if not.
  */
  bool cmd_free_memory(const char* comm);
  /**
- * @brief The pcb command, used to interact with the pcb system.
+ * @brief The allocate memory, which allocates memory in the heap.
  * @param comm the command string.
  * @return true if it was handled, false if not.
  */
  bool cmd_allocate_memory(const char* comm);
  /**
- * @brief The pcb command, used to interact with the pcb system.
+ * @brief Theshow allocated memory and show free memory command, where each command will cycle through the list.
  * @param comm the command string.
  * @return true if it was handled, false if not.
  */
