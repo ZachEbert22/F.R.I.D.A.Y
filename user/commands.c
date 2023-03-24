@@ -13,6 +13,7 @@
 #include "mpx/pcb.h"
 #include "mpx/io.h"
 #include "mpx/alarm.h"
+#include "mpx/heap.h"
 
 #define CMD_HELP_LABEL "help"
 #define CMD_VERSION_LABEL "version"
@@ -739,5 +740,6 @@ bool cmd_free_memory(const char* comm){
     {
         return false;
     }
+
     return true;
 }
