@@ -712,29 +712,32 @@ bool cmd_alarm(const char *comm)
 
 }
 
-void allocate_memory(){
+bool allocate_memory(const char* comm){
      const char *label = CMD_ALLOCATE_MEMORY;
     // Means that it did not start with label therefore it is not a valid input
     if (!first_label_matches(comm, label))
     {
         return false;
     }
+    return true;
 }
-void show_allocate_free(){
+bool show_allocate_free(const char* comm){
      const char *label = CMD_SHOW_ALLOC_FREE;
     // Means that it did not start with label therefore it is not a valid input
     if (!first_label_matches(comm, label))
     {
         return false;
     }
+    return true;
 }
 
 
-void free_memory(int address){
+bool free_memory(const char* comm){
      const char *label = CMD_FREE_MEMORY;
     // Means that it did not start with label therefore it is not a valid input
     if (!first_label_matches(comm, label))
     {
         return false;
     }
+    return true;
 }
