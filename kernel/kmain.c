@@ -85,7 +85,7 @@ void kmain(void)
 	// 8) MPX Modules -- *headers vary*
 	// Module specific initialization -- not all modules require this
 	klogv(COM1, "Initializing MPX modules...");
-    initialize_heap(1024);
+    initialize_heap(4096);
 
 	// R5: sys_set_heap_functions(...);
     generate_new_pcb("comhand", 0, SYSTEM, comhand, NULL, 0, 0);

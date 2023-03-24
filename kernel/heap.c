@@ -3,9 +3,10 @@
 //
 
 #include "mpx/heap.h"
-#include "linked_list.h"
 #include "stddef.h"
 #include "mpx/vm.h"
+#include "stdbool.h"
+#include "stdio.h"
 
 ///A structure that contains memory.
 typedef struct mem_block {
@@ -20,25 +21,158 @@ typedef struct mem_block {
     size_t size;
 } mem_block_t;
 
-linked_list *free_list;
-linked_list *alloc_list;
+mem_block_t *free_list;
+mem_block_t *alloc_list;
 
-void initialize_lists()
+/**
+ * Prints the block and its given data to std output.
+ *
+ * @param block the block to print.
+ */
+void print_block(mem_block_t *block)
 {
-    //Set the lists.
-    static linked_list free_list_stc = {0};
-    static linked_list alloc_list_stc = {0};
-    free_list = &free_list_stc;
-    alloc_list = &alloc_list_stc;
+    println("Memory Control Block");
+    printf("Physical Start: %x\n", block);
+    printf("Physical End: %x\n", (block->start_address + block->size));
+    printf("Memory Start: %x\n", block->start_address);
+    printf("Size: %d\n", block->size);
+}
+
+/**
+ * Prints one of the given list based upon the bool.
+ *
+ * @param list the list to print, free if true, alloc if false.
+ */
+void print_list(bool list)
+{
+    mem_block_t *block = list ? free_list : alloc_list;
+    int count = 0;
+    while(block != NULL)
+    {
+        printf("Memory Block #%d\n", count++);
+        print_block(block);
+        block = block->next;
+    }
+}
+
+/**
+ * Removes a memory control block from its respective list.
+ *
+ * @param block the block to remove.
+ */
+void rem_mcb_free(mem_block_t *block)
+{
+    if(block->prev != NULL)
+    {
+        block->prev->next = block->next;
+    }
+    else
+    {
+        //In this case, we're removing the head.
+        if(free_list == block)
+            free_list = block->next;
+        else if(alloc_list == block)
+            alloc_list = block->next;
+    }
+
+    if(block->next != NULL)
+    {
+        block->next->prev = NULL;
+    }
+}
+
+/**
+ * Merges the newly freed block with neighboring free blocks.
+ *
+ * @param freed_block the freed block.
+ */
+void merge_blocks(mem_block_t *freed_block)
+{
+    mem_block_t *previous = freed_block;
+    mem_block_t *first_block_found = freed_block->prev;
+    while(first_block_found != NULL) {
+        int max_address = (int) ((int) first_block_found->start_address + first_block_found->size);
+        if(max_address == (int) previous)
+        {
+            //Merge the two blocks.
+            first_block_found->size += previous->size + sizeof (struct mem_block);
+
+            rem_mcb_free(previous);
+            previous = first_block_found;
+            first_block_found = first_block_found->prev;
+        }
+        else break; //Only continue the list if we can make a contiguous merge.
+    }
+
+    //Start working our way forward.
+    first_block_found = freed_block->next;
+    while(first_block_found != NULL)
+    {
+        int max_address = (int) ((int) previous->start_address + previous->size);
+        if(max_address == (int) first_block_found)
+        {
+            //Merge the two blocks.
+            first_block_found->size += previous->size + sizeof (struct mem_block);
+
+            rem_mcb_free(previous);
+            previous = first_block_found;
+            first_block_found = first_block_found->next;
+        }
+        else break; //Only continue the list if we can make a contiguous merge.
+    }
+}
+
+/**
+ * Inserts a memory block into its respective list.
+ *
+ * @param mblock the block to insert.
+ * @param list the list in which to insert the block, true if free, false if allocated.
+ *
+ */
+void insert_block(mem_block_t *mblock, bool list)
+{
+    mem_block_t *previous_block = list ? free_list : alloc_list;
+    if(previous_block == NULL)
+    {
+        if(list)
+            free_list = mblock;
+        else
+            alloc_list = mblock;
+        return;
+    }
+
+    //Check if immediate insertion is necessary.
+    if(previous_block->start_address > mblock->start_address)
+    {
+        if(list)
+            free_list = mblock;
+        else
+            alloc_list = mblock;
+
+        mblock->next = previous_block;
+        previous_block->prev = mblock;
+        return;
+    }
+
+    //Otherwise, iteration is necessary.
+    while(previous_block->next != NULL && previous_block->start_address < mblock->start_address)
+    {
+        previous_block = previous_block->next;
+    }
+
+    //We've found the immediate predecessor to our block that we're insertion.
+    mblock->next = previous_block->next;
+    mblock->prev = previous_block;
+    previous_block->next = mblock;
+    if(mblock->next != NULL)
+        mblock->next->prev = mblock;
 }
 
 void initialize_heap(size_t size)
 {
-    initialize_lists();
-
     //Malloc the full free block.
     mem_block_t *block = kmalloc(size, 0, NULL);
-    add_item(free_list, block);
+    insert_block(block, true);
 
     //Initialize the values of the block.
     block->size = size - sizeof (struct mem_block);
