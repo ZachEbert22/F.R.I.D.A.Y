@@ -8,6 +8,11 @@
 #include "stdbool.h"
 #include "stdio.h"
 
+/**
+ * @file heap.c
+ * @brief The implementation file for heap.h. Contains the definition of the memory block and some other useful functions.
+ */
+
 ///A structure that contains memory.
 typedef struct mem_block {
     ///The previous memory block.
@@ -21,7 +26,9 @@ typedef struct mem_block {
     size_t size;
 } mem_block_t;
 
+///The beginning of the free list of memory blocks.
 mem_block_t *free_list;
+///The beginning of the allocated list of memory blocks.
 mem_block_t *alloc_list;
 
 /**
@@ -80,6 +87,9 @@ void rem_mcb_free(mem_block_t *block)
     {
         block->next->prev = NULL;
     }
+
+    //Remove self from list.
+    block->next = block->prev = NULL;
 }
 
 /**
@@ -198,7 +208,7 @@ void *allocate_memory(size_t size)
     }
 
     // start an extra free block to be used as a remainder
-    mem_block_t *extra_free_block = (mem_block_t *) size + walk->start_address;
+    mem_block_t *extra_free_block = (mem_block_t *) (size + walk->start_address);
     // find remaining size of extra free block once walk is allocated
     extra_free_block->size = walk->size - size - sizeof(struct mem_block);
     // find new start address in extra free block
@@ -206,6 +216,9 @@ void *allocate_memory(size_t size)
 
     // add the extra free block back to the free list
     insert_block(extra_free_block, true);
+    //Set the size of walk.
+    walk->size = (int) extra_free_block - walk->start_address;
+
     // remove walk from the free list
     rem_mcb_free(walk);
     // add walk to the alloc list
@@ -223,16 +236,6 @@ void initialize_heap(size_t size)
     //Initialize the values of the block.
     block->size = size - sizeof (struct mem_block);
     block->start_address = (int) (((int) block) + sizeof (struct mem_block));
-
-    allocate_memory(250);
-
-    print_list(true);
-    print_list(false);
-
-    rem_mcb_free(alloc_list);
-
-    print_list(true);
-    print_list(false);
 }
 int free_memory(void * free){
     char* start_address = NULL;
