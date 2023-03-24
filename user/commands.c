@@ -728,3 +728,13 @@ void show_allocate_free(){
         return false;
     }
 }
+
+
+void free_memory(int address){
+     const char *label = CMD_FREE_MEMORY;
+    // Means that it did not start with label therefore it is not a valid input
+    if (!first_label_matches(comm, label))
+    {
+        return false;
+    }
+}
