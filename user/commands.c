@@ -729,13 +729,13 @@ bool cmd_allocate_memory(const char* comm){
     print("How many bytes do you want to allocate?");
     char msg_buf[12] = {0};
     set_cli_history(0);
-    gets(msg_buf[12]);
+    gets(msg_buf, 12);
     set_cli_history(1);
 
     //Check confirmation.
         size_t byte_size = atoi(msg_buf);
-        size_t allocate_size = allocate_memory(byte_size);
-        if (allocate_size= NULL){
+        void* allocate_size = allocate_memory(byte_size);
+        if (allocate_size == NULL){
         printf("Not able to Allocate the Appropriate amount of bytes");
     }
     return true;
