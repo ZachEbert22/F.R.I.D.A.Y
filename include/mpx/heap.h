@@ -32,7 +32,8 @@ void *allocate_memory(size_t size);
 /**
  * Frees the Memory Block at the given pointer.
  * @param pointer the address of the MB.
- * @return 0 on success 
+ * @return 0 on success
+ * @authors Kolby Eisenhauer
  */
 int free_memory(void* pointer);
 

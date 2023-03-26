@@ -85,7 +85,7 @@ void rem_mcb_free(mem_block_t *block)
 
     if(block->next != NULL)
     {
-        block->next->prev = NULL;
+        block->next->prev = block->prev;
     }
 
     //Remove self from list.
@@ -101,7 +101,7 @@ void merge_blocks(mem_block_t *freed_block)
 {
     mem_block_t *previous = freed_block;
     mem_block_t *first_block_found = freed_block->prev;
-    while(first_block_found != NULL) {
+    if(first_block_found != NULL) {
         int max_address = (int) ((int) first_block_found->start_address + first_block_found->size);
         if(max_address == (int) previous)
         {
@@ -109,27 +109,20 @@ void merge_blocks(mem_block_t *freed_block)
             first_block_found->size += previous->size + sizeof (struct mem_block);
 
             rem_mcb_free(previous);
-            previous = first_block_found;
-            first_block_found = first_block_found->prev;
+            previous = first_block_found; //Update the previous for the merge forward.
         }
-        else break; //Only continue the list if we can make a contiguous merge.
     }
 
     //Start working our way forward.
-    first_block_found = freed_block->next;
-    while(first_block_found != NULL)
+    //Note that freed_block at this point may be unusable as it may have already been removed from its list.
+    first_block_found = previous->next;
+    int max_address = (int) ((int) previous->start_address + previous->size);
+    if(first_block_found != NULL && max_address == (int) first_block_found)
     {
-        int max_address = (int) ((int) previous->start_address + previous->size);
-        if(max_address == (int) first_block_found)
-        {
-            //Merge the two blocks.
-            first_block_found->size += previous->size + sizeof (struct mem_block);
+        //Merge the two blocks.
+        previous->size += first_block_found->size + sizeof (struct mem_block);
 
-            rem_mcb_free(previous);
-            previous = first_block_found;
-            first_block_found = first_block_found->next;
-        }
-        else break; //Only continue the list if we can make a contiguous merge.
+        rem_mcb_free(first_block_found);
     }
 }
 
@@ -166,12 +159,14 @@ void insert_block(mem_block_t *mblock, bool list)
     }
 
     //Otherwise, iteration is necessary.
-    while(previous_block->next != NULL && previous_block->start_address < mblock->start_address)
+    int index = 0;
+    while(previous_block->next != NULL && previous_block->next->start_address < mblock->start_address)
     {
         previous_block = previous_block->next;
+        index++;
     }
 
-    //We've found the immediate predecessor to our block that we're insertion.
+    //We've found the immediate predecessor to our block that we're inserting.
     mblock->next = previous_block->next;
     mblock->prev = previous_block;
     previous_block->next = mblock;
@@ -237,6 +232,14 @@ void initialize_heap(size_t size)
     block->size = size - sizeof (struct mem_block);
     block->start_address = (int) (((int) block) + sizeof (struct mem_block));
 }
+
+/**
+ * Checks if the given block exists in the allocated memory linked list.
+ *
+ * @param mcb_address the beginning address of the MCB.
+ * @return true if it does, false if not.
+ * @authors Kolby Eisenhauer
+ */
 bool block_exists(void * mcb_address)
 {
     mem_block_t *walk = alloc_list;
@@ -247,6 +250,7 @@ bool block_exists(void * mcb_address)
     }
     return false;
 }
+
 int free_memory(void * free){
     void * mcb_address =  (free - sizeof(struct mem_block));
     if(!block_exists(mcb_address)) return -1;
