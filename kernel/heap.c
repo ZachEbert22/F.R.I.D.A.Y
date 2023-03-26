@@ -45,11 +45,6 @@ void print_block(mem_block_t *block)
     printf("Size: %d\n", block->size);
 }
 
-/**
- * Prints one of the given list based upon the bool.
- *
- * @param list the list to print, free if true, alloc if false.
- */
 void print_list(bool list)
 {
     printf("Memory Control Block List %s\n", list ? "Free" : "Allocated");

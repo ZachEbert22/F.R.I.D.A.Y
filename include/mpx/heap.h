@@ -6,11 +6,20 @@
 #define F_R_I_D_A_Y_HEAP_H
 
 #include "stddef.h"
+#include "stdbool.h"
 
 /**
  * @file heap.h
  * @brief the heap file contains functions useful for allocating and freeing memory.
  */
+
+/**
+ * Prints one of the given list based upon the bool.
+ *
+ * @param list the list to print, free if true, alloc if false.
+ * @authors Andrew Bowie
+ */
+void print_list(bool list);
 
 /**
  * Initializes the heap with the given size.
