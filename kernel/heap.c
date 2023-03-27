@@ -35,6 +35,7 @@ mem_block_t *alloc_list;
  * Prints the block and its given data to std output.
  *
  * @param block the block to print.
+ * @authors Andrew Bowie
  */
 void print_block(mem_block_t *block)
 {
@@ -62,6 +63,7 @@ void print_list(bool list)
  * Removes a memory control block from its respective list.
  *
  * @param block the block to remove.
+ * @authors Andrew Bowie
  */
 void rem_mcb_free(mem_block_t *block)
 {
@@ -91,6 +93,7 @@ void rem_mcb_free(mem_block_t *block)
  * Merges the newly freed block with neighboring free blocks.
  *
  * @param freed_block the freed block.
+ * @authors Andrew Bowie
  */
 void merge_blocks(mem_block_t *freed_block)
 {
@@ -126,7 +129,7 @@ void merge_blocks(mem_block_t *freed_block)
  *
  * @param mblock the block to insert.
  * @param list the list in which to insert the block, true if free, false if allocated.
- *
+ * @authors Andrew Bowie
  */
 void insert_block(mem_block_t *mblock, bool list)
 {
