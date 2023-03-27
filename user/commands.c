@@ -732,7 +732,7 @@ bool cmd_allocate_memory(const char* comm){
     {
         return false;
     }
-    print("How many bytes do you want to allocate?");
+    print("How many bytes do you want to allocate?\n");
     char msg_buf[12] = {0};
     set_cli_history(0);
     gets(msg_buf, 12);
@@ -742,8 +742,15 @@ bool cmd_allocate_memory(const char* comm){
         size_t byte_size = atoi(msg_buf);
         void* allocate_size = allocate_memory(byte_size);
         if (allocate_size == NULL){
-        printf("Not able to Allocate the Appropriate amount of bytes");
-    }
+            printf("Not able to Allocate the Appropriate amount of bytes\n");
+        }
+        // else if (allocate_size > 50000){
+        //     printf("The Byte Size is too Big!");
+        // }
+         else {
+            printf("Successfully Allocated The Appropriate Number of Bytes!\n");
+        }
+        
     return true;
 }
 bool cmd_show_allocate_free(const char* comm){
@@ -755,6 +762,9 @@ bool cmd_show_allocate_free(const char* comm){
         printf("%x", 0b00111);
         return false;
     }
+
+    print_list(true);
+    print_list(false);
     return true;
 }
 
