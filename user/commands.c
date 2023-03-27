@@ -784,7 +784,7 @@ bool cmd_free_memory(const char* comm){
     int err = free_memory((void *) address);
     if(err != 0)
     {
-        printf("Failed to free memory error code: %d", err);
+        printf("Failed to free memory error code: %d\n", err);
     }
     else 
     {

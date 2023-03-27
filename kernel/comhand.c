@@ -37,6 +37,9 @@ bool (*comm_funcs[])(const char *comm) = {
         &cmd_yield,
         &loadr3,
         &cmd_alarm,
+        &cmd_free_memory,
+        &cmd_allocate_memory,
+        &cmd_show_allocate_free,
         
 };
 
