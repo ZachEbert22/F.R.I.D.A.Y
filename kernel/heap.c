@@ -46,6 +46,23 @@ void print_block(mem_block_t *block)
     printf("Size: %d\n", block->size);
 }
 
+void print_partial_block(mem_block_t *block){
+    printf("Memory Start: 0x%x\n", block->start_address);
+    printf("Size: %d\n", block->size);
+    print("\n");
+}
+
+void print_partial_list(bool list){
+    printf("Memory Control Block List %s\n", list ? "Free" : "Allocated");
+    mem_block_t *block = list ? free_list : alloc_list;
+    int count = 0;
+    while(block != NULL)
+    {
+        printf("Memory Block #%d\n", count++);
+        print_partial_block(block);
+        block = block->next;
+    }
+}
 void print_list(bool list)
 {
     printf("Memory Control Block List %s\n", list ? "Free" : "Allocated");

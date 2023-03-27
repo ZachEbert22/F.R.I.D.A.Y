@@ -748,9 +748,9 @@ bool cmd_allocate_memory(const char* comm){
         //     printf("The Byte Size is too Big!");
         // }
          else {
-            printf("Successfully Allocated The %x Number of Bytes!\n", allocate_size);
+            printf("Successfully Allocated The %d Number of Bytes at 0x%x!\n", byte_size, allocate_size);
         }
-        
+        //printf(sizeof(MCB));
     return true;
 }
 bool cmd_show_allocate_free(const char* comm){
@@ -763,8 +763,13 @@ bool cmd_show_allocate_free(const char* comm){
         return false;
     }
 
-    print_list(true);
-    print_list(false);
+   // print_list(true);
+    //print_list(false);
+    
+    print_partial_list(true);
+    print_partial_list(false);
+    //print("\n");
+
     return true;
 }
 

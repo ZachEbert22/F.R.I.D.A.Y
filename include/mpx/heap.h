@@ -20,7 +20,13 @@
  * @authors Andrew Bowie
  */
 void print_list(bool list);
-
+/**
+ * Prints memory and size of list based upon the bool.
+ *
+ * @param list the list to print, free if true, alloc if false.
+ * @authors Zachary Ebert
+ */
+void print_partial_list(bool list);
 /**
  * Initializes the heap with the given size.
  *
