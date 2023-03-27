@@ -748,7 +748,7 @@ bool cmd_allocate_memory(const char* comm){
         //     printf("The Byte Size is too Big!");
         // }
          else {
-            printf("Successfully Allocated The Appropriate Number of Bytes!\n");
+            printf("Successfully Allocated The %x Number of Bytes!\n", allocate_size);
         }
         
     return true;
