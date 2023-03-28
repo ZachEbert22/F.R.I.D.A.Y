@@ -65,9 +65,11 @@ void print_welcome(void)
     println("*********      **********      **      ****                  **         **        **");
     println("**             **     **       **      **   **             **  **         **    **");
     println("**             **    **        **      **    **           **     **         ****");
+    set_output_color(get_color("white"));
     println("*****          **  **          **      **     **         **       **         **");
     println("**             ****            **      **     **        *************        **");
     println("**             **  **          **      **     **       **           **       ** ");
+    set_output_color(get_color("bright-blue"));
     println("**             **    **        **      **    **       **             **      **");
     println("**             **     **       **      **   **       **               **     **");
     println("**             **      **      **      ******       **                 **    **");
