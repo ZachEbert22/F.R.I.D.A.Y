@@ -39,7 +39,8 @@ bool (*comm_funcs[])(const char *comm) = {
         &cmd_alarm,
         &cmd_free_memory,
         &cmd_allocate_memory,
-        &cmd_show_allocate_free,
+        &cmd_show_allocate,
+        &cmd_show_free,
         
 };
 
@@ -69,7 +70,7 @@ void print_welcome(void)
     println("*****          **  **          **      **     **         **       **         **");
     println("**             ****            **      **     **        *************        **");
     println("**             **  **          **      **     **       **           **       ** ");
-    set_output_color(get_color("bright-blue"));
+    set_output_color(get_color("blue"));
     println("**             **    **        **      **    **       **             **      **");
     println("**             **     **       **      **   **       **               **     **");
     println("**             **      **      **      ******       **                 **    **");
@@ -89,7 +90,8 @@ void print_welcome(void)
     println("=> clear");
     println("=> allocate-memory");
     println("=> free-memory");
-    println("=> show-allocate-free");
+    println("=> show-allocate");
+    println("=> show-free");
 }
 
 void comhand(void)

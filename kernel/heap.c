@@ -54,6 +54,7 @@ void print_partial_block(mem_block_t *block){
 
 void print_partial_list(bool list){
     printf("Memory Control Block List %s\n", list ? "Free" : "Allocated");
+    printf("\n");
     mem_block_t *block = list ? free_list : alloc_list;
     int count = 0;
     while(block != NULL)

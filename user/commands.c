@@ -32,7 +32,8 @@
 //PCB Commands
 #define CMD_ALLOCATE_MEMORY "allocate-memory"
 #define CMD_FREE_MEMORY "free-memory"
-#define CMD_SHOW_ALLOC_FREE "show-allocate-free"
+#define CMD_SHOW_ALLOCATE "show-allocate"
+#define CMD_SHOW_FREE "show-free"
 
 
 ///An array of all command labels, terminated with null.
@@ -51,7 +52,8 @@ static const char *CMD_LABELS[] = {
         CMD_SET_ALARM,
         CMD_ALLOCATE_MEMORY,
         CMD_FREE_MEMORY,
-        CMD_SHOW_ALLOC_FREE,
+        CMD_SHOW_ALLOCATE,
+        CMD_SHOW_FREE,
         NULL,
 };
 
@@ -381,7 +383,7 @@ struct help_info help_messages[] = {
                 .help_message = "The '%s' command Allocates a certain number of bytes.\nto Allocate Memory, enter 'allocate-memory'"},
         {.str_label = {CMD_FREE_MEMORY},
                 .help_message = "The '%s' command frees the memory in the heap .\nto free memory, enter 'free-memory'"},
-        {.str_label = {CMD_SHOW_ALLOC_FREE},
+        {.str_label = {CMD_SHOW_ALLOCATE},
                 .help_message = "The '%s' command prints through everything in the list.\nto show allocated memory and show free memory, enter 'show-allocate-free'"},
         {.str_label = {CMD_CLEAR_LABEL},
                 .help_message = "The '%s' command clears the screen.\nto clear your terminal, enter 'clear'"},
@@ -753,27 +755,34 @@ bool cmd_allocate_memory(const char* comm){
         //printf(sizeof(MCB));
     return true;
 }
-bool cmd_show_allocate_free(const char* comm){
-     const char *label = CMD_SHOW_ALLOC_FREE;
+bool cmd_show_allocate(const char* comm){
+     const char *label = CMD_SHOW_ALLOCATE;
     // Means that it did not start with label therefore it is not a valid input
     
     if (!first_label_matches(comm, label))
     {
-        printf("%x", 0b00111);
+        //printf("%x", 0b00111);
         return false;
     }
 
-   // print_list(true);
-    //print_list(false);
-    
-    print_partial_list(true);
     print_partial_list(false);
+    return true;
+}
+
+bool cmd_show_free(const char* comm){
+     const char *label = CMD_SHOW_FREE;
+    // Means that it did not start with label therefore it is not a valid input
+    
+    if (!first_label_matches(comm, label))
+    {
+        //printf("%x", 0b00111);
+        return false;
+    }
+    print_partial_list(true);
     //print("\n");
 
     return true;
 }
-
-
 bool cmd_free_memory(const char* comm){
      const char *label = CMD_FREE_MEMORY;
     // Means that it did not start with label therefore it is not a valid input
