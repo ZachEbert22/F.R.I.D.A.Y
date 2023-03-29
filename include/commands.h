@@ -126,10 +126,15 @@ bool cmd_alarm(const char *comm);
  */
  bool cmd_allocate_memory(const char* comm);
  /**
- * @brief Theshow allocated memory and show free memory command, where each command will cycle through the list.
+ * @brief The show allocated memory command, where each command will cycle through the list.
  * @param comm the command string.
  * @return true if it was handled, false if not.
  */
  bool cmd_show_allocate(const char* comm);
+ /**
+ * @brief The free memory command, where each command will cycle through the list.
+ * @param comm the command string.
+ * @return true if it was handled, false if not.
+ */
  bool cmd_show_free(const char* comm);
 #endif //F_R_I_D_A_Y_COMMANDS_H
