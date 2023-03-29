@@ -384,7 +384,9 @@ struct help_info help_messages[] = {
         {.str_label = {CMD_FREE_MEMORY},
                 .help_message = "The '%s' command frees the memory in the heap .\nto free memory, enter 'free-memory'"},
         {.str_label = {CMD_SHOW_ALLOCATE},
-                .help_message = "The '%s' command prints through everything in the list.\nto show allocated memory and show free memory, enter 'show-allocate-free'"},
+                .help_message = "The '%s' command prints through everything in the list.\nto show allocated memory, enter 'show-allocate'"},
+        {.str_label = {CMD_SHOW_FREE},
+                .help_message = "The '%s' command prints through the free list.\nto show free memory, enter 'show-free'"},
         {.str_label = {CMD_CLEAR_LABEL},
                 .help_message = "The '%s' command clears the screen.\nto clear your terminal, enter 'clear'"},
         {.str_label = {CMD_COLOR_LABEL},
@@ -495,7 +497,8 @@ bool cmd_help(const char *comm)
     println("=> enter 'help pcb'");
     println("=> enter 'help allocate-memory'");
     println("=> enter 'help free-memory'");
-    println("=> enter 'help show-allocate-free'");
+    println("=> enter 'help show-allocate'");
+    println("=> enter 'help show-free");
     return true;
 }
 
