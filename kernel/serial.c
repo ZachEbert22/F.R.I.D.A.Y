@@ -80,7 +80,7 @@ int serial_out(device dev, const char *buffer, size_t len)
 #include "commands.h"
 
 #define ANSI_CODE_READ_LEN 15
-#define MAX_CLI_HISTORY_LEN (100)
+#define MAX_CLI_HISTORY_LEN (5)
 
 ///Used to store a specific line previously entered.
 struct line_entry
@@ -255,7 +255,10 @@ int serial_poll(device dev, char *buffer, size_t len)
     //Check if the CLI should be forcefully disabled.
     if(cli_history_enabled && list_size(cli_history) > MAX_CLI_HISTORY_LEN)
     {
-        cli_history_enabled = false;
+        //Free the oldest CLI history object.
+        struct line_entry *item = remove_item_unsafe(cli_history, 0);
+        sys_free_mem(item->line);
+        sys_free_mem(item);
     }
 
     //Keeps track of the current line entry. Used when command line
