@@ -62,6 +62,9 @@ bool first_label_matches(const char *str1, const char *label)
 
     //Token the command.
     char *str_token = strtok(comm_cpy, " ");
+    if(str_token == NULL)
+        return false;
+
     return strcicmp(str_token, label) == 0;
 }
 
