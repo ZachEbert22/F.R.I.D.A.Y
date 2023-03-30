@@ -23,7 +23,7 @@
 #define HERO_NO_PRINCESS 'h'
 
 ///The default length of the maze.
-#define MAZE_LENGTH 15
+#define MAZE_LENGTH 21
 ///The default height of the maze.
 #define MAZE_HEIGHT 11
 
@@ -99,7 +99,7 @@ static bool dragon_alive = false;
 static maze_board_t board;
 
 ///The map to use for visited tiles in maze generation.
-static bool visited_map[MAZE_HEIGHT][MAZE_HEIGHT];
+static bool visited_map[MAZE_HEIGHT][MAZE_LENGTH] = {0};
 /**
  * @brief The third, and final, step of board generation. Creates the paths through the maze.
  *
@@ -108,20 +108,24 @@ static bool visited_map[MAZE_HEIGHT][MAZE_HEIGHT];
  */
 void check_location(coordinate_t coordinate, linked_list *end_points)
 {
-    static const direction_t directions[4] = {W, A, S, D};
+    linked_list *queue = nl_unbounded();
+    add_item(queue, (void *) W);
+    add_item(queue, (void *) A);
+    add_item(queue, (void *) S);
+    add_item(queue, (void *) D);
 
-    //TODO This does not work right now. Try fixing by using a stack to avoid recursion?
     bool found = false;
-    for (int i = 0; i < 4; ++i)
+    while(queue->_size > 0)
     {
-        coordinate_t new_visit = shift(coordinate, directions[i], 2);
+        direction_t direc = (direction_t) remove_item_unsafe(queue, (int) next_random_lim(queue->_size));
+        coordinate_t new_visit = shift(coordinate, direc, 2);
 
         if(new_visit.x < 0 || new_visit.x >= MAZE_LENGTH ||
                 new_visit.y < 0 || new_visit.y >= MAZE_HEIGHT || visited_map[new_visit.y][new_visit.x])
             continue;
 
         //Check if the connection location is on the edge.
-        coordinate_t connection_loc = shift(coordinate, directions[i], 1);
+        coordinate_t connection_loc = shift(coordinate, direc, 1);
         if(connection_loc.x == 0 || connection_loc.y == 0 || connection_loc.x + 1 == MAZE_LENGTH || connection_loc.y + 1 == MAZE_HEIGHT)
             continue;
 
@@ -145,6 +149,9 @@ void check_location(coordinate_t coordinate, linked_list *end_points)
         alloc_coord->y = coordinate.y;
         add_item(end_points, alloc_coord);
     }
+
+    ll_clear_free(queue, false);
+    sys_free_mem(queue);
 }
 
 /**
@@ -157,10 +164,10 @@ void fill_randomly()
 
     coordinate_t *origin = sys_alloc_mem(sizeof (coordinate_t));
     origin->x = origin->y = 1;
-    memset(visited_map, 0, sizeof(bool) * MAZE_HEIGHT * MAZE_LENGTH);
 
     while(list->_size < 3)
     {
+        memset(visited_map, 0, sizeof(visited_map));
         ll_clear_free(list, true);
 
         check_location(*origin, list);
@@ -215,6 +222,21 @@ void fill_randomly()
 }
 
 /**
+ * @brief Prints the current game board.
+ */
+void print_board()
+{
+    for (int y = 0; y < MAZE_HEIGHT; ++y)
+    {
+        //Create a copy of the string and print it.
+        char string[MAZE_LENGTH + 1] = {0};
+        memcpy(string, board.board_pieces[y], MAZE_LENGTH);
+
+        println(string);
+    }
+}
+
+/**
  * @brief The first step of board generations. Fills the board with generic walls.
  */
 void generate_board()
@@ -242,21 +264,6 @@ void generate_board()
     }
 
     fill_randomly();
-}
-
-/**
- * @brief Prints the current game board.
- */
-void print_board()
-{
-    for (int y = 0; y < MAZE_HEIGHT; ++y)
-    {
-        //Create a copy of the string and print it.
-        char string[MAZE_LENGTH + 1] = {0};
-        memcpy(string, board.board_pieces[y], MAZE_LENGTH);
-
-        println(string);
-    }
 }
 
 void start_dragonmaze_game(void)
