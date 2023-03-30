@@ -355,6 +355,8 @@ void fill_randomly(void)
         check_location(*origin, list);
     }
 
+    sys_free_mem(origin);
+
     //Get all the points for hero, dragon, and princess.
     coordinate_t *hero_point = remove_item_unsafe(list, (int) next_random_lim(list->_size));
     coordinate_t *dragon_point = remove_item_unsafe(list, (int) next_random_lim(list->_size));
@@ -608,12 +610,12 @@ direction_t find_dragon_movement(void)
                     //Check if we've found the hero.
                     if(coordinate_eq(&board.hero_location, &shifted))
                     {
+                        int offset = node->initial_offset;
+                        sys_free_mem(node);
                         destroy_list(breadth_first_queue, true);
-                        if((int) node->initial_offset == -1)
+                        if(offset == -1)
                             return direction;
 
-                        direction_t offset = node->initial_offset;
-                        destroy_list(breadth_first_queue, true);
                         return offset;
                     }
                     continue;
