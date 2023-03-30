@@ -4,6 +4,11 @@
 
 #include "math.h"
 
+int abs(int x)
+{
+    return x < 0 ? -x : x;
+}
+
 unsigned int ui_realmod(int x, int mod)
 {
     int val = x % mod;

@@ -23,6 +23,11 @@
 #define HERO_WITH_PRINCESS 'H'
 #define HERO_NO_PRINCESS 'h'
 
+#define FIREBALLS 5
+
+///The length of sight for the dragon. Used in medium and up difficulties.
+#define DRAGON_SIGHT_LENGTH 6
+
 ///The default length of the maze.
 #define MAZE_LENGTH 21
 ///The default height of the maze.
@@ -114,6 +119,31 @@ bool coordinate_eq(coordinate_t *c1, coordinate_t *c2)
 }
 
 /**
+ * @brief Checks if the two coordinate are adjacent to each other.
+ *
+ * @param c1 the first coordinate.
+ * @param c2 the second coordinate.
+ * @return
+ */
+bool is_adjacent(coordinate_t c1, coordinate_t c2)
+{
+    int diffX = abs(c1.x - c2.x);
+    int diffY = abs(c1.y - c2.y);
+
+    return (diffX <= 1 && diffY == 0) || (diffX == 0 && diffY <= 1);
+}
+
+/**
+ * @brief Checks if the given char represents a wall.
+ * @param c the char.
+ * @return if it's a wall.
+ */
+bool is_wall(char c)
+{
+    return c == FOUR_WAY_WALL || c == HORIZONTAL_WALL || c == VERTICAL_WALL;
+}
+
+/**
  * Hashes the given coordinate.
  *
  * @param coordinate the coordinate to hash.
@@ -153,8 +183,92 @@ static maze_board_t board;
 ///A list used to 'inform' the player of something happening.
 static linked_list *inform_list;
 
-///The map to use for visited tiles in maze generation.
+///The map to use for visited tiles in maze generation. It's also used for the 'discovered' tiles in harder difficulties.
 static bool visited_map[MAZE_HEIGHT][MAZE_LENGTH] = {0};
+
+/**
+ * @brief Sets the given piece at the given location.
+ *
+ * @param coordinate the coordinate.
+ * @param c the piece.
+ */
+void set_piece(coordinate_t coordinate, char c)
+{
+    board.board_pieces[coordinate.y][coordinate.x] = c;
+}
+
+/**
+ * @brief Checks if the given coordinate is on the board.
+ * @param coordinate the coordinate.
+ * @return true if the coordinate is on the board.
+ */
+bool is_on_board(coordinate_t coordinate)
+{
+    return coordinate.x >= 0 && coordinate.x < MAZE_LENGTH && coordinate.y >= 0 && coordinate.y <= MAZE_HEIGHT;
+}
+
+/**
+ * @brief Gets the piece at the given location.
+ *
+ * @param coordinate the coordinate of the piece.
+ * @return the piece value there.
+ */
+char get_piece(coordinate_t coordinate)
+{
+    return board.board_pieces[coordinate.y][coordinate.x];
+}
+
+/**
+ * @brief This function takes the hero's current position and adds the 'renderable' positions from it.
+ * Used for NORMAL+ difficulties.
+ */
+void add_renderable_positions(void)
+{
+    if(difficulty == EASY)
+        return;
+
+    for(direction_t direc = 0; direc <= D; direc++)
+    {
+        int index = 0;
+        coordinate_t hero_location = board.hero_location;
+        coordinate_t current = {0};
+
+        //Iterate outward in a straight line.
+        while(is_on_board(current = shift(hero_location, direc, index++)))
+        {
+            char at_loc = get_piece(current);
+            if(is_wall(at_loc) || at_loc == FINISH)
+            {
+                visited_map[current.y][current.x] = true;
+
+                //Spread out against the wall if necessary.
+                if(at_loc == VERTICAL_WALL)
+                {
+                    coordinate_t wall_up = shift(current, W, 1);
+                    coordinate_t wall_down = shift(current, S, 1);
+                    visited_map[wall_up.y][wall_up.x] = true;
+                    visited_map[wall_down.y][wall_down.x] = true;
+                }
+                else if(at_loc == HORIZONTAL_WALL)
+                {
+                    coordinate_t wall_left = shift(current, A, 1);
+                    coordinate_t wall_right = shift(current, D, 1);
+                    visited_map[wall_left.y][wall_left.x] = true;
+                    visited_map[wall_right.y][wall_right.x] = true;
+                }
+                break;
+            }
+
+            //Add all the adjacent tiles.
+            for(direction_t sub_dir = 0; sub_dir <= D; sub_dir++)
+            {
+                coordinate_t new_pos = shift(current, sub_dir, 1);
+                visited_map[new_pos.y][new_pos.x] = true;
+            }
+        }
+    }
+}
+
 /**
  * @brief The third, and final, step of board generation. Creates the paths through the maze.
  *
@@ -233,9 +347,9 @@ void fill_randomly(void)
     coordinate_t *dragon_point = remove_item_unsafe(list, (int) next_random_lim(list->_size));
     coordinate_t *princess_point = remove_item_unsafe(list, (int) next_random_lim(list->_size));
 
-    board.board_pieces[hero_point->y][hero_point->x] = HERO_NO_PRINCESS;
-    board.board_pieces[dragon_point->y][dragon_point->x] = DRAGON;
-    board.board_pieces[princess_point->y][princess_point->x] = PRINCESS;
+    set_piece(*hero_point, HERO_NO_PRINCESS);
+    set_piece(*dragon_point, DRAGON);
+    set_piece(*princess_point, PRINCESS);
 
     //Set the points for all the characters.
     board.hero_location = *hero_point;
@@ -287,11 +401,19 @@ void fill_randomly(void)
 void print_board(void)
 {
     clearscr();
+
+    if(difficulty == HARD)
+        memset(visited_map, false, sizeof(visited_map));
+
+    add_renderable_positions();
     for (int y = 0; y < MAZE_HEIGHT; ++y)
     {
         //Create a copy of the string and print it.
         char string[MAZE_LENGTH + 1] = {0};
-        memcpy(string, board.board_pieces[y], MAZE_LENGTH);
+        for (int x = 0; x < MAZE_LENGTH; ++x)
+        {
+            string[x] = (char) (visited_map[y][x] ? board.board_pieces[y][x] : '#');
+        }
 
         println(string);
     }
@@ -376,7 +498,7 @@ void move_hero(void)
     coordinate_t shifted = shift(board.hero_location, direction, 1);
     char moving_to = board.board_pieces[shifted.y][shifted.x];
 
-    if(moving_to == FOUR_WAY_WALL || moving_to == VERTICAL_WALL || moving_to == HORIZONTAL_WALL)
+    if(is_wall(moving_to))
     {
         add_item(inform_list, "D'oh!");
         return;
@@ -391,11 +513,25 @@ void move_hero(void)
             return;
         }
 
-        board.board_pieces[board.hero_location.y][board.hero_location.x] = ' ';
+        set_piece(board.hero_location, EMPTY);
         board.hero_location = shifted;
-        board.board_pieces[board.hero_location.y][board.hero_location.x] = hero_symbol;
+        set_piece(board.hero_location, hero_symbol);
 
-        add_item(inform_list, "You won!");
+        if(holding_princess)
+        {
+            if(!dragon_alive)
+            {
+                add_item(inform_list, "You escaped with the princess and slew the dragon! You're a true hero!");
+            }
+            else
+            {
+                add_item(inform_list, "You escaped with the princess, but the dragon is still alive! You lived to fight another day...");
+            }
+        }
+        else
+        {
+            add_item(inform_list, "You escaped with your life, but the dragon lives and the princess remains in the castle! Can you even call yourself a hero?");
+        }
         running = false;
         return;
     }
@@ -407,17 +543,44 @@ void move_hero(void)
     }
 
     //Update the hero's location.
-    board.board_pieces[board.hero_location.y][board.hero_location.x] = ' ';
+    set_piece(board.hero_location, EMPTY);
     board.hero_location = shifted;
-    board.board_pieces[board.hero_location.y][board.hero_location.x] = hero_symbol;
+    set_piece(board.hero_location, hero_symbol);
 }
 
+/**
+ * Finds a direction heading for the dragon to move in. Methods depend on difficulty.
+ *
+ * @return the dragon's movement heading.
+ */
 direction_t find_dragon_movement(void)
 {
-    if(difficulty == EASY)
-        return (direction_t) next_random_lim(4);
+    //In hard mode, the dragon can path-find to the hero.
+    if(difficulty >= HARD)
+    {
 
-    //TODO Implement smarter dragon movement.
+    }
+
+    //In normal mode, the dragon can see the hero in straight lines.
+    if(difficulty >= NORMAL)
+    {
+        //Check if we can find the hero by sight,
+        for (direction_t direction = 0; direction <= D; ++direction)
+        {
+            for (int i = 1; i < DRAGON_SIGHT_LENGTH; ++i)
+            {
+                coordinate_t shifted = shift(board.dragon_location, direction, i);
+
+                if(coordinate_eq(&shifted, &board.hero_location))
+                    return direction;
+
+                //Otherwise, check if we've hit a wall.
+                if(is_wall(get_piece(shifted)))
+                    break;
+            }
+        }
+    }
+
     return (direction_t) next_random_lim(4);
 }
 
@@ -426,7 +589,34 @@ direction_t find_dragon_movement(void)
  */
 void move_dragon(void)
 {
+    direction_t movement_direc = find_dragon_movement();
+    coordinate_t new_coordinate = shift(board.dragon_location, movement_direc, 1);
 
+    char piece_at = board.board_pieces[new_coordinate.y][new_coordinate.x];
+
+    //Check if the dragon is adjacent to the hero.
+    if(is_adjacent(board.dragon_location, board.hero_location))
+    {
+        //TODO Implement dragon fighting. May need to wait until time checking works.
+        running = false;
+        add_item(inform_list, "You died, game over!");
+        return;
+    }
+
+    if(is_wall(piece_at) || piece_at == FINISH)
+        return;
+
+    set_piece(board.dragon_location, EMPTY);
+    board.dragon_location = new_coordinate;
+    set_piece(board.dragon_location, DRAGON);
+
+    //Check if the dragon is adjacent to the hero.
+    if(is_adjacent(board.dragon_location, board.hero_location))
+    {
+        //TODO Implement dragon fighting.
+        running = false;
+        add_item(inform_list, "You died, game over!");
+    }
 }
 
 void start_dragonmaze_game(void)
@@ -456,8 +646,11 @@ void start_dragonmaze_game(void)
     }
 
     difficulty = (difficulty_t) diff_int;
-
     generate_board();
+
+    //In easy mode, we don't need to worry about hiding tiles.
+    memset(visited_map, difficulty == EASY, sizeof(visited_map));
+
     print_board();
 
     //Begin the game loop.

@@ -13,6 +13,13 @@
  */
 
 /**
+ * @brief Gets the absolute value of the number.
+ * @param x the number.
+ * @return the absolute value.
+ */
+int abs(int x);
+
+/**
  * @brief Calculates the real modulo value of X modulo 'mod'.
  * @param x the value.
  * @param mod the modulo.
