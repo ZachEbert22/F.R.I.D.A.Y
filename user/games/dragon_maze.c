@@ -23,10 +23,11 @@
 #define HERO_WITH_PRINCESS 'H'
 #define HERO_NO_PRINCESS 'h'
 
-#define FIREBALLS 5
-
 ///The length of sight for the dragon. Used in medium and up difficulties.
 #define DRAGON_SIGHT_LENGTH 6
+
+///The 'smell' length of the dragon. Used for path finding.
+#define DRAGON_SMELL_LENGTH 9
 
 ///The default length of the maze.
 #define MAZE_LENGTH 21
@@ -89,6 +90,17 @@ direction_t direction_from_char(char c)
         default:
             return -1;
     }
+}
+
+/**
+ * @brief Gets the opposite of the given direction.
+ *
+ * @param direction the direction.
+ * @return the opposite direction.
+ */
+direction_t get_opposite(direction_t direction)
+{
+    return ui_realmod((int) direction + 2, 4);
 }
 
 /**
@@ -337,6 +349,7 @@ void fill_randomly(void)
     while(list->_size < 3)
     {
         memset(visited_map, 0, sizeof(visited_map));
+        visited_map[origin->y][origin->x] = true;
         ll_clear_free(list, true);
 
         check_location(*origin, list);
@@ -463,7 +476,7 @@ void move_hero(void)
 {
     if(holding_princess)
     {
-        println("Princess: Held\n");
+        println("Princess: Held");
     }
     else
     {
@@ -472,7 +485,7 @@ void move_hero(void)
 
     if(!dragon_alive)
     {
-        println("Dragon: Defeated\n");
+        println("Dragon: Defeated");
     }
     else
     {
@@ -558,7 +571,78 @@ direction_t find_dragon_movement(void)
     //In hard mode, the dragon can path-find to the hero.
     if(difficulty >= HARD)
     {
+        struct breadth_first_node {
+            //The coordinate origin.
+            coordinate_t coordinate;
+            //The direction pointing to the previous tile.
+            direction_t direction;
+            //The initial offset used.
+            direction_t initial_offset;
+            //The amount of steps we've taken in this direction.
+            int steps;
+        };
+        linked_list *breadth_first_queue = nl_unbounded();
 
+        struct breadth_first_node *origin_node = sys_alloc_mem(sizeof (struct breadth_first_node));
+        memset(origin_node, 0, sizeof (*origin_node));
+        origin_node->coordinate = board.dragon_location;
+        origin_node->steps = 0;
+        origin_node->direction = -1; //This will allow us to iterate in every direction.
+        origin_node->initial_offset = -1;
+        add_item(breadth_first_queue, origin_node);
+
+        //Iterate while the queue's size is > 0.
+        while(breadth_first_queue->_size > 0)
+        {
+            struct breadth_first_node *node = remove_item_unsafe(breadth_first_queue, 0);
+            for(direction_t direction = W; direction <= D; direction++)
+            {
+                if(direction == node->direction)
+                    continue;
+
+                //Shift the coordinate.
+                coordinate_t shifted = shift(node->coordinate, direction, 1);
+                char piece = get_piece(shifted);
+                if(piece != EMPTY)
+                {
+                    //Check if we've found the hero.
+                    if(coordinate_eq(&board.hero_location, &shifted))
+                    {
+                        destroy_list(breadth_first_queue, true);
+                        if((int) node->initial_offset == -1)
+                            return direction;
+
+                        direction_t offset = node->initial_offset;
+                        destroy_list(breadth_first_queue, true);
+                        return offset;
+                    }
+                    continue;
+                }
+
+                if(node->steps + 1 > DRAGON_SMELL_LENGTH)
+                {
+                    continue;
+                }
+
+                //Create a new node and add it.
+                struct breadth_first_node *next_node = sys_alloc_mem(sizeof (struct breadth_first_node));
+                memset(next_node, 0, sizeof (*next_node));
+                if((int) node->initial_offset == -1)
+                    next_node->initial_offset = direction;
+                else
+                    next_node->initial_offset = node->initial_offset;
+                next_node->direction = get_opposite(direction);
+                next_node->coordinate = shifted;
+                next_node->steps = node->steps + 1;
+                add_item(breadth_first_queue, next_node);
+            }
+
+            sys_free_mem(node);
+        }
+
+        destroy_list(breadth_first_queue, true);
+
+        add_item(inform_list, "No worky!");
     }
 
     //In normal mode, the dragon can see the hero in straight lines.
