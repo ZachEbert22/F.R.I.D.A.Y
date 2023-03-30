@@ -5,6 +5,8 @@
 #ifndef F_R_I_D_A_Y_MATH_H
 #define F_R_I_D_A_Y_MATH_H
 
+#include "stdbool.h"
+
 /**
  * @file math.h
  * @brief A header full of useful math type functions
@@ -37,4 +39,16 @@ void s_rand(unsigned long long seed);
  * @return the next random number.
  */
 unsigned int next_random(void);
+/**
+ * @brief Generates the next random with the given limit.
+ *
+ * @param limit the limit.
+ * @return the next random number.
+ */
+unsigned int next_random_lim(int limit);
+/**
+ * @brief Generates the next random boolean.
+ * @return the next bool.
+ */
+bool next_rand_bool(void);
 #endif //F_R_I_D_A_Y_MATH_H

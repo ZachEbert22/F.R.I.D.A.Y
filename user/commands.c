@@ -3,6 +3,7 @@
 #include "commands.h"
 #include "string.h"
 #include "stdio.h"
+#include "dragon_maze.h"
 #include "sys_req.h"
 #include "bomb_catcher.h"
 #include "mpx/comhand.h"
@@ -35,6 +36,8 @@
 #define CMD_SHOW_ALLOCATE "show-allocate"
 #define CMD_SHOW_FREE "show-free"
 
+#define CMD_DRAGONMAZE "dragonmaze"
+
 
 ///An array of all command labels, terminated with null.
 static const char *CMD_LABELS[] = {
@@ -54,6 +57,7 @@ static const char *CMD_LABELS[] = {
         CMD_FREE_MEMORY,
         CMD_SHOW_ALLOCATE,
         CMD_SHOW_FREE,
+        CMD_DRAGONMAZE,
         NULL,
 };
 
@@ -818,5 +822,15 @@ bool cmd_free_memory(const char* comm){
         println("Successfully freed memory");
     }
 
+    return true;
+}
+
+bool cmd_dragonmaze(const char *comm)
+{
+    const char *label = CMD_DRAGONMAZE;
+    if(!first_label_matches(comm, label))
+        return false;
+
+    start_dragonmaze_game();
     return true;
 }

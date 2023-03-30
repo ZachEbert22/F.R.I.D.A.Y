@@ -67,3 +67,13 @@ unsigned int next_random(void)
     rand_seed = next_seed;
     return thing;
 }
+
+unsigned int next_random_lim(int limit)
+{
+    return ui_realmod((int) next_random(), limit);
+}
+
+bool next_rand_bool(void)
+{
+    return next_random_lim(2) == 0;
+}

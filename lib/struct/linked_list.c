@@ -118,7 +118,7 @@ add_item_index(linked_list *list, int index, void *item)
         return 0;
 
     //Create the node and assign the values.
-    ll_node *created = (ll_node *) item;//sys_alloc_mem(sizeof(ll_node));
+    ll_node *created = sys_alloc_mem(sizeof(ll_node));
 
     //We were not able to allocate the memory required.
     if(created == NULL)
@@ -233,10 +233,6 @@ remove_item(linked_list *list, int index)
     (void) index;
 
     remove_item_unsafe(list, index);
-
-    //Free the memory.
-//    if(to_free != NULL)
-//        sys_free_mem(to_free);
 }
 
 int
@@ -273,7 +269,7 @@ remove_item_ptr(linked_list *list, void *item_ptr)
     list->_size--;
 
     //Free the pointer to the node.
-//    sys_free_mem(first);
+    sys_free_mem(first);
     first = NULL;
 
     //Success!
@@ -312,7 +308,8 @@ void
     //Ensure the first pointer is correct.
     if(walk_index == 0)
         list->_first = first->_next;
-    else if(walk_index + 1 == list->_size)
+
+    if(walk_index + 1 == list->_size)
         list->_last = last_iterated;
 
     list->_size--;
@@ -320,7 +317,7 @@ void
     void *item = first->_item;
 
     //Free the pointer to the node.
-//    sys_free_mem(first);
+    sys_free_mem(first);
     first = NULL;
 
     //Success!
@@ -361,15 +358,38 @@ destroy_list(linked_list *to_destroy_ptr, int destroy_values)
         nodes[index] = first_ptr;
         if (destroy_values)
         {
-//            sys_free_mem(first_ptr->_item);
+            sys_free_mem(first_ptr->_item);
         }
 
         //Step the pointer forward, then free the old one.
-//        ll_node *temporary = first_ptr;
+        ll_node *temporary = first_ptr;
         first_ptr = first_ptr->_next;
-//        sys_free_mem(temporary);
+        sys_free_mem(temporary);
         index++;
     }
 
     sys_free_mem(to_destroy_ptr);
+}
+
+void ll_clear(linked_list *list)
+{
+    ll_clear_free(list, false);
+}
+
+void ll_clear_free(linked_list *list, bool free_items)
+{
+    //Walk over all nodes, freeing all of them.
+    ll_node *node = list->_first;
+    while(node != NULL)
+    {
+        ll_node *temp = node;
+        node = node->_next;
+        sys_free_mem(temp);
+
+        if(free_items)
+            sys_free_mem(temp->_item);
+    }
+
+    list->_size = 0;
+    list->_first = list->_last = NULL;
 }

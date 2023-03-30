@@ -5,6 +5,8 @@
 #ifndef LINKEDLIST_H
 #define LINKEDLIST_H
 
+#include "stdbool.h"
+
 /**
  * @file linked_list.h
  * @brief This file represents the functionality and structure of a linked list.
@@ -166,5 +168,20 @@ set_sort_func(linked_list *list, int sort_func(void *, void *));
  */
 void
 for_each_il(linked_list *list, void call(void *node));
+
+/**
+ * @brief Clears the linked list.
+ *
+ * @param list the list to clear.
+ */
+void
+ll_clear(linked_list *list);
+
+/**
+ * @brief Clears the linked list, optionally freeing the items as well.
+ * @param list the list.
+ */
+void
+ll_clear_free(linked_list *list, bool free_items);
 
 #endif //LINKEDLIST_H

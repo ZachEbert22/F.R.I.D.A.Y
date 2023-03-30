@@ -21,6 +21,7 @@ lib/stdlib.o\
 lib/string.o\
 lib/stdio.o\
 lib/struct/linked_list.o\
+lib/struct/hash_map.o\
 lib/math.o\
 lib/time_zone.o\
 lib/color.o\
@@ -29,7 +30,8 @@ lib/print_format.o
 USER_OBJECTS =\
 user/system.o\
 user/commands.o\
-user/games/bomb_catcher.o
+user/games/bomb_catcher.o\
+user/games/dragon_maze.o
 
 ########################################################################
 ### Nothing below here needs to be changed
