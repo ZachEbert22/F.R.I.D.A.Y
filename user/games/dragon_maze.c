@@ -643,8 +643,6 @@ direction_t find_dragon_movement(void)
         }
 
         destroy_list(breadth_first_queue, true);
-
-        add_item(inform_list, "No worky!");
     }
 
     //In normal mode, the dragon can see the hero in straight lines.
