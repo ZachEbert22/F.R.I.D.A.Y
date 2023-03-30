@@ -11,6 +11,7 @@
 #include "memory.h"
 #include "mpx/heap.h"
 #include "string.h"
+#include "print_format.h"
 
 #define EMPTY ' '
 #define FOUR_WAY_WALL '+'
@@ -26,6 +27,16 @@
 #define MAZE_LENGTH 21
 ///The default height of the maze.
 #define MAZE_HEIGHT 11
+
+///An enum representing the difficulty of the running game.
+typedef enum {
+    ///In easy mode, there is no added challenge.
+    EASY,
+    ///In normal mode, the maze is initially obscured, but can be mapped out.
+    NORMAL,
+    ///In hard mode, the dragon is smarter and can track you down.
+    HARD,
+} difficulty_t;
 
 ///An enum representing direction.
 typedef enum {
@@ -47,6 +58,33 @@ typedef struct
     ///The z coordinate
     int y;
 } coordinate_t;
+
+/**
+ * Gets a direction enum from the given character.
+ *
+ * @param c the character being read.
+ * @return the direction.
+ */
+direction_t direction_from_char(char c)
+{
+    switch (c)
+    {
+        case 'W':
+        case 'w':
+            return W;
+        case 'A':
+        case 'a':
+            return A;
+        case 'D':
+        case 'd':
+            return D;
+        case 'S':
+        case 's':
+            return S;
+        default:
+            return -1;
+    }
+}
 
 /**
  * Shifts the given coordinate by the given direction.
@@ -91,12 +129,29 @@ typedef struct
 {
     ///The pieces that make up the board.
     char board_pieces[MAZE_HEIGHT][MAZE_LENGTH];
+
+    ///The location of the hero.
+    coordinate_t hero_location;
+    ///The dragon's location.
+    coordinate_t dragon_location;
+    ///The princess' location.
+    coordinate_t princess_location;
 } maze_board_t;
 
+///If the game is currently running.
+static bool running = false;
 ///Denotes if the dragon is still alive.
 static bool dragon_alive = false;
+///If the hero is currently holding the princess.
+static bool holding_princess = false;
+///The current hero symbol to use.
+static char hero_symbol = HERO_NO_PRINCESS;
+///The current difficulty in use.
+static difficulty_t difficulty = EASY;
 ///The active maze board for the current run of the game.
 static maze_board_t board;
+///A list used to 'inform' the player of something happening.
+static linked_list *inform_list;
 
 ///The map to use for visited tiles in maze generation.
 static bool visited_map[MAZE_HEIGHT][MAZE_LENGTH] = {0};
@@ -158,7 +213,7 @@ void check_location(coordinate_t coordinate, linked_list *end_points)
  * @brief The second step of board generation. Controls the depth first generation of the paths
  * and places the hero, dragon, and princess when complete.
  */
-void fill_randomly()
+void fill_randomly(void)
 {
     linked_list *list = nl_unbounded();
 
@@ -181,6 +236,11 @@ void fill_randomly()
     board.board_pieces[hero_point->y][hero_point->x] = HERO_NO_PRINCESS;
     board.board_pieces[dragon_point->y][dragon_point->x] = DRAGON;
     board.board_pieces[princess_point->y][princess_point->x] = PRINCESS;
+
+    //Set the points for all the characters.
+    board.hero_location = *hero_point;
+    board.dragon_location = *dragon_point;
+    board.princess_location = *princess_point;
 
     sys_free_mem(hero_point);
     sys_free_mem(dragon_point);
@@ -224,8 +284,9 @@ void fill_randomly()
 /**
  * @brief Prints the current game board.
  */
-void print_board()
+void print_board(void)
 {
+    clearscr();
     for (int y = 0; y < MAZE_HEIGHT; ++y)
     {
         //Create a copy of the string and print it.
@@ -234,12 +295,19 @@ void print_board()
 
         println(string);
     }
+
+    //Print all items from the inform list.
+    while(inform_list->_size > 0)
+    {
+        char *item = remove_item_unsafe(inform_list, 0);
+        println(item);
+    }
 }
 
 /**
  * @brief The first step of board generations. Fills the board with generic walls.
  */
-void generate_board()
+void generate_board(void)
 {
     //Insert barriers for all locations.
     for (int x = 0; x < MAZE_LENGTH; ++x)
@@ -266,11 +334,145 @@ void generate_board()
     fill_randomly();
 }
 
+/**
+ * @brief This function, called once per tick loop, controls hero movement.
+ */
+void move_hero(void)
+{
+    if(holding_princess)
+    {
+        println("Princess: Held\n");
+    }
+    else
+    {
+        printf("Princess: %d, %d\n", board.princess_location.x, board.princess_location.y);
+    }
+
+    if(!dragon_alive)
+    {
+        println("Dragon: Defeated\n");
+    }
+    else
+    {
+        printf("Dragon: %d, %d\n", board.dragon_location.x, board.dragon_location.y);
+    }
+
+    println("Please enter a direction to move. (W, A, S, D) (Press 'F' to do nothing)");
+
+    char next_char = getc();
+
+    int direc = -1;
+    while((direc = direction_from_char(next_char)) == -1)
+    {
+        if(next_char == 'F' || next_char == 'f')
+            return;
+
+        println("Please enter a valid direction! (W, A, S, D, F)");
+        next_char = getc();
+    }
+
+    //Check the coordinate's character.
+    direction_t direction = (direction_t) direc;
+    coordinate_t shifted = shift(board.hero_location, direction, 1);
+    char moving_to = board.board_pieces[shifted.y][shifted.x];
+
+    if(moving_to == FOUR_WAY_WALL || moving_to == VERTICAL_WALL || moving_to == HORIZONTAL_WALL)
+    {
+        add_item(inform_list, "D'oh!");
+        return;
+    }
+
+    //Check if the player is moving to the finish.
+    if(moving_to == FINISH)
+    {
+        if(!dragon_alive && !holding_princess)
+        {
+            add_item(inform_list, "I've already killed the dragon, I need to save the princess!");
+            return;
+        }
+
+        board.board_pieces[board.hero_location.y][board.hero_location.x] = ' ';
+        board.hero_location = shifted;
+        board.board_pieces[board.hero_location.y][board.hero_location.x] = hero_symbol;
+
+        add_item(inform_list, "You won!");
+        running = false;
+        return;
+    }
+
+    if(moving_to == PRINCESS)
+    {
+        holding_princess = true;
+        hero_symbol = HERO_WITH_PRINCESS;
+    }
+
+    //Update the hero's location.
+    board.board_pieces[board.hero_location.y][board.hero_location.x] = ' ';
+    board.hero_location = shifted;
+    board.board_pieces[board.hero_location.y][board.hero_location.x] = hero_symbol;
+}
+
+direction_t find_dragon_movement(void)
+{
+    if(difficulty == EASY)
+        return (direction_t) next_random_lim(4);
+
+    //TODO Implement smarter dragon movement.
+    return (direction_t) next_random_lim(4);
+}
+
+/**
+ * @brief Controls dragon movement, called once per tick loop.
+ */
+void move_dragon(void)
+{
+
+}
+
 void start_dragonmaze_game(void)
 {
+    //Initialize all the values.
     board = (maze_board_t) {0};
     dragon_alive = true;
-    
+    holding_princess = false;
+    hero_symbol = HERO_NO_PRINCESS;
+    inform_list = nl_unbounded();
+
+    //Ask the user for a difficulty.
+    int diff_int = -1;
+    while(diff_int == -1)
+    {
+        println("Which difficulty would you like to play? Easy, Normal, or Hard?");
+        char input[11] = {0};
+        gets(input, 10);
+
+        //Check if the string is valid for any difficulty.
+        if(strcicmp(input, "easy") == 0)
+            diff_int = EASY;
+        else if(strcicmp(input, "normal") == 0)
+            diff_int = NORMAL;
+        else if(strcicmp(input, "hard") == 0)
+            diff_int = HARD;
+    }
+
+    difficulty = (difficulty_t) diff_int;
+
     generate_board();
     print_board();
+
+    //Begin the game loop.
+    running = true;
+    while(running)
+    {
+        move_hero();
+
+        if(dragon_alive)
+            move_dragon();
+
+        print_board();
+    }
+
+    //Do a final cleanup.
+    ll_clear(inform_list);
+    sys_free_mem(inform_list);
 }
