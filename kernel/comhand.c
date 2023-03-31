@@ -83,6 +83,7 @@ void print_welcome(void)
     println("=> set-time HH:mm:SS");
     println("=> set-date MM/DD/YY");
     println("=> set-timezone");
+    println("=> dragonmaze");
     println("=> load-R3");
     println("=> version");
     println("=> shutdown");
