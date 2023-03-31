@@ -9,7 +9,7 @@
 ///A node representing a tombstone.
 static const hash_map_node_t TOMBSTONE_NODE = {0};
 ///The default size of the hash map.
-static const int DEFAULT_CAPACITY = 29;
+static const int DEFAULT_CAPACITY = 16;
 
 /**
  * @brief Double hashes the given key.
@@ -52,10 +52,11 @@ void resize_map(hash_map_t *map, int new_size)
     hash_map_node_t **new_items = sys_alloc_mem(total_size);
     memset(new_items, 0, total_size);
 
+    int old_size = map->size;
     map->values = new_items;
     map->size = map->contamination = 0;
     map->capacity = new_size;
-    if(map->size > 0)
+    if(old_size > 0)
     {
         //Put all the old values into the map.
         for (int i = 0; i < old_capacity; ++i)
@@ -77,6 +78,7 @@ hash_map_t *new_map(bool (*equality_func)(void *value1, void *value2), int (*has
         return NULL;
     }
 
+    memset(allocated, 0, sizeof (hash_map_t));
     allocated->equality_func = equality_func;
     allocated->hash_func = hash_func;
     resize_map(allocated, DEFAULT_CAPACITY);
@@ -101,6 +103,7 @@ void *put(hash_map_t *map, void *key, void *value)
         {
             //In this case, we need to create a new node.
             hash_map_node_t *new_node = sys_alloc_mem(sizeof (hash_map_node_t));
+            memset(new_node, 0, sizeof (hash_map_node_t));
             new_node->hash_code = hash_code;
             new_node->key = key;
             new_node->value = value;
