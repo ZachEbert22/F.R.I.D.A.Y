@@ -116,7 +116,7 @@ void comhand(void)
         //100 + 1 for the null terminator.
         char buf[101] = {0};
 
-        set_cli_history(true);
+        set_cli_history(false);
         set_command_formatting(true);
         set_tab_completions(true);
         set_cli_prompt(CMD_PROMPT);

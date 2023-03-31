@@ -126,7 +126,7 @@ struct pcb *pcb_alloc(void)
 
     struct pcb *pcb_ptr = sys_alloc_mem(sizeof (struct pcb));
     if(pcb_ptr == NULL) return NULL;
-    memset(pcb_ptr->stack,0,sizeof(pcb_ptr->stack));
+    memset(pcb_ptr, 0, sizeof (struct pcb));
     pcb_ptr->stack_ptr = (void *) ((int) pcb_ptr->stack) + PCB_STACK_SIZE - 4;
     return pcb_ptr;
 }
@@ -759,11 +759,15 @@ bool generate_new_pcb(const char *name,
 
     //Can't duplicate names.
     if(pcb_find(name) != NULL)
+    {
         return false;
+    }
 
     struct pcb *new_pcb = pcb_setup(name, class, priority);
     if(new_pcb == NULL)
+    {
         return false;
+    }
 
     //Save the context into pcb.
     if(input != NULL)

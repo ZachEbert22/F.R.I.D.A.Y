@@ -119,6 +119,7 @@ add_item_index(linked_list *list, int index, void *item)
 
     //Create the node and assign the values.
     ll_node *created = sys_alloc_mem(sizeof(ll_node));
+    memset(created, 0, sizeof (ll_node));
 
     //We were not able to allocate the memory required.
     if(created == NULL)
