@@ -98,7 +98,7 @@ bool cmd_version(const char *comm)
     if (!first_label_matches(comm, label))
         return false;
 
-    println("Module: R5");
+    println("Module: R6");
     println(__DATE__);
     println(__TIME__);
     return true;
