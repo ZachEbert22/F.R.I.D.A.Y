@@ -73,9 +73,16 @@ struct context *sys_call(op_code action, struct context *ctx)
             __asm__ volatile("mov %%ebx,%0" : "=r"(ebx));
             __asm__ volatile("mov %%ecx,%0" : "=r"(ecx));
             __asm__ volatile("mov %%edx,%0" : "=r"(edx));
-
-
-            break;
+            return 0;
+        }
+        case WRITE:
+        {
+            //First, read in all necessary registers.
+            int ebx = 0, ecx = 0, edx = 0;
+            __asm__ volatile("mov %%ebx,%0" : "=r"(ebx));
+            __asm__ volatile("mov %%ecx,%0" : "=r"(ecx));
+            __asm__ volatile("mov %%edx,%0" : "=r"(edx));
+            return 0;
         }
         case IDLE:
         {
