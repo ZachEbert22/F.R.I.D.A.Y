@@ -731,8 +731,6 @@ bool pcb_show_all(const char *comm)
 ///All commands within this file, terminated with NULL.
 static bool (*command[])(const char *) = {
         &pcb_delete_cmd,
-        &pcb_block_cmd,
-        &pcb_unblock_cmd,
         &pcb_suspend_cmd,
         &pcb_resume_cmd,
         &pcb_priority_cmd,
