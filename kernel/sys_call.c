@@ -1,10 +1,48 @@
 #include "mpx/pcb.h"
 #include "sys_req.h"
+#include "linked_list.h"
+#include "mpx/device.h"
 
 /**
  * @file sys_call.c
  * @brief This file contains the sys_call function which is used to do context switching.
  */
+
+///A descriptor for a device.
+typedef struct {
+    ///The device this control block is describing.
+    device dev;
+    ///Whether or not the control block is allocated.
+    bool allocated;
+    ///The operation this device is currently doing.
+    op_code operation;
+    ///Whether or not there is an event to be handled.
+    bool event;
+    ///A list of all pending IOCBs.
+    linked_list *iocb_queue;
+    ///The total length of the ring buffer.
+    size_t buf_len;
+    ///The beginning of the ring buffer.
+    char *r_buffer_start;
+    ///The read pointer for the ring buffer.
+    int read_ptr;
+    ///The write pointer for the ring buffer.
+    int write_ptr;
+} dcb_t;
+
+///A descriptor for pending IO operations.
+typedef struct {
+    ///A pointer to the device this IOCB belongs to.
+    dcb_t *device;
+    ///A pointer to the process this IOCB belongs to.
+    struct pcb *pcb;
+    ///The operation this IOCB is attempting.
+    op_code operation;
+    ///The length of the buffer.
+    size_t buf_len;
+    ///The buffer.
+    char *buffer;
+} iocb_t;
 
 ///The currently running PCB.
 static struct pcb *active_pcb_ptr = NULL;
@@ -28,6 +66,17 @@ struct context *sys_call(op_code action, struct context *ctx)
     //Handle different actions in their own way.
     switch (action)
     {
+        case READ:
+        {
+            //First, read in all necessary registers.
+            int ebx = 0, ecx = 0, edx = 0;
+            __asm__ volatile("mov %%ebx,%0" : "=r"(ebx));
+            __asm__ volatile("mov %%ecx,%0" : "=r"(ecx));
+            __asm__ volatile("mov %%edx,%0" : "=r"(edx));
+
+
+            break;
+        }
         case IDLE:
         {
             struct pcb *next = peek_next_pcb();
