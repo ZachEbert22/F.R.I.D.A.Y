@@ -82,6 +82,8 @@ void kmain(void)
 	klogv(COM1, "Initializing virtual memory...");
 	vm_init();
 
+    serial_open(COM1, 19200);
+
 	// 8) MPX Modules -- *headers vary*
 	// Module specific initialization -- not all modules require this
 	klogv(COM1, "Initializing MPX modules...");

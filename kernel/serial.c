@@ -8,6 +8,7 @@
 #include "memory.h"
 #include "commands.h"
 #include "color.h"
+#include "mpx/interrupts.h"
 
 enum uart_registers
 {
@@ -225,6 +226,170 @@ int find_next_word(enum direction direc, int cursor_index, const char *str, int 
     index = index > str_len ? str_len : index;
 
     return index;
+}
+
+#define RING_BUFFER_LEN 150
+#include "sys_req.h"
+
+///An enumeration of possible DCB statuses
+typedef enum {
+    IDLING,
+    READING,
+    WRITING,
+} dcb_status_t;
+
+///A descriptor for a device.
+typedef struct {
+    ///The device this control block is describing.
+    device dev;
+    ///Whether or not the control block is allocated.
+    bool allocated;
+    ///The operation this device is currently doing.
+    dcb_status_t operation;
+    ///Whether or not there is an event to be handled.
+    bool event;
+    ///The amount of bytes already read.
+    size_t io_bytes_read;
+    ///The amount of bytes requested.
+    size_t io_requested;
+    ///The active IO buffer for this DCB.
+    char *io_buffer;
+    ///The total length of the ring buffer.
+    size_t r_buf_len;
+    ///The beginning of the ring buffer.
+    char *r_buffer_start;
+    ///The read index for the ring buffer.
+    int read_index;
+    ///The write index for the ring buffer.
+    int write_index;
+} dcb_t;
+
+///A descriptor for pending IO operations.
+typedef struct {
+    ///A pointer to the device this IOCB belongs to.
+    dcb_t *device;
+    ///A pointer to the process this IOCB belongs to.
+    struct pcb *pcb;
+    ///The operation this IOCB is attempting.
+    op_code operation;
+    ///The length of the buffer.
+    size_t buf_len;
+    ///The buffer.
+    char *buffer;
+} iocb_t;
+
+///The container for all device control blocks.
+static dcb_t device_controllers[4] = {
+        {.dev = COM1},
+        {.dev = COM2},
+        {.dev = COM3},
+        {.dev = COM4}
+};
+
+extern void serial_isr(void*);
+
+void serial_isr_intern(void)
+{
+    outb(0x20, 0x20);
+}
+
+/**
+ * @brief Finds the appropriate IRQ for the given device.
+ * @param dev the device.
+ * @return the IRQ number.
+ */
+int find_com_irq(device dev)
+{
+    return dev == COM1 || dev == COM3 ? 4 : 3;
+}
+
+/**
+ * @brief Finds the device interrupt vector.
+ * @param dev the device vector.
+ * @return the IV number.
+ */
+int find_com_iv(device dev)
+{
+    return dev == COM1 || dev == COM3 ? 4 : 3;
+}
+
+/**
+ * @brief Opens the given device on the PIC.
+ *
+ * @param dev the device to open.
+ * @param speed the speed of the device.
+ * @return 0 on success, -101 null event flag pointer, -102 invalid baud divisor, -103 already open, -104
+ */
+int serial_open(device dev, int speed)
+{
+    int dcb_index = serial_devno(dev);
+    if(dcb_index == -1)
+        return -1;
+
+    if(device_controllers[dcb_index].allocated)
+    {
+        return -103;
+    }
+
+    dcb_t *dcb = device_controllers + dcb_index;
+    dcb->dev = dev;
+    dcb->allocated = true;
+    dcb->event = false;
+    dcb->operation = IDLING;
+    dcb->r_buf_len = RING_BUFFER_LEN;
+    dcb->r_buffer_start = sys_alloc_mem(RING_BUFFER_LEN);
+    dcb->read_index = dcb->write_index = 0;
+
+    int com_irq = find_com_irq(dev);
+    int com_iv = find_com_iv(dev);
+
+    idt_install(com_iv, serial_isr);
+
+    int brd = 115200 / speed;
+
+    //Install the DCB to the PIC.
+    outb(dev + LCR, 0x80);    //set line control register
+    outb(dev + DLL, brd & (0xFF));    //set bsd least sig bit
+    outb(dev + DLM, brd & (0xFF00));    //brd most significant bit
+    outb(dev + LCR, 0x03);    //lock divisor; 8bits, no parity, one stop
+
+    cli();
+    int mask = inb(0x21);
+    mask &= ~(1 << (com_irq));
+    outb(0x21, mask);
+    sti();
+
+    outb(dev + MCR, 0x08);
+    outb(dev + IER, 0x01);
+    initialized[dcb_index] = 1;
+    return 0;
+}
+
+/**
+ * @brief Closes the given device.
+ * @param dev the device to close.
+ */
+int serial_close(device dev)
+{
+    int dev_ind = serial_devno(dev);
+    if(dev_ind == -1)
+        return -1;
+
+    dcb_t *dcb = device_controllers + dev_ind;
+    if(!dcb->allocated)
+        return -201;
+
+    dcb->allocated = 0;
+    cli();
+    int mask = inb(0x21);
+    mask |= (1 << (find_com_irq(dev)));
+    outb(0x21, mask);
+    sti();
+
+    //Disable modem control and interrupt enable.
+    outb(dev + MCR, 0x00);
+    outb(dev + IER, 0x00);
+    return 0;
 }
 
 /**

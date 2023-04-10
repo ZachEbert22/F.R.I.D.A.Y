@@ -2,47 +2,12 @@
 #include "sys_req.h"
 #include "linked_list.h"
 #include "mpx/device.h"
+#include "mpx/serial.h"
 
 /**
  * @file sys_call.c
  * @brief This file contains the sys_call function which is used to do context switching.
  */
-
-///A descriptor for a device.
-typedef struct {
-    ///The device this control block is describing.
-    device dev;
-    ///Whether or not the control block is allocated.
-    bool allocated;
-    ///The operation this device is currently doing.
-    op_code operation;
-    ///Whether or not there is an event to be handled.
-    bool event;
-    ///A list of all pending IOCBs.
-    linked_list *iocb_queue;
-    ///The total length of the ring buffer.
-    size_t buf_len;
-    ///The beginning of the ring buffer.
-    char *r_buffer_start;
-    ///The read pointer for the ring buffer.
-    int read_ptr;
-    ///The write pointer for the ring buffer.
-    int write_ptr;
-} dcb_t;
-
-///A descriptor for pending IO operations.
-typedef struct {
-    ///A pointer to the device this IOCB belongs to.
-    dcb_t *device;
-    ///A pointer to the process this IOCB belongs to.
-    struct pcb *pcb;
-    ///The operation this IOCB is attempting.
-    op_code operation;
-    ///The length of the buffer.
-    size_t buf_len;
-    ///The buffer.
-    char *buffer;
-} iocb_t;
 
 ///The currently running PCB.
 static struct pcb *active_pcb_ptr = NULL;

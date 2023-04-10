@@ -17,6 +17,13 @@
 int serial_init(device dev);
 
 /**
+ Initializes devices for user input and output
+ @param device A serial port to initialize (COM1, COM2, COM3, or COM4)
+ @return 0 on success, non-zero on failure
+*/
+int serial_open(device dev, int speed);
+
+/**
  Writes a buffer to a serial port
  @param device The serial port to output to
  @param buffer A pointer to an array of characters to output
