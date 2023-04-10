@@ -294,6 +294,26 @@ void serial_isr_intern(void)
 }
 
 /**
+ * @brief Finds the appropriate IRQ for the given device.
+ * @param dev the device.
+ * @return the IRQ number.
+ */
+int find_com_irq(device dev)
+{
+    return dev == COM1 || dev == COM3 ? 4 : 3;
+}
+
+/**
+ * @brief Finds the device interrupt vector.
+ * @param dev the device vector.
+ * @return the IV number.
+ */
+int find_com_iv(device dev)
+{
+    return dev == COM1 || dev == COM3 ? 4 : 3;
+}
+
+/**
  * @brief Opens the given device on the PIC.
  *
  * @param dev the device to open.
@@ -320,8 +340,8 @@ int serial_open(device dev, int speed)
     dcb->r_buffer_start = sys_alloc_mem(RING_BUFFER_LEN);
     dcb->read_index = dcb->write_index = 0;
 
-    int com_irq = dev == COM1 || dev == COM3 ? 4 : 3;
-    int com_iv = dev == COM1 || dev == COM3 ? 0x24 : 0x23;
+    int com_irq = find_com_irq(dev);
+    int com_iv = find_com_iv(dev);
 
     idt_install(com_iv, serial_isr);
 
@@ -341,8 +361,34 @@ int serial_open(device dev, int speed)
 
     outb(dev + MCR, 0x08);
     outb(dev + IER, 0x01);
-    (void) inb(dev);        //read bit to reset port
     initialized[dcb_index] = 1;
+    return 0;
+}
+
+/**
+ * @brief Closes the given device.
+ * @param dev the device to close.
+ */
+int serial_close(device dev)
+{
+    int dev_ind = serial_devno(dev);
+    if(dev_ind == -1)
+        return -1;
+
+    dcb_t *dcb = device_controllers + dev_ind;
+    if(!dcb->allocated)
+        return -201;
+
+    dcb->allocated = 0;
+    cli();
+    int mask = inb(0x21);
+    mask |= (1 << (find_com_irq(dev)));
+    outb(0x21, mask);
+    sti();
+
+    //Disable modem control and interrupt enable.
+    outb(dev + MCR, 0x00);
+    outb(dev + IER, 0x00);
     return 0;
 }
 
