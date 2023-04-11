@@ -248,8 +248,8 @@ typedef struct {
     dcb_status_t operation;
     ///Whether or not there is an event to be handled.
     bool event;
-    ///The amount of bytes already read.
-    size_t io_bytes_read;
+    ///The amount of bytes in the IO operation.
+    size_t io_bytes;
     ///The amount of bytes requested.
     size_t io_requested;
     ///The active IO buffer for this DCB.
@@ -290,7 +290,30 @@ extern void serial_isr(void*);
 
 void serial_isr_intern(void)
 {
+    cli();
+    device dev = COM1; //FIXME make this actually work with other COM types.
+    int dcb_ind = serial_devno(dev);
+    dcb_t *dcb = device_controllers + dcb_ind;
+
+    //Get and switch on the interrupt ID.
+    int interrupt_id = inb(dev + IIR);
+    switch (interrupt_id)
+    {
+        case 1:
+        {
+
+            break;
+        }
+        case 2:
+        {
+
+            break;
+        }
+        default: {}
+    }
+
     outb(0x20, 0x20);
+    sti();
 }
 
 /**
@@ -367,7 +390,9 @@ int serial_open(device dev, int speed)
 
 /**
  * @brief Closes the given device.
+ *
  * @param dev the device to close.
+ * @return 0 on success, negative values on error.
  */
 int serial_close(device dev)
 {
@@ -390,6 +415,93 @@ int serial_close(device dev)
     outb(dev + MCR, 0x00);
     outb(dev + IER, 0x00);
     return 0;
+}
+
+/**
+ * @brief Reads input on the given device.
+ *
+ * @param dev the device to read on.
+ * @param buf the buffer to read with.
+ * @param len the length of the buffer.
+ * @return 0 on success, negative values on error.
+ */
+int serial_read(device dev, char *buf, size_t len)
+{
+    int dcb_ind = serial_devno(dev);
+    if(dcb_ind == -1)
+        return -1;
+
+    //Get all the controllers and check all errors.
+    dcb_t *dcb = device_controllers + dcb_ind;
+    if(!dcb->allocated)
+        return -301;
+
+    if(buf == NULL)
+        return -302;
+
+    if(len <= 0)
+        return -303;
+
+    if(dcb->operation != IDLE)
+        return -304;
+
+    //Initialize values for reading.
+    dcb->event = false;
+    dcb->io_buffer = buf;
+    dcb->io_bytes = 0;
+    dcb->io_requested = len;
+    dcb->operation = READING;
+
+    //Read all available things from read buffer.
+    while(dcb->read_index != dcb->write_index &&
+          dcb->io_bytes < dcb->io_requested &&
+          dcb->io_buffer[dcb->io_bytes] != '\n')
+    {
+        char read = dcb->r_buffer_start[dcb->read_index];
+        dcb->read_index = (dcb->read_index + 1) % RING_BUFFER_LEN;
+
+        dcb->io_buffer[dcb->io_bytes++] = read;
+    }
+
+    //Check if we're done.
+    if(dcb->io_bytes == dcb->io_requested || dcb->io_buffer[dcb->io_bytes] == '\n')
+    {
+        dcb->operation = IDLING;
+        dcb->event = true;
+        return dcb->io_bytes;
+    }
+
+    return 0; //Signifies we need more characters.
+}
+
+int serial_write(device dev, char *buf, size_t len)
+{
+    int dcb_ind = serial_devno(dev);
+    if(dcb_ind == -1)
+        return -1;
+
+    //Get all the controllers and check all errors.
+    dcb_t *dcb = device_controllers + dcb_ind;
+    if(!dcb->allocated)
+        return -401;
+
+    if(buf == NULL)
+        return -402;
+
+    if(len <= 0)
+        return -403;
+
+    if(dcb->operation != IDLE)
+        return -404;
+
+    dcb->io_buffer = buf;
+    dcb->io_bytes = len;
+    dcb->event = false;
+    outb(dev, buf[0]);
+
+    //Enable the interrupts.
+    int previous = inb(dev + IER);
+    outb(dev + IER, previous | 0x02);
 }
 
 /**
