@@ -38,7 +38,12 @@ struct context *sys_call(op_code action, struct context *ctx)
             __asm__ volatile("mov %%ebx,%0" : "=r"(ebx));
             __asm__ volatile("mov %%ecx,%0" : "=r"(ecx));
             __asm__ volatile("mov %%edx,%0" : "=r"(edx));
-            return 0;
+
+            device dev = (device) ebx;
+            char *buffer = (char *) ecx;
+            size_t bytes = (size_t) edx;
+            serial_read(dev, buffer, bytes);
+            return ctx;
         }
         case WRITE:
         {
@@ -47,7 +52,11 @@ struct context *sys_call(op_code action, struct context *ctx)
             __asm__ volatile("mov %%ebx,%0" : "=r"(ebx));
             __asm__ volatile("mov %%ecx,%0" : "=r"(ecx));
             __asm__ volatile("mov %%edx,%0" : "=r"(edx));
-            return 0;
+            device dev = (device) ebx;
+            char *buffer = (char *) ecx;
+            size_t bytes = (size_t) edx;
+            serial_write(dev, buffer, bytes);
+            return ctx;
         }
         case IDLE:
         {

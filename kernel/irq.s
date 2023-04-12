@@ -23,10 +23,6 @@ rtc_isr:
 ;;; System call interrupt handler. To be implemented in Module R3.
 extern sys_call			; The C function that sys_call_isr will call
 sys_call_isr:
-    cmp eax, 2          ; Check for the read and write ops, if they're present just return -1.
-    je pre_exit
-    cmp eax, 3
-    je pre_exit
     cli
     pusha               ; Push all the general things into the stack
     push ss
@@ -46,9 +42,6 @@ sys_call_isr:
 	popa
 	mov eax, 0
 	sti
-	iret
-	pre_exit:
-	mov eax, -1
 	iret
 
 ;;; Serial port ISR. To be implemented in Module R6
