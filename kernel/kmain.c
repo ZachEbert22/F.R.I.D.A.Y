@@ -11,6 +11,7 @@
 */
 
 #include <mpx/gdt.h>
+#include "stdio.h"
 #include <mpx/interrupts.h>
 #include <mpx/serial.h>
 #include <mpx/vm.h>
@@ -99,6 +100,7 @@ void kmain(void)
     // generate_new_pcb("p4", 4, USER, proc5);
     generate_new_pcb("idle", 9, SYSTEM, sys_idle_process, NULL, 0, 0);
 
+    println("Test line!");
 	// 9) YOUR command handler -- *create and #include an appropriate .h file*
 	// Pass execution to your command handler so the user can interact with the system.
 	klogv(COM1, "Transferring control to commhand...");

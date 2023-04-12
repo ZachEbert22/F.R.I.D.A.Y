@@ -341,7 +341,11 @@ void serial_isr_intern(void)
     dcb_t *dcb = device_controllers + dcb_ind;
 
     //Get and switch on the interrupt ID.
-    int interrupt_id = inb(dev + IIR);
+    int interrupt_id = inb(dev + IIR) & 0b111;
+    if((interrupt_id & 1) != 0) //Not caused by us in this case.
+        return;
+    interrupt_id >>= 1;
+
     switch (interrupt_id)
     {
         case 0b00: //Binary 00 = 0
@@ -388,7 +392,7 @@ int find_com_irq(device dev)
  */
 int find_com_iv(device dev)
 {
-    return dev == COM1 || dev == COM3 ? 4 : 3;
+    return dev == COM1 || dev == COM3 ? 0x24 : 0x23;
 }
 
 /**
@@ -544,8 +548,10 @@ int serial_write(device dev, char *buf, size_t len)
         return -404;
 
     dcb->io_buffer = buf;
-    dcb->io_bytes = len;
+    dcb->io_bytes = 1;
+    dcb->io_requested = len;
     dcb->event = false;
+    dcb->operation = WRITING;
     outb(dev, buf[0]);
 
     //Enable the interrupts.
