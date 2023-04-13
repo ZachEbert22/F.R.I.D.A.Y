@@ -264,6 +264,8 @@ typedef struct {
     int read_index;
     ///The write index for the ring buffer.
     int write_index;
+    ///This list contains all pending operations.
+    linked_list *pending_iocb;
 } dcb_t;
 
 ///A descriptor for pending IO operations.
@@ -303,7 +305,11 @@ int input_isr(dcb_t *dcb)
     }
 
     if(read == '\n') //End of line.
+    {
+        dcb->operation = IDLING;
+        dcb->event = IDLING;
         return 0;
+    }
 
     dcb->io_buffer[dcb->io_bytes++] = read;
     if(dcb->io_bytes < dcb->io_requested)
@@ -422,6 +428,7 @@ int serial_open(device dev, int speed)
     dcb->r_buffer_size = 0;
     dcb->r_buffer_start = sys_alloc_mem(RING_BUFFER_LEN);
     dcb->read_index = dcb->write_index = 0;
+    dcb->pending_iocb = nl_unbounded();
 
     int com_irq = find_com_irq(dev);
     int com_iv = find_com_iv(dev);
@@ -464,6 +471,7 @@ int serial_close(device dev)
     if(!dcb->allocated)
         return -201;
 
+    destroy_list(dcb->pending_iocb, true);
     dcb->allocated = 0;
     cli();
     int mask = inb(0x21);
