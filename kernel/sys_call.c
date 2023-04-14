@@ -13,7 +13,35 @@
 static struct pcb *active_pcb_ptr = NULL;
 ///The first context saved when sys_call is called.
 static struct context *first_context_ptr = NULL;
-
+/**
+ * @brief Want to check if next PCB is blocked, unblocked, IDLE, NULL, etc
+ * @param ctx the current PCB context.
+ * @return Pointer to the next context struct
+ * @author Zachary Ebert
+ */
+struct context *next_pcb(struct context *ctx){
+    struct pcb *next = peek_next_pcb();
+            //If this is the case, no PCB is ready to be loaded.
+         if (next == NULL || next->exec_state == BLOCKED || next->dispatch_state == SUSPENDED)
+            {
+                return ctx;
+            }
+            //Peaks and polls the pcb
+            poll_next_pcb();
+            struct pcb *present_pcb = active_pcb_ptr;
+            active_pcb_ptr = next;
+            struct context *new_ctx = (struct context *) next->stack_ptr;
+            //Checks to see if the active pointer pcb is null
+            if (present_pcb != NULL)
+            {
+                present_pcb->exec_state = READY;
+                pcb_insert(present_pcb);
+                //Update where the PCB's context pointer is pointing.
+                present_pcb->stack_ptr = ctx;
+            }
+            next->exec_state = RUNNING;
+            return new_ctx;
+}
 /**
  * @brief The main system call function, implementing the IDLE and EXIT system requests.
  * @param action the action to perform.
