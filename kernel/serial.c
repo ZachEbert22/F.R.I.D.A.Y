@@ -12,6 +12,19 @@
 #include "sys_req.h"
 #define RING_BUFFER_LEN 150
 
+#define ERROR_101 "invalid (null) event flag pointer"
+#define ERROR_102 "Invalid baud rate divisor"
+#define ERROR_103 "Port Already Open"
+#define ERROR_201 "Serial port not open"
+#define ERROR_301 "Serial port not open"
+#define ERROR_302 "Invalid buffer address"
+#define ERROR_303 "Invalid count address or count value"
+#define ERROR_304 "Device is busy"
+#define ERROR_401 "Serial port not open"
+#define ERROR_402 "Invalid buffer address"
+#define ERROR_403 "Invalid count address or count value"
+#define ERROR_404 "Device is busy"
+
 enum uart_registers
 {
     RBR = 0,    // Receive Buffer
@@ -508,10 +521,7 @@ int serial_open(device dev, int speed)
     if(dcb_index == -1)
         return -1;
 
-    if(device_controllers[dcb_index].allocated)
-    {
-        return -103;
-    }
+    
 
     dcb_t *dcb = device_controllers + dcb_index;
     dcb->dev = dev;
