@@ -42,7 +42,35 @@ struct context *sys_call(op_code action, struct context *ctx)
             device dev = (device) ebx;
             char *buffer = (char *) ecx;
             size_t bytes = (size_t) edx;
-            serial_read(dev, buffer, bytes);
+            io_req_result result = io_request(action, dev, buffer, bytes);
+
+            if(result == INVALID_PARAMS || result == SERVICED)
+                return ctx;
+
+            //In this case, we need to move this device to a blocked state and CTX switch.
+            if(result == PARTIALLY_SERVICED || result == PARTIALLY_SERVICED)
+            {
+                struct pcb *next = peek_next_pcb();
+                //If this is the case, no PCB is ready to be loaded.
+                if (next == NULL || next->exec_state == BLOCKED || next->dispatch_state == SUSPENDED)
+                {
+                    return first_context_ptr;
+                }
+
+                poll_next_pcb();
+                struct pcb *current = active_pcb_ptr;
+                active_pcb_ptr = next;
+                struct context *new_ctx = (struct context *) next->stack_ptr;
+                if (current != NULL)
+                {
+                    current->exec_state = BLOCKED;
+                    pcb_insert(current);
+                    //Update where the PCB's context pointer is pointing.
+                    current->stack_ptr = ctx;
+                }
+                next->exec_state = RUNNING;
+                return new_ctx;
+            }
             return ctx;
         }
         case WRITE:

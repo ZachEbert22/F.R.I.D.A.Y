@@ -9,6 +9,8 @@
 #include "commands.h"
 #include "color.h"
 #include "mpx/interrupts.h"
+#include "sys_req.h"
+#define RING_BUFFER_LEN 150
 
 enum uart_registers
 {
@@ -228,9 +230,6 @@ int find_next_word(enum direction direc, int cursor_index, const char *str, int 
     return index;
 }
 
-#define RING_BUFFER_LEN 150
-#include "sys_req.h"
-
 ///An enumeration of possible DCB statuses
 typedef enum {
     IDLING,
@@ -290,9 +289,20 @@ static dcb_t device_controllers[4] = {
         {.dev = COM4}
 };
 
+/**
+ * @brief Checks if the given character is a new line character.
+ *
+ * @param c the character
+ * @return true if the character is a new line or carriage return, false if not.
+ */
+bool is_newline(char c)
+{
+    return c == '\n' || c == '\r';
+}
+
 int input_isr(dcb_t *dcb)
 {
-    char read = inb(dcb);
+    char read = inb(dcb->dev);
     if(dcb->operation != READING)
     {
         //Full? Discard the thing then.
@@ -300,14 +310,14 @@ int input_isr(dcb_t *dcb)
             return 0;
 
         dcb->r_buffer_start[dcb->write_index] = read;
-        dcb->write_index = (dcb->write_index + 1) % dcb->r_buffer_size;
+        dcb->write_index = (dcb->write_index + 1) % dcb->r_buffer_len;
         return 0;
     }
 
-    if(read == '\n') //End of line.
+    if(is_newline(read)) //End of line.
     {
         dcb->operation = IDLING;
-        dcb->event = IDLING;
+        dcb->event = true;
         return 0;
     }
 
@@ -337,8 +347,52 @@ int output_isr(dcb_t *dcb)
     return dcb->io_requested;
 }
 
+/**
+ * @brief Performs an IO operation on the given device, returning the result.
+ *
+ * @param operation the operation.
+ * @param dev the device.
+ * @param buffer the buffer.
+ * @param length the amount of characters to transfer.
+ * @return the result of the operation.
+ */
+io_req_result io_request(op_code operation, device dev, char *buffer, size_t length)
+{
+    int dcb_ind = serial_devno(dev);
+    if(dcb_ind == -1)
+        return INVALID_PARAMS;
+
+    if(buffer == NULL || length <= 0)
+        return INVALID_PARAMS;
+
+    if(operation != WRITE && operation != READ)
+        return INVALID_PARAMS;
+
+    dcb_t *dcb = device_controllers + dcb_ind;
+    if(!dcb->allocated)
+        return DEVICE_CLOSED;
+
+    if(dcb->operation != IDLING)
+        return DEVICE_BUSY;
+
+    if(operation == READ)
+    {
+        int read = serial_read(dev, buffer, length);
+        return read < (int) length ? PARTIALLY_SERVICED : SERVICED;
+    }
+    else if(operation == WRITE)
+    {
+        int written = serial_write(dev, buffer, length);
+        return written < (int) length ? PARTIALLY_SERVICED : SERVICED;
+    }
+    return -1; //Should never happen.
+}
+
 extern void serial_isr(void*);
 
+/**
+ * @brief The first level interrupt service routine for serial interrupts.
+ */
 void serial_isr_intern(void)
 {
     cli();
@@ -356,7 +410,7 @@ void serial_isr_intern(void)
     {
         case 0b00: //Binary 00 = 0
         {
-            inb(dev + MCR);
+            inb(dev + MSR);
             break;
         }
         case 0b01: //Binary 01 = 1
@@ -371,7 +425,7 @@ void serial_isr_intern(void)
         }
         case 0b11: //Binary 11 = 3
         {
-            inb(dev + LCR); //Read and throw away.
+            inb(dev + LSR); //Read and throw away.
             break;
         }
         default: {} //No other interrupts should happen.
@@ -515,7 +569,7 @@ int serial_read(device dev, char *buf, size_t len)
     //Read all available things from ring buffer.
     while(dcb->r_buffer_len > 0 &&
           dcb->io_bytes < dcb->io_requested &&
-          dcb->io_buffer[dcb->io_bytes] != '\n')
+          !is_newline(dcb->io_buffer[dcb->io_bytes]))
     {
         char read = dcb->r_buffer_start[dcb->read_index];
         dcb->read_index = (dcb->read_index + 1) % RING_BUFFER_LEN;
@@ -525,7 +579,7 @@ int serial_read(device dev, char *buf, size_t len)
     }
 
     //Check if we're done.
-    if(dcb->io_bytes == dcb->io_requested || dcb->io_buffer[dcb->io_bytes] == '\n')
+    if(dcb->io_bytes == dcb->io_requested || is_newline(dcb->io_buffer[dcb->io_bytes]))
     {
         dcb->operation = IDLING;
         dcb->event = true;
