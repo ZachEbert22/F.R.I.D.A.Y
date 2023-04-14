@@ -489,7 +489,7 @@ int serial_open(device dev, int speed)
 
     idt_install(com_iv, serial_isr);
 
-    int brd = 115200 / speed;
+    int brd = 115200 / speed; //Standard is 19200
 
     //Install the DCB to the PIC.
     outb(dev + LCR, 0x80);    //set line control register
