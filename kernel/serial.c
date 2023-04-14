@@ -565,7 +565,7 @@ int serial_read(device dev, char *buf, size_t len)
     dcb->io_bytes = 0;
     dcb->io_requested = len;
     dcb->operation = READING;
-
+    cli();
     //Read all available things from ring buffer.
     while(dcb->r_buffer_len > 0 &&
           dcb->io_bytes < dcb->io_requested &&
@@ -577,7 +577,7 @@ int serial_read(device dev, char *buf, size_t len)
         dcb->io_buffer[dcb->io_bytes++] = read;
         dcb->r_buffer_len--;
     }
-
+    sti();
     //Check if we're done.
     if(dcb->io_bytes == dcb->io_requested || is_newline(dcb->io_buffer[dcb->io_bytes]))
     {
