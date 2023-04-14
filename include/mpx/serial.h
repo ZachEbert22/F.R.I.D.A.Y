@@ -3,6 +3,7 @@
 
 #include "sys_req.h"
 #include <stddef.h>
+#include "mpx/pcb.h"
 #include <mpx/device.h>
 
 /**
@@ -25,15 +26,22 @@ typedef enum {
 } io_req_result;
 
 /**
+ * @brief Checks for any completed PCBs that were doing IO operations.
+ * @return a PCB to load, or NULL.
+ */
+struct pcb *check_completed(void);
+
+/**
  * @brief Performs an IO operation on the given device, returning the result.
  *
+ * @param pcb the PCB requesting this operation.
  * @param operation the operation.
  * @param dev the device.
  * @param buffer the buffer.
  * @param length the amount of characters to transfer.
  * @return the result of the operation.
  */
-io_req_result io_request(op_code operation, device dev, char *buffer, size_t length);
+io_req_result io_request(struct pcb *pcb, op_code operation, device dev, char *buffer, size_t length);
 
 /**
  Initializes devices for user input and output

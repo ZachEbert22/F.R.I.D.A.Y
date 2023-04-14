@@ -247,6 +247,8 @@ typedef struct {
     dcb_status_t operation;
     ///Whether or not there is an event to be handled.
     bool event;
+    ///The PCB currently using this DCB.
+    struct pcb *pcb;
     ///The amount of bytes in the IO operation.
     size_t io_bytes;
     ///The amount of bytes requested.
@@ -274,7 +276,7 @@ typedef struct {
     ///A pointer to the process this IOCB belongs to.
     struct pcb *pcb;
     ///The operation this IOCB is attempting.
-    op_code operation;
+    dcb_status_t operation;
     ///The length of the buffer.
     size_t buf_len;
     ///The buffer.
@@ -311,17 +313,22 @@ int input_isr(dcb_t *dcb)
 
         dcb->r_buffer_start[dcb->write_index] = read;
         dcb->write_index = (dcb->write_index + 1) % dcb->r_buffer_len;
+        dcb->r_buffer_size++;
         return 0;
     }
 
     if(is_newline(read)) //End of line.
     {
+        outb(dcb->dev, '\n');
         dcb->operation = IDLING;
         dcb->event = true;
         return 0;
     }
 
     dcb->io_buffer[dcb->io_bytes++] = read;
+
+    //Echo the character.
+    outb(dcb->dev, read);
     if(dcb->io_bytes < dcb->io_requested)
         return 0;
 
@@ -347,16 +354,37 @@ int output_isr(dcb_t *dcb)
     return dcb->io_requested;
 }
 
-/**
- * @brief Performs an IO operation on the given device, returning the result.
- *
- * @param operation the operation.
- * @param dev the device.
- * @param buffer the buffer.
- * @param length the amount of characters to transfer.
- * @return the result of the operation.
- */
-io_req_result io_request(op_code operation, device dev, char *buffer, size_t length)
+struct pcb *check_completed(void)
+{
+    //Look for DCBs that were using this PCB.
+    for (int i = 0; i < 4; ++i)
+    {
+        dcb_t *dcb = device_controllers + i;
+        struct pcb *active_pcb = dcb->pcb;
+        if(!dcb->event || active_pcb == NULL) //This signifies being done, or no activity at all.
+            continue;
+
+        //Check for a pending io operation.
+        if(list_size(dcb->pending_iocb) == 0)
+        {
+            dcb->event = false;
+            dcb->pcb = NULL;
+            return active_pcb;
+        }
+
+        iocb_t *iocb = (iocb_t *) remove_item_unsafe(dcb->pending_iocb, 0);
+
+        dcb->operation = iocb->operation;
+        dcb->io_buffer = iocb->buffer;
+        dcb->io_requested = iocb->buf_len;
+        dcb->io_bytes = 0;
+        dcb->pcb = iocb->pcb;
+        return active_pcb; // This is the PCB that needs to now run as its operation was completed.
+    }
+    return NULL;
+}
+
+io_req_result io_request(struct pcb *pcb, op_code operation, device dev, char *buffer, size_t length)
 {
     int dcb_ind = serial_devno(dev);
     if(dcb_ind == -1)
@@ -372,9 +400,21 @@ io_req_result io_request(op_code operation, device dev, char *buffer, size_t len
     if(!dcb->allocated)
         return DEVICE_CLOSED;
 
-    if(dcb->operation != IDLING)
-        return DEVICE_BUSY;
+    if(dcb->operation != IDLING && operation != WRITE)
+    {
+        //Create an IOCB and add it to the pending list.
+        iocb_t *iocb = sys_alloc_mem(sizeof (iocb_t));
+        memset(iocb, 0, sizeof (iocb_t));
+        iocb->buf_len = length;
+        iocb->buffer = buffer;
+        iocb->device = dcb;
+        iocb->operation = operation == WRITE ? WRITING : READING;
 
+        add_item(dcb->pending_iocb, iocb);
+        return DEVICE_BUSY;
+    }
+
+    dcb->pcb = pcb;
     if(operation == READ)
     {
         int read = serial_read(dev, buffer, length);
@@ -567,7 +607,7 @@ int serial_read(device dev, char *buf, size_t len)
     dcb->operation = READING;
     cli();
     //Read all available things from ring buffer.
-    while(dcb->r_buffer_len > 0 &&
+    while(dcb->r_buffer_size > 0 &&
           dcb->io_bytes < dcb->io_requested &&
           !is_newline(dcb->io_buffer[dcb->io_bytes]))
     {
@@ -575,7 +615,7 @@ int serial_read(device dev, char *buf, size_t len)
         dcb->read_index = (dcb->read_index + 1) % RING_BUFFER_LEN;
 
         dcb->io_buffer[dcb->io_bytes++] = read;
-        dcb->r_buffer_len--;
+        dcb->r_buffer_size--;
     }
     sti();
     //Check if we're done.

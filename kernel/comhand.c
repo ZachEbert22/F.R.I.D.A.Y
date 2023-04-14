@@ -120,6 +120,7 @@ void comhand(void)
         set_command_formatting(true);
         set_tab_completions(true);
         set_cli_prompt(CMD_PROMPT);
+        print(CMD_PROMPT);
         gets(buf, 100);
         set_cli_history(false);
         set_command_formatting(false);
