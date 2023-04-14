@@ -480,7 +480,7 @@ bool cmd_help(const char *comm)
         return true;
     }
     //All the help function, and the possible functions that are associated to it
-    println("If you need help, enter one of the Statments below!");
+    println("If you need help, enter one of the Statements below!");
     println("=> enter 'help set-time'");
     println("=> enter 'help set-date'");
     println("=> enter 'help get-time-date'");
