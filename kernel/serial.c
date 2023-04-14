@@ -255,13 +255,17 @@ typedef struct {
     ///The active IO buffer for this DCB.
     char *io_buffer;
     ///The total length of the ring buffer.
-    size_t r_buf_len;
+    size_t r_buffer_len;
+    ///The current size of the ring buffer.
+    size_t r_buffer_size;
     ///The beginning of the ring buffer.
     char *r_buffer_start;
     ///The read index for the ring buffer.
     int read_index;
     ///The write index for the ring buffer.
     int write_index;
+    ///This list contains all pending operations.
+    linked_list *pending_iocb;
 } dcb_t;
 
 ///A descriptor for pending IO operations.
@@ -286,6 +290,53 @@ static dcb_t device_controllers[4] = {
         {.dev = COM4}
 };
 
+int input_isr(dcb_t *dcb)
+{
+    char read = inb(dcb);
+    if(dcb->operation != READING)
+    {
+        //Full? Discard the thing then.
+        if(dcb->r_buffer_len == dcb->r_buffer_size)
+            return 0;
+
+        dcb->r_buffer_start[dcb->write_index] = read;
+        dcb->write_index = (dcb->write_index + 1) % dcb->r_buffer_size;
+        return 0;
+    }
+
+    if(read == '\n') //End of line.
+    {
+        dcb->operation = IDLING;
+        dcb->event = IDLING;
+        return 0;
+    }
+
+    dcb->io_buffer[dcb->io_bytes++] = read;
+    if(dcb->io_bytes < dcb->io_requested)
+        return 0;
+
+    dcb->operation = IDLING;
+    dcb->event = true;
+    return dcb->io_bytes;
+}
+
+int output_isr(dcb_t *dcb)
+{
+    if(dcb->operation != WRITING)
+        return 0;
+
+    if(dcb->io_bytes < dcb->io_requested)
+    {
+        char out = dcb->io_buffer[dcb->io_bytes++];
+        outb(dcb->dev, out);
+        return 0;
+    }
+
+    dcb->event = true;
+    dcb->operation = IDLING;
+    return dcb->io_requested;
+}
+
 extern void serial_isr(void*);
 
 void serial_isr_intern(void)
@@ -296,20 +347,34 @@ void serial_isr_intern(void)
     dcb_t *dcb = device_controllers + dcb_ind;
 
     //Get and switch on the interrupt ID.
-    int interrupt_id = inb(dev + IIR);
+    int interrupt_id = inb(dev + IIR) & 0b111;
+    if((interrupt_id & 1) != 0) //Not caused by us in this case.
+        return;
+    interrupt_id >>= 1;
+
     switch (interrupt_id)
     {
-        case 1:
+        case 0b00: //Binary 00 = 0
         {
-
+            inb(dev + MCR);
             break;
         }
-        case 2:
+        case 0b01: //Binary 01 = 1
         {
-
+            output_isr(dcb);
             break;
         }
-        default: {}
+        case 0b10: //Binary 10 = 2
+        {
+            input_isr(dcb);
+            break;
+        }
+        case 0b11: //Binary 11 = 3
+        {
+            inb(dev + LCR); //Read and throw away.
+            break;
+        }
+        default: {} //No other interrupts should happen.
     }
 
     outb(0x20, 0x20);
@@ -333,7 +398,7 @@ int find_com_irq(device dev)
  */
 int find_com_iv(device dev)
 {
-    return dev == COM1 || dev == COM3 ? 4 : 3;
+    return dev == COM1 || dev == COM3 ? 0x24 : 0x23;
 }
 
 /**
@@ -359,9 +424,11 @@ int serial_open(device dev, int speed)
     dcb->allocated = true;
     dcb->event = false;
     dcb->operation = IDLING;
-    dcb->r_buf_len = RING_BUFFER_LEN;
+    dcb->r_buffer_len = RING_BUFFER_LEN;
+    dcb->r_buffer_size = 0;
     dcb->r_buffer_start = sys_alloc_mem(RING_BUFFER_LEN);
     dcb->read_index = dcb->write_index = 0;
+    dcb->pending_iocb = nl_unbounded();
 
     int com_irq = find_com_irq(dev);
     int com_iv = find_com_iv(dev);
@@ -404,6 +471,7 @@ int serial_close(device dev)
     if(!dcb->allocated)
         return -201;
 
+    destroy_list(dcb->pending_iocb, true);
     dcb->allocated = 0;
     cli();
     int mask = inb(0x21);
@@ -417,14 +485,6 @@ int serial_close(device dev)
     return 0;
 }
 
-/**
- * @brief Reads input on the given device.
- *
- * @param dev the device to read on.
- * @param buf the buffer to read with.
- * @param len the length of the buffer.
- * @return 0 on success, negative values on error.
- */
 int serial_read(device dev, char *buf, size_t len)
 {
     int dcb_ind = serial_devno(dev);
@@ -442,7 +502,7 @@ int serial_read(device dev, char *buf, size_t len)
     if(len <= 0)
         return -303;
 
-    if(dcb->operation != IDLE)
+    if(dcb->operation != IDLING)
         return -304;
 
     //Initialize values for reading.
@@ -452,8 +512,8 @@ int serial_read(device dev, char *buf, size_t len)
     dcb->io_requested = len;
     dcb->operation = READING;
 
-    //Read all available things from read buffer.
-    while(dcb->read_index != dcb->write_index &&
+    //Read all available things from ring buffer.
+    while(dcb->r_buffer_len > 0 &&
           dcb->io_bytes < dcb->io_requested &&
           dcb->io_buffer[dcb->io_bytes] != '\n')
     {
@@ -461,6 +521,7 @@ int serial_read(device dev, char *buf, size_t len)
         dcb->read_index = (dcb->read_index + 1) % RING_BUFFER_LEN;
 
         dcb->io_buffer[dcb->io_bytes++] = read;
+        dcb->r_buffer_len--;
     }
 
     //Check if we're done.
@@ -491,17 +552,20 @@ int serial_write(device dev, char *buf, size_t len)
     if(len <= 0)
         return -403;
 
-    if(dcb->operation != IDLE)
+    if(dcb->operation != IDLING)
         return -404;
 
     dcb->io_buffer = buf;
-    dcb->io_bytes = len;
+    dcb->io_bytes = 1;
+    dcb->io_requested = len;
     dcb->event = false;
+    dcb->operation = WRITING;
     outb(dev, buf[0]);
 
     //Enable the interrupts.
     int previous = inb(dev + IER);
     outb(dev + IER, previous | 0x02);
+    return 0;
 }
 
 /**

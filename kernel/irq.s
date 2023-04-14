@@ -1,8 +1,6 @@
 bits 32
 global rtc_isr, sys_call_isr, serial_isr
 
-extern serial_isr_intern
-
 ; RTC interrupt handler
 ; Tells the slave PIC to ignore interrupts from the RTC
 rtc_isr:
@@ -23,10 +21,6 @@ rtc_isr:
 ;;; System call interrupt handler. To be implemented in Module R3.
 extern sys_call			; The C function that sys_call_isr will call
 sys_call_isr:
-    cmp eax, 2          ; Check for the read and write ops, if they're present just return -1.
-    je pre_exit
-    cmp eax, 3
-    je pre_exit
     cli
     pusha               ; Push all the general things into the stack
     push ss
@@ -47,10 +41,8 @@ sys_call_isr:
 	mov eax, 0
 	sti
 	iret
-	pre_exit:
-	mov eax, -1
-	iret
 
+extern serial_isr_intern
 ;;; Serial port ISR. To be implemented in Module R6
 serial_isr:
     call serial_isr_intern
