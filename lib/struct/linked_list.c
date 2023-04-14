@@ -269,6 +269,11 @@ remove_item_ptr(linked_list *list, void *item_ptr)
 
     list->_size--;
 
+    if(list->_size == 0)
+    {
+        list->_first = list->_last = NULL;
+    }
+
     //Free the pointer to the node.
     sys_free_mem(first);
     first = NULL;
