@@ -529,7 +529,7 @@ int serial_open(device dev, int speed)
 
     idt_install(com_iv, serial_isr);
 
-    int brd = 115200 / speed; //Standard is 19200
+    int brd = 115200 / speed; //Standard is 19200 Generally
 
     //Install the DCB to the PIC.
     outb(dev + LCR, 0x80);    //set line control register
@@ -542,10 +542,21 @@ int serial_open(device dev, int speed)
     mask &= ~(1 << (com_irq));
     outb(0x21, mask);
     sti();
-
+    //Note to Later --IMPLEMENT ERROR CODES 101,102,103
     outb(dev + MCR, 0x08);
     outb(dev + IER, 0x01);
     initialized[dcb_index] = 1;
+    if(dcb->allocated){
+        return -103;
+    }
+    if (speed == 0){
+        return -102;
+    }
+    if(dcb->event == false){
+        return -101;
+    }
+        
+
     return 0;
 }
 
@@ -563,7 +574,7 @@ int serial_close(device dev)
 
     dcb_t *dcb = device_controllers + dev_ind;
     if(!dcb->allocated)
-        return -201;
+        return -201; //Throw Error Serial port not open
 
     destroy_list(dcb->pending_iocb, true);
     dcb->allocated = 0;
@@ -587,6 +598,7 @@ int serial_read(device dev, char *buf, size_t len)
 
     //Get all the controllers and check all errors.
     dcb_t *dcb = device_controllers + dcb_ind;
+    // ensure the port is open, if not return error -301
     if(!dcb->allocated)
         return -301;
 
@@ -596,14 +608,16 @@ int serial_read(device dev, char *buf, size_t len)
     if(len <= 0)
         return -303;
 
+    // ensure the status is idle, if not return error -304
     if(dcb->operation != IDLING)
         return -304;
 
-    //Initialize values for reading.
+    //Initialize values for reading, but not the ring buffer
     dcb->event = false;
     dcb->io_buffer = buf;
     dcb->io_bytes = 0;
     dcb->io_requested = len;
+    // setting status to 'reading'
     dcb->operation = READING;
     cli();
     //Read all available things from ring buffer.
@@ -637,6 +651,7 @@ int serial_write(device dev, char *buf, size_t len)
 
     //Get all the controllers and check all errors.
     dcb_t *dcb = device_controllers + dcb_ind;
+    // ensure port is currently open
     if(!dcb->allocated)
         return -401;
 
@@ -646,14 +661,17 @@ int serial_write(device dev, char *buf, size_t len)
     if(len <= 0)
         return -403;
 
+    //ensure port is idle
     if(dcb->operation != IDLING)
         return -404;
 
+    // install buffer pointer and counter, and set current status to writing
     dcb->io_buffer = buf;
     dcb->io_bytes = 1;
     dcb->io_requested = len;
     dcb->event = false;
     dcb->operation = WRITING;
+    // get first character from request buff and store it in output register
     outb(dev, buf[0]);
 
     //Enable the interrupts.
