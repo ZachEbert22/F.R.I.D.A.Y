@@ -489,7 +489,7 @@ int serial_open(device dev, int speed)
 
     idt_install(com_iv, serial_isr);
 
-    int brd = 115200 / speed; //Standard is 19200
+    int brd = 115200 / speed; //Standard is 19200 Generally
 
     //Install the DCB to the PIC.
     outb(dev + LCR, 0x80);    //set line control register
@@ -502,10 +502,21 @@ int serial_open(device dev, int speed)
     mask &= ~(1 << (com_irq));
     outb(0x21, mask);
     sti();
-
+    //Note to Later --IMPLEMENT ERROR CODES 101,102,103
     outb(dev + MCR, 0x08);
     outb(dev + IER, 0x01);
     initialized[dcb_index] = 1;
+    if(dcb->allocated){
+        return -103;
+    }
+    if (speed == 0){
+        return -102;
+    }
+    if(dcb->event == false){
+        return -101;
+    }
+        
+
     return 0;
 }
 
@@ -523,7 +534,7 @@ int serial_close(device dev)
 
     dcb_t *dcb = device_controllers + dev_ind;
     if(!dcb->allocated)
-        return -201;
+        return -201; //Throw Error Serial port not open
 
     destroy_list(dcb->pending_iocb, true);
     dcb->allocated = 0;
