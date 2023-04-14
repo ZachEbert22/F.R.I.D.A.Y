@@ -230,8 +230,6 @@ bool pcb_remove(struct pcb *pcb_ptr)
 ///The label for the create label.
 #define CMD_CREATE_LABEL "create"
 #define CMD_DELETE_LABEL "delete"
-#define CMD_BLOCK_LABEL "block"
-#define CMD_UNBLOCK_LABEL "unblock"
 #define CMD_SUSPEND_LABEL "suspend"
 #define CMD_RESUME_LABEL "resume"
 #define CMD_SETPRIORITY_LABEL "priority"
@@ -344,8 +342,6 @@ bool pcb_create_cmd(const char *comm)
     return true;
 }
 
-
-
  /*
  * The 'delete' sub command.
  * @param comm the string command.
@@ -389,81 +385,6 @@ bool pcb_delete_cmd(const char *comm)
     pcb_remove(pcb_ptr);
     pcb_free(pcb_ptr);
     printf("Removed PCB named '%s'!\n", pcb_ptr->name);
-    return true;
-}
-
-/**
- * The 'unblock' sub command.
- * @param comm the string command.
- * @return true if it matched, false if not.
- * @authors Kolby Eisenhauer, Zachary Ebert
- */
-bool pcb_unblock_cmd(const char* comm)
-{
-     if(!first_label_matches(comm, CMD_UNBLOCK_LABEL))
-        return false;
-    size_t comm_strlen = strlen(comm);
-    char comm_cpy[comm_strlen + 1];
-    memcpy(comm_cpy, comm, comm_strlen + 1);
-    char *name_token = strtok(comm_cpy, " ");
-    name_token = strtok(NULL, " ");
-    struct pcb* pcb_ptr = pcb_find(name_token);
-    if (name_token == NULL){
-        println("There was No Name Given for PCB: Enter pcb unblock name");
-        return true;
-    }
-    if(pcb_ptr == NULL) {
-        printf("PCB with name: %s, not found\n",name_token);
-        return true;
-    }
-    if(pcb_ptr->exec_state != BLOCKED)
-    {
-        printf("PCB %s is not blocked\n",name_token);
-        return true;
-    }
-
-    pcb_ptr->exec_state = READY;
-    pcb_remove(pcb_ptr);
-    pcb_insert(pcb_ptr);
-    printf("The pcb named: %s was unblocked\n", pcb_ptr->name);
-    return true;
-}
-
-/**
- * The 'block' sub command.
- * @param comm the string command.
- * @return true if it matched, false if not.
- * @authors Kolby Eisenhauer, Zachary Ebert
- */
-bool pcb_block_cmd(const char* comm)
-{
-    if(!first_label_matches(comm, CMD_BLOCK_LABEL))
-        return false;
-    size_t comm_strlen = strlen(comm);
-    
-    char comm_cpy[comm_strlen + 1];
-    memcpy(comm_cpy, comm, comm_strlen + 1);
-    char *name_token = strtok(comm_cpy, " ");
-    name_token = strtok(NULL, " ");
-    struct pcb* pcb_ptr = pcb_find(name_token);
-    if (name_token == NULL){
-        println("There was No Name Given for PCB: Enter pcb block name");
-        return true;
-    }
-    if(pcb_ptr == NULL) {
-        printf("PCB with name: %s, not found\n",name_token);
-        return true;
-    }
-    if(pcb_ptr->exec_state == BLOCKED)
-    {
-        printf("PCB %s is blocked already\n", name_token);
-        return true;
-    }
-
-    pcb_ptr->exec_state = BLOCKED;
-    pcb_remove(pcb_ptr);
-    pcb_insert(pcb_ptr);
-    printf("The pcb named: %s was blocked\n", pcb_ptr->name);
     return true;
 }
 
