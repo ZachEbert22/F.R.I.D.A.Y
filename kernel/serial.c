@@ -722,7 +722,7 @@ int serial_read(device dev, char *buf, size_t len)
     //Initialize values for reading, but not the ring buffer
     dcb->event = false;
     dcb->io_buffer = buf;
-    dcb->io_bytes = 0;
+    dcb->io_bytes = dcb->line_pos = 0;
     dcb->io_requested = len;
     // setting status to 'reading'
     dcb->operation = READING;
