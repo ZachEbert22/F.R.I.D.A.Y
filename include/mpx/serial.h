@@ -1,6 +1,7 @@
 #ifndef MPX_SERIAL_H
 #define MPX_SERIAL_H
 
+#include "sys_req.h"
 #include <stddef.h>
 #include <mpx/device.h>
 
@@ -8,6 +9,31 @@
  @file mpx/serial.h
  @brief Kernel functions and constants for handling serial I/O
 */
+
+///An enumeration of all possible results for an IO request.
+typedef enum {
+    ///If one or more of the provided parameters were invalid.
+    INVALID_PARAMS,
+    ///Returned if the requested device isn't open.
+    DEVICE_CLOSED,
+    ///Returned if the device is currently busy.
+    DEVICE_BUSY,
+    ///Returned if the request was only partially serviced.
+    PARTIALLY_SERVICED,
+    ///Returned if the request was fully serviced.
+    SERVICED,
+} io_req_result;
+
+/**
+ * @brief Performs an IO operation on the given device, returning the result.
+ *
+ * @param operation the operation.
+ * @param dev the device.
+ * @param buffer the buffer.
+ * @param length the amount of characters to transfer.
+ * @return the result of the operation.
+ */
+io_req_result io_request(op_code operation, device dev, char *buffer, size_t length);
 
 /**
  Initializes devices for user input and output

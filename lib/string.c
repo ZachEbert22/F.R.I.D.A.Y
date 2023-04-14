@@ -484,14 +484,12 @@ bool ci_starts_with(const char *string, const char *prefix)
 char split_once_after(const char *string, const char *split_after, char *buff, int buff_len)
 {
     int index = 0;
-    int size = 0;
     while (*string && *split_after)
     {
         if (*string == *split_after)
         {
             string++;
             split_after++;
-            size++;
         } else
         {
             return -1;

@@ -175,11 +175,9 @@ void insert_block(mem_block_t *mblock, bool list)
     }
 
     //Otherwise, iteration is necessary.
-    int index = 0;
     while(previous_block->next != NULL && previous_block->next->start_address < mblock->start_address)
     {
         previous_block = previous_block->next;
-        index++;
     }
 
     //We've found the immediate predecessor to our block that we're inserting.
