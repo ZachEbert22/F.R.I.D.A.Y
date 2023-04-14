@@ -10,6 +10,8 @@
 #include "color.h"
 #include "mpx/interrupts.h"
 #include "sys_req.h"
+#include "cli.h"
+#include "commands.h"
 #define RING_BUFFER_LEN 150
 
 enum uart_registers
@@ -79,9 +81,6 @@ int serial_out(device dev, const char *buffer, size_t len)
     return (int) len;
 }
 
-#include "cli.h"
-#include "commands.h"
-
 #define ANSI_CODE_READ_LEN 15
 #define MAX_CLI_HISTORY_LEN (5)
 
@@ -134,6 +133,21 @@ static bool cli_invisible = false;
 static bool tab_completions = false;
 ///The prompt to print when requesting input.
 static const char *prompt = NULL;
+
+/**
+ * @brief Sets the output color using serial_out instead of printf. (Avoids sys_req call)
+ * @param color the color to set.
+ */
+void internal_soc(const color_t *color)
+{
+    static const char format_arr[2] = {27, '['};
+    char color_arr[3] = {0};
+    itoa(color->color_num, color_arr, 3);
+
+    serial_out(COM1, format_arr, 2);
+    serial_out(COM1, color_arr, strlen(color_arr));
+    serial_out(COM1, "m", 1);
+}
 
 void set_cli_prompt(const char *str)
 {
@@ -359,7 +373,29 @@ void echo_line(char *line, dcb_t *dcb, int line_pos_beginning)
     };
 
     serial_out(dcb->dev, clear_action, 4);
+
+    //Get the current color.
+    const color_t *clr = get_output_color();
+    bool cmd_exists = false;
+    if(command_formatting_enabled)
+    {
+        cmd_exists = command_exists(dcb->io_buffer);
+        if(cmd_exists)
+        {
+            internal_soc(get_color("bright-green"));
+        }
+        else
+        {
+            internal_soc(get_color("red"));
+        }
+    }
+
     serial_out(dcb->dev, line, dcb->io_bytes);
+
+    if(command_formatting_enabled)
+    {
+        internal_soc(clr);
+    }
 }
 
 int input_isr(dcb_t *dcb)
@@ -739,21 +775,6 @@ int serial_write(device dev, char *buf, size_t len)
     int previous = inb(dev + IER);
     outb(dev + IER, previous | 0x02);
     return 0;
-}
-
-/**
- * @brief Sets the output color using serial_out instead of printf. (Avoids sys_req call)
- * @param color the color to set.
- */
-void internal_soc(const color_t *color)
-{
-    static const char format_arr[2] = {27, '['};
-    char color_arr[3] = {0};
-    itoa(color->color_num, color_arr, 3);
-
-    serial_out(COM1, format_arr, 2);
-    serial_out(COM1, color_arr, strlen(color_arr));
-    serial_out(COM1, "m", 1);
 }
 
 ///The CLI history from the serial_poll function.
