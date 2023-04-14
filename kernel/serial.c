@@ -266,6 +266,8 @@ typedef struct {
     size_t io_bytes;
     ///The amount of bytes requested.
     size_t io_requested;
+    ///The line position for the cursor, used for read ops.
+    size_t line_pos;
     ///The active IO buffer for this DCB.
     char *io_buffer;
     ///The total length of the ring buffer.
@@ -315,6 +317,64 @@ bool is_newline(char c)
     return c == '\n' || c == '\r';
 }
 
+/**
+ * @brief Handles the new character to be inserted into the buffer.
+ *        This function also handles control characters such as delete/arrow keys.
+ *        Note that this will NOT handle new lines.
+ *
+ * @param read the character read.
+ * @param buffer the buffer.
+ */
+void handle_new_char(char read, dcb_t *dcb)
+{
+    if (read >= SPACE && read <= TILDA)
+    {
+        //Copy the current characters forward.
+        for (size_t i = dcb->io_bytes; i > dcb->line_pos; --i)
+        {
+            dcb->io_buffer[i] = dcb->io_buffer[i - 1];
+        }
+
+        dcb->io_buffer[dcb->line_pos++] = read;
+        dcb->io_bytes++;
+    }
+
+    if(read == BACKSPACE || read == DELETE)
+    {
+        if(dcb->line_pos == 0)
+            return;
+
+        dcb->io_buffer[--dcb->line_pos] = '\0';
+        dcb->io_bytes--;
+
+        memcpy(dcb->io_buffer + dcb->line_pos, dcb->io_buffer + dcb->line_pos + 1, dcb->io_bytes - dcb->line_pos);
+    }
+}
+
+/**
+ * @brief Echos the line to the output.
+ * @param line the line to echo.
+ * @param dcb the DCB the line belongs to.
+ * @param line_pos_beginning the line position at the beginning of the read.
+ */
+void echo_line(char *line, dcb_t *dcb, int line_pos_beginning)
+{
+    if(line_pos_beginning > 0)
+        move_cursor(dcb->dev, LEFT, line_pos_beginning);
+
+    //Move it back one more.
+    char clear_action[5] = {
+            ESCAPE,
+            '[',
+            '0',
+            'K',
+            '\0'
+    };
+
+    serial_out(dcb->dev, clear_action, 4);
+    serial_out(dcb->dev, line, dcb->io_bytes);
+}
+
 int input_isr(dcb_t *dcb)
 {
     char read = inb(dcb->dev);
@@ -338,10 +398,11 @@ int input_isr(dcb_t *dcb)
         return 0;
     }
 
-    dcb->io_buffer[dcb->io_bytes++] = read;
+    size_t original = dcb->line_pos;
+    handle_new_char(read, dcb);
 
     //Echo the character.
-    outb(dcb->dev, read);
+    echo_line(dcb->io_buffer, dcb, original);
     if(dcb->io_bytes < dcb->io_requested)
         return 0;
 
