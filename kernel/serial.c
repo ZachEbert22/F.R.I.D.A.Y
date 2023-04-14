@@ -558,6 +558,7 @@ int serial_read(device dev, char *buf, size_t len)
 
     //Get all the controllers and check all errors.
     dcb_t *dcb = device_controllers + dcb_ind;
+    // ensure the port is open, if not return error -301
     if(!dcb->allocated)
         return -301;
 
@@ -567,14 +568,16 @@ int serial_read(device dev, char *buf, size_t len)
     if(len <= 0)
         return -303;
 
+    // ensure the status is idle, if not return error -304
     if(dcb->operation != IDLING)
         return -304;
 
-    //Initialize values for reading.
+    //Initialize values for reading, but not the ring buffer
     dcb->event = false;
     dcb->io_buffer = buf;
     dcb->io_bytes = 0;
     dcb->io_requested = len;
+    // setting status to 'reading'
     dcb->operation = READING;
     cli();
     //Read all available things from ring buffer.
@@ -608,6 +611,7 @@ int serial_write(device dev, char *buf, size_t len)
 
     //Get all the controllers and check all errors.
     dcb_t *dcb = device_controllers + dcb_ind;
+    // ensure port is currently open
     if(!dcb->allocated)
         return -401;
 
@@ -617,14 +621,17 @@ int serial_write(device dev, char *buf, size_t len)
     if(len <= 0)
         return -403;
 
+    //ensure port is idle
     if(dcb->operation != IDLING)
         return -404;
 
+    // install buffer pointer and counter, and set current status to writing
     dcb->io_buffer = buf;
     dcb->io_bytes = 1;
     dcb->io_requested = len;
     dcb->event = false;
     dcb->operation = WRITING;
+    // get first character from request buff and store it in output register
     outb(dev, buf[0]);
 
     //Enable the interrupts.
