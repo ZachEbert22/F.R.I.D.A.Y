@@ -40,6 +40,70 @@ enum uart_registers
     MSR = 6,    // Modem Status
     SCR = 7,    // Scratch
 };
+typedef struct code{
+    char* err_msg;
+    int err_code;
+} code;
+
+int code_selection(int error_num){
+    code error;
+    void* arr[2] ={&error.err_code, error.err_msg};
+    
+    //char arr[2] = NULL;
+    switch(error_num){
+        case -101:
+            error.err_msg = ERROR_101;
+            error.err_code = -101;
+            break;
+        case -102:
+            error.err_msg = ERROR_102;
+            error.err_code = -102;
+            break;
+        case -103:
+            error.err_msg = ERROR_103;
+            error.err_code = -103;
+            break;
+        case -201:
+            error.err_msg = ERROR_201;
+            error.err_code = -201;
+            break;
+        case -301:
+            error.err_msg = ERROR_301;
+            error.err_code = -301;
+            break;
+        case -302:
+            error.err_msg = ERROR_302;
+            error.err_code = -302;
+            break;
+        case -303:
+            error.err_msg = ERROR_303;
+            error.err_code = -303;
+            break;
+        case -304:
+            error.err_msg = ERROR_304;
+            error.err_code = -304;
+            break;
+        case -401:
+            error.err_msg = ERROR_401;
+            error.err_code = -401;
+            break;
+        case -402:
+            error.err_msg = ERROR_402;
+            error.err_code = -402;
+            break;
+        case -403:
+            error.err_msg = ERROR_403;
+            error.err_code = -403;
+            break;
+        case -404:
+            error.err_msg = ERROR_404;
+            error.err_code = -404;
+            break;
+    }
+         printf("Error code %d, message: %s \n", arr[0], arr[1]);
+   return error_num;
+}
+
 
 static int initialized[4] = {0};
 
@@ -618,13 +682,13 @@ int serial_open(device dev, int speed)
     outb(dev + IER, 0x01);
     initialized[dcb_index] = 1;
     if(dcb->allocated){
-        return -103;
+        return code_selection(-103);
     }
     if (speed == 0){
-        return -102;
+        return code_selection(-102);
     }
     if(dcb->event == false){
-        return -101;
+        return code_selection(-101);
     }
         
 
@@ -671,17 +735,17 @@ int serial_read(device dev, char *buf, size_t len)
     dcb_t *dcb = device_controllers + dcb_ind;
     // ensure the port is open, if not return error -301
     if(!dcb->allocated)
-        return -301;
+        return code_selection(-301);
 
     if(buf == NULL)
-        return -302;
+        return code_selection(-302);
 
     if(len <= 0)
-        return -303;
+        return code_selection(-303);
 
     // ensure the status is idle, if not return error -304
     if(dcb->operation != IDLING)
-        return -304;
+        return code_selection(-304);
 
     //Initialize values for reading, but not the ring buffer
     dcb->event = false;
@@ -724,17 +788,17 @@ int serial_write(device dev, char *buf, size_t len)
     dcb_t *dcb = device_controllers + dcb_ind;
     // ensure port is currently open
     if(!dcb->allocated)
-        return -401;
+        return code_selection(-401);
 
     if(buf == NULL)
-        return -402;
+        return code_selection(-402);
 
     if(len <= 0)
-        return -403;
+        return code_selection(-403);
 
     //ensure port is idle
     if(dcb->operation != IDLING)
-        return -404;
+        return code_selection(-404);
 
     // install buffer pointer and counter, and set current status to writing
     dcb->io_buffer = buf;
