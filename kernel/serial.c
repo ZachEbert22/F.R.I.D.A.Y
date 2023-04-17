@@ -10,6 +10,8 @@
 #include "color.h"
 #include "mpx/interrupts.h"
 #include "sys_req.h"
+#include "cli.h"
+#include "commands.h"
 #define RING_BUFFER_LEN 150
 
 #define ERROR_101 "invalid (null) event flag pointer"
@@ -156,9 +158,6 @@ int serial_out(device dev, const char *buffer, size_t len)
     return (int) len;
 }
 
-#include "cli.h"
-#include "commands.h"
-
 #define ANSI_CODE_READ_LEN 15
 #define MAX_CLI_HISTORY_LEN (5)
 
@@ -211,6 +210,21 @@ static bool cli_invisible = false;
 static bool tab_completions = false;
 ///The prompt to print when requesting input.
 static const char *prompt = NULL;
+
+/**
+ * @brief Sets the output color using serial_out instead of printf. (Avoids sys_req call)
+ * @param color the color to set.
+ */
+void internal_soc(const color_t *color)
+{
+    static const char format_arr[2] = {27, '['};
+    char color_arr[3] = {0};
+    itoa(color->color_num, color_arr, 3);
+
+    serial_out(COM1, format_arr, 2);
+    serial_out(COM1, color_arr, strlen(color_arr));
+    serial_out(COM1, "m", 1);
+}
 
 void set_cli_prompt(const char *str)
 {
@@ -334,6 +348,10 @@ typedef struct {
     size_t line_pos;
     ///The active IO buffer for this DCB.
     char *io_buffer;
+    ///A buffer used specifically for handling ASCII escape characters.
+    char escape_buffer[6];
+    ///The position in the escape buffer.
+    int escape_buf_pos;
     ///The total length of the ring buffer.
     size_t r_buffer_len;
     ///The current size of the ring buffer.
@@ -393,6 +411,40 @@ void handle_new_char(char read, dcb_t *dcb)
 {
     if (read >= SPACE && read <= TILDA)
     {
+        //Check if we're in 'escape' mode.
+        if(dcb->escape_buf_pos > 0)
+        {
+            if((size_t) dcb->escape_buf_pos + 1 >= sizeof(dcb->escape_buffer))
+            {
+                memset(dcb->escape_buffer, 0, sizeof (dcb->escape_buffer));
+                dcb->escape_buf_pos = 0;
+                return;
+            }
+
+            //Just throw away brackets here.
+            if(read == '[')
+                return;
+
+            dcb->escape_buffer[dcb->escape_buf_pos++] = read;
+
+            //Try to find a match for operation.
+            int matched = 0;
+            if(dcb->escape_buffer[1] == 'C' || dcb->escape_buffer[1] == 'D')
+            {
+                dcb->line_pos += dcb->escape_buffer[1] == 'C' ? 1 : -1;
+                dcb->line_pos = dcb->line_pos < 0 ? 0 : dcb->line_pos;
+                dcb->line_pos = (dcb->line_pos > dcb->io_bytes) ? dcb->io_bytes : dcb->line_pos;
+                matched = 1;
+            }
+
+            if(matched)
+            {
+                memset(dcb->escape_buffer, 0, sizeof (dcb->escape_buffer));
+                dcb->escape_buf_pos = 0;
+            }
+            return;
+        }
+
         //Copy the current characters forward.
         for (size_t i = dcb->io_bytes; i > dcb->line_pos; --i)
         {
@@ -412,6 +464,14 @@ void handle_new_char(char read, dcb_t *dcb)
         dcb->io_bytes--;
 
         memcpy(dcb->io_buffer + dcb->line_pos, dcb->io_buffer + dcb->line_pos + 1, dcb->io_bytes - dcb->line_pos);
+        dcb->io_buffer[dcb->io_bytes] = '\0';
+    }
+
+    //If we've reached an escape character, start placing things into the buffer.
+    if(read == ESCAPE)
+    {
+        dcb->escape_buf_pos = 1;
+        dcb->escape_buffer[0] = ESCAPE;
     }
 }
 
@@ -436,7 +496,36 @@ void echo_line(char *line, dcb_t *dcb, int line_pos_beginning)
     };
 
     serial_out(dcb->dev, clear_action, 4);
+
+    //Get the current color.
+    const color_t *clr = get_output_color();
+    bool cmd_exists = false;
+    if(command_formatting_enabled)
+    {
+        cmd_exists = command_exists(dcb->io_buffer);
+        if(cmd_exists)
+        {
+            internal_soc(get_color("bright-green"));
+        }
+        else
+        {
+            internal_soc(get_color("red"));
+        }
+    }
+
     serial_out(dcb->dev, line, dcb->io_bytes);
+
+    if(command_formatting_enabled)
+    {
+        internal_soc(clr);
+    }
+
+    if (dcb->io_bytes > 0)
+        move_cursor(dcb->dev, LEFT, (int) dcb->io_bytes);
+
+    //Get the string amount to move the cursor.
+    if (dcb->line_pos > 0)
+        move_cursor(dcb->dev, RIGHT, dcb->line_pos);
 }
 
 int input_isr(dcb_t *dcb)
@@ -750,7 +839,7 @@ int serial_read(device dev, char *buf, size_t len)
     //Initialize values for reading, but not the ring buffer
     dcb->event = false;
     dcb->io_buffer = buf;
-    dcb->io_bytes = 0;
+    dcb->io_bytes = dcb->line_pos = 0;
     dcb->io_requested = len;
     // setting status to 'reading'
     dcb->operation = READING;
@@ -813,21 +902,6 @@ int serial_write(device dev, char *buf, size_t len)
     int previous = inb(dev + IER);
     outb(dev + IER, previous | 0x02);
     return 0;
-}
-
-/**
- * @brief Sets the output color using serial_out instead of printf. (Avoids sys_req call)
- * @param color the color to set.
- */
-void internal_soc(const color_t *color)
-{
-    static const char format_arr[2] = {27, '['};
-    char color_arr[3] = {0};
-    itoa(color->color_num, color_arr, 3);
-
-    serial_out(COM1, format_arr, 2);
-    serial_out(COM1, color_arr, strlen(color_arr));
-    serial_out(COM1, "m", 1);
 }
 
 ///The CLI history from the serial_poll function.
