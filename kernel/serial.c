@@ -284,6 +284,10 @@ typedef struct {
     size_t line_pos;
     ///The active IO buffer for this DCB.
     char *io_buffer;
+    ///A buffer used specifically for handling ASCII escape characters.
+    char escape_buffer[6];
+    ///The position in the escape buffer.
+    int escape_buf_pos;
     ///The total length of the ring buffer.
     size_t r_buffer_len;
     ///The current size of the ring buffer.
@@ -343,6 +347,40 @@ void handle_new_char(char read, dcb_t *dcb)
 {
     if (read >= SPACE && read <= TILDA)
     {
+        //Check if we're in 'escape' mode.
+        if(dcb->escape_buf_pos > 0)
+        {
+            if((size_t) dcb->escape_buf_pos + 1 >= sizeof(dcb->escape_buffer))
+            {
+                memset(dcb->escape_buffer, 0, sizeof (dcb->escape_buffer));
+                dcb->escape_buf_pos = 0;
+                return;
+            }
+
+            //Just throw away brackets here.
+            if(read == '[')
+                return;
+
+            dcb->escape_buffer[dcb->escape_buf_pos++] = read;
+
+            //Try to find a match for operation.
+            int matched = 0;
+            if(dcb->escape_buffer[1] == 'C' || dcb->escape_buffer[1] == 'D')
+            {
+                dcb->line_pos += dcb->escape_buffer[1] == 'C' ? 1 : -1;
+                dcb->line_pos = dcb->line_pos < 0 ? 0 : dcb->line_pos;
+                dcb->line_pos = (dcb->line_pos > dcb->io_bytes) ? dcb->io_bytes : dcb->line_pos;
+                matched = 1;
+            }
+
+            if(matched)
+            {
+                memset(dcb->escape_buffer, 0, sizeof (dcb->escape_buffer));
+                dcb->escape_buf_pos = 0;
+            }
+            return;
+        }
+
         //Copy the current characters forward.
         for (size_t i = dcb->io_bytes; i > dcb->line_pos; --i)
         {
@@ -362,6 +400,14 @@ void handle_new_char(char read, dcb_t *dcb)
         dcb->io_bytes--;
 
         memcpy(dcb->io_buffer + dcb->line_pos, dcb->io_buffer + dcb->line_pos + 1, dcb->io_bytes - dcb->line_pos);
+        dcb->io_buffer[dcb->io_bytes] = '\0';
+    }
+
+    //If we've reached an escape character, start placing things into the buffer.
+    if(read == ESCAPE)
+    {
+        dcb->escape_buf_pos = 1;
+        dcb->escape_buffer[0] = ESCAPE;
     }
 }
 
@@ -409,6 +455,13 @@ void echo_line(char *line, dcb_t *dcb, int line_pos_beginning)
     {
         internal_soc(clr);
     }
+
+    if (dcb->io_bytes > 0)
+        move_cursor(dcb->dev, LEFT, (int) dcb->io_bytes);
+
+    //Get the string amount to move the cursor.
+    if (dcb->line_pos > 0)
+        move_cursor(dcb->dev, RIGHT, dcb->line_pos);
 }
 
 int input_isr(dcb_t *dcb)
