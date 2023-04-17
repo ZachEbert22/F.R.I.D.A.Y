@@ -49,7 +49,6 @@ typedef struct code{
 
 int code_selection(int error_num){
     code error;
-    void* arr[2] ={&error.err_code, error.err_msg};
     
     //char arr[2] = NULL;
     switch(error_num){
@@ -102,7 +101,7 @@ int code_selection(int error_num){
             error.err_code = -404;
             break;
     }
-         printf("Error code %d, message: %s \n", arr[0], arr[1]);
+        //printf("Error code %d, message: %s \n", error.err_code, error.err_msg);
    return error_num;
 }
 
@@ -326,6 +325,7 @@ typedef enum {
     IDLING,
     READING,
     WRITING,
+    READ_AND_WRITE,
 } dcb_status_t;
 
 ///A descriptor for a device.
@@ -833,7 +833,7 @@ int serial_read(device dev, char *buf, size_t len)
         return code_selection(-303);
 
     // ensure the status is idle, if not return error -304
-    if(dcb->operation != IDLING)
+    if((dcb->operation != IDLING) && (dcb->operation != WRITING))
         return code_selection(-304);
 
     //Initialize values for reading, but not the ring buffer
@@ -842,7 +842,12 @@ int serial_read(device dev, char *buf, size_t len)
     dcb->io_bytes = dcb->line_pos = 0;
     dcb->io_requested = len;
     // setting status to 'reading'
-    dcb->operation = READING;
+    if (dcb->operation == WRITING){
+        dcb->operation = READ_AND_WRITE;
+    }else{
+        dcb->operation = READING;
+    }
+    
     cli();
     //Read all available things from ring buffer.
     while(dcb->r_buffer_size > 0 &&
@@ -859,7 +864,11 @@ int serial_read(device dev, char *buf, size_t len)
     //Check if we're done.
     if(dcb->io_bytes == dcb->io_requested || is_newline(dcb->io_buffer[dcb->io_bytes]))
     {
-        dcb->operation = IDLING;
+        if(dcb->operation == READING){
+            dcb->operation = IDLING;
+        } else {
+            dcb->operation = WRITING;
+        }  
         dcb->event = true;
         return dcb->io_bytes;
     }
@@ -886,15 +895,22 @@ int serial_write(device dev, char *buf, size_t len)
         return code_selection(-403);
 
     //ensure port is idle
-    if(dcb->operation != IDLING)
+    if((dcb->operation != IDLING) && (dcb->operation != READING)){
         return code_selection(-404);
+    }
+        
 
     // install buffer pointer and counter, and set current status to writing
     dcb->io_buffer = buf;
     dcb->io_bytes = 1;
     dcb->io_requested = len;
     dcb->event = false;
-    dcb->operation = WRITING;
+    if (dcb->operation == READING){
+        dcb->operation = READ_AND_WRITE;
+    } else{
+        dcb->operation = WRITING;
+    }
+   
     // get first character from request buff and store it in output register
     outb(dev, buf[0]);
 
