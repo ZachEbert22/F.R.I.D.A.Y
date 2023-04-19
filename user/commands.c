@@ -356,7 +356,7 @@ struct help_info help_messages[] = {
         {.str_label = {CMD_HELP_LABEL},
                 .help_message = "The '%s' command gives information about specific aspects of the system.\n=> If you need more general command help type 'help'\n=> If you still dont understand what help is, type 'help help help'"},
         {.str_label = {CMD_HELP_LABEL, CMD_HELP_LABEL},
-                .help_message = "The Oxford Definition: 'make it easier for (someone) to do something by offering one's services or resources.'\n=> If you need help with actual commmands type 'help'\n=> if you are still confused, type 'help help help help'"},
+                .help_message = "The Oxford Definition: 'make it easier for someone to do something'\n=> If you need help with actual commmands type 'help'\n=> if you are still confused, type 'help help help help'"},
         {.str_label = {CMD_HELP_LABEL, CMD_HELP_LABEL, CMD_HELP_LABEL},
                 .help_message = "You only need to specify 'help' once! There isn't any more help we can give you!\n=>For Regular Help, type 'help'\n if you are still having issues with your life, type 'help help help help help'"},
         {.str_label = {CMD_HELP_LABEL, CMD_HELP_LABEL, CMD_HELP_LABEL, CMD_HELP_LABEL},
