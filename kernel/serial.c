@@ -409,42 +409,37 @@ bool is_newline(char c)
  */
 void handle_new_char(char read, dcb_t *dcb)
 {
-    if (read >= SPACE && read <= TILDA)
+    //Check if we're in 'escape' mode.
+    if(dcb->escape_buf_pos > 0)
     {
-        //Check if we're in 'escape' mode.
-        if(dcb->escape_buf_pos > 0)
+        if((size_t) dcb->escape_buf_pos + 1 >= sizeof(dcb->escape_buffer))
         {
-            if((size_t) dcb->escape_buf_pos + 1 >= sizeof(dcb->escape_buffer))
-            {
-                memset(dcb->escape_buffer, 0, sizeof (dcb->escape_buffer));
-                dcb->escape_buf_pos = 0;
-                return;
-            }
-
-            //Just throw away brackets here.
-            if(read == '[')
-                return;
-
-            dcb->escape_buffer[dcb->escape_buf_pos++] = read;
-
-            //Try to find a match for operation.
-            int matched = 0;
-            if(dcb->escape_buffer[1] == 'C' || dcb->escape_buffer[1] == 'D')
-            {
-                dcb->line_pos += dcb->escape_buffer[1] == 'C' ? 1 : -1;
-                dcb->line_pos = dcb->line_pos < 0 ? 0 : dcb->line_pos;
-                dcb->line_pos = (dcb->line_pos > dcb->io_bytes) ? dcb->io_bytes : dcb->line_pos;
-                matched = 1;
-            }
-
-            if(matched)
-            {
-                memset(dcb->escape_buffer, 0, sizeof (dcb->escape_buffer));
-                dcb->escape_buf_pos = 0;
-            }
+            memset(dcb->escape_buffer, 0, sizeof (dcb->escape_buffer));
+            dcb->escape_buf_pos = 0;
             return;
         }
 
+        //Just throw away brackets here.
+        if(read == '[')
+            return;
+
+        dcb->escape_buffer[dcb->escape_buf_pos++] = read;
+
+        //Try to find a match for operation.
+        if(dcb->escape_buffer[1] == 'C' || dcb->escape_buffer[1] == 'D')
+        {
+            dcb->line_pos += dcb->escape_buffer[1] == 'C' ? 1 : -1;
+            dcb->line_pos = dcb->line_pos < 0 ? 0 : dcb->line_pos;
+            dcb->line_pos = (dcb->line_pos > dcb->io_bytes) ? dcb->io_bytes : dcb->line_pos;
+        }
+
+        memset(dcb->escape_buffer, 0, sizeof (dcb->escape_buffer));
+        dcb->escape_buf_pos = 0;
+        return;
+    }
+
+    if (read >= SPACE && read <= TILDA)
+    {
         //Copy the current characters forward.
         for (size_t i = dcb->io_bytes; i > dcb->line_pos; --i)
         {
@@ -457,7 +452,7 @@ void handle_new_char(char read, dcb_t *dcb)
 
     if(read == BACKSPACE || read == DELETE)
     {
-        if(dcb->line_pos == 0)
+        if(dcb->line_pos == 0 || dcb->io_bytes == 0)
             return;
 
         dcb->io_buffer[--dcb->line_pos] = '\0';
@@ -528,6 +523,12 @@ void echo_line(char *line, dcb_t *dcb, int line_pos_beginning)
         move_cursor(dcb->dev, RIGHT, dcb->line_pos);
 }
 
+/**
+ * @brief The second level input handler, used for inputs.
+ *
+ * @param dcb the device control block in use.
+ * @return 0 if the DCB should no longer be reading. Otherwise, the amount of bytes read so far.
+ */
 int input_isr(dcb_t *dcb)
 {
     char read = inb(dcb->dev);
