@@ -50,7 +50,6 @@ typedef struct code{
 int code_selection(int error_num){
     code error;
     
-    //char arr[2] = NULL;
     switch(error_num){
         case -101:
             error.err_msg = ERROR_101;
@@ -101,7 +100,9 @@ int code_selection(int error_num){
             error.err_code = -404;
             break;
     }
-        //printf("Error code %d, message: %s \n", error.err_code, error.err_msg);
+       char buffer[200] = {0};
+       sprintf("Error code %d: %s\n",buffer, 200, error.err_code, error.err_msg);
+       serial_out(COM1, buffer, strlen(buffer));
    return error_num;
 }
 
@@ -606,7 +607,6 @@ struct pcb *check_completed(void)
         dcb->io_requested = iocb->buf_len;
         dcb->io_bytes = 0;
         dcb->pcb = iocb->pcb;
-        sys_free_mem(iocb);
         return active_pcb; // This is the PCB that needs to now run as its operation was completed.
     }
     return NULL;
