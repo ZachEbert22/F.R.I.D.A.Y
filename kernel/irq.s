@@ -21,7 +21,7 @@ rtc_isr:
 ;;; System call interrupt handler. To be implemented in Module R3.
 extern sys_call			; The C function that sys_call_isr will call
 sys_call_isr:
-    cli
+    cli                 ; Disable interrupts.
     pusha               ; Push all the general things into the stack
     push ss
     push ds
@@ -30,8 +30,8 @@ sys_call_isr:
     push gs
     push esp
     push eax
-	call sys_call
-	mov ESP, EAX
+	call sys_call       ; Call the sys_call C function to
+	mov ESP, EAX        ; Switch contexts to the return value
 	pop gs
 	pop fs
 	pop es
@@ -39,7 +39,7 @@ sys_call_isr:
 	pop ss
 	popa
 	mov eax, 0
-	sti
+	sti                 ; Set the interrupts.
 	iret
 
 extern serial_isr_intern
