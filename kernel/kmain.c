@@ -42,7 +42,6 @@ void kmain(void)
 	// as it describes what is about to happen.
 	serial_init(COM1);
 	serial_init(COM2);
-	serial_open(COM2, 19200);
 	klogv(COM1, "Initialized serial I/O on COM1 device...");
 
 	// 1) Global Descriptor Table -- mpx/gdt.h
@@ -86,6 +85,7 @@ void kmain(void)
 	vm_init();
 
     serial_open(COM1, 19200);
+    serial_open(COM2, 19200);
 	
 	// 8) MPX Modules -- *headers vary*
 	// Module specific initialization -- not all modules require this

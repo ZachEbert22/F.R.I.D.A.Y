@@ -606,6 +606,7 @@ struct pcb *check_completed(void)
         dcb->io_requested = iocb->buf_len;
         dcb->io_bytes = 0;
         dcb->pcb = iocb->pcb;
+        sys_free_mem(iocb);
         return active_pcb; // This is the PCB that needs to now run as its operation was completed.
     }
     return NULL;
