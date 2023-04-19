@@ -453,11 +453,11 @@ bool cmd_help(const char *comm)
         //Try to find help for the specific command.
         for (int i = 0; i < help_m_len; ++i)
         {
-            struct help_info specific_help = help_messages[i];
+            struct help_info *specific_help = help_messages + i;
             int help_index = 0;
 
-            while (help_index <= param_index && specific_help.str_label[help_index] != NULL){
-                if (strcicmp(param2D[help_index], specific_help.str_label[help_index]) != 0){
+            while (help_index <= param_index && specific_help->str_label[help_index] != NULL){
+                if (strcicmp(param2D[help_index], specific_help->str_label[help_index]) != 0){
                     break;
                 }
 
@@ -465,11 +465,11 @@ bool cmd_help(const char *comm)
             }
 
             //Check if the label matches.
-            if (help_index == -1 || help_index < param_index || specific_help.str_label[help_index] != NULL)
+            if (help_index == -1 || help_index < param_index || specific_help->str_label[help_index] != NULL)
             {
                 continue;
             }
-            printf(help_messages[i].help_message, str_help_labels);
+            printf(specific_help->help_message, str_help_labels);
             println("");
             return true;
         }
