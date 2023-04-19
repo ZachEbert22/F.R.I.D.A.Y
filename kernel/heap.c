@@ -239,12 +239,12 @@ void *allocate_memory(size_t size)
 void initialize_heap(size_t size)
 {
     //Malloc the full free block.
-    mem_block_t *block = kmalloc(size, 0, NULL);
+    mem_block_t *block = kmalloc(size + sizeof(mem_block_t), 0, NULL);
     insert_block(block, true);
 
     //Initialize the values of the block.
-    block->size = size - sizeof (struct mem_block);
-    block->start_address = (int) (((int) block) + sizeof (struct mem_block));
+    block->size = size - sizeof (mem_block_t);
+    block->start_address = (int) (((int) block) + sizeof (mem_block_t));
 }
 
 /**
