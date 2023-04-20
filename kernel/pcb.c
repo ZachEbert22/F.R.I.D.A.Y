@@ -691,12 +691,16 @@ bool generate_new_pcb(const char *name,
     //Save the context into pcb.
     if(input != NULL)
     {
+        //Adjust the stack pointer to account for the input.
         new_pcb->stack_ptr = (void *) (new_pcb->stack_ptr - input_len - 1);
+
+        //Copy the input into the stack.
         for (size_t i = 0; i < input_len; ++i)
         {
             ((char *) new_pcb->stack_ptr)[i] = input[i];
         }
 
+        //Adjust pointer addresses to account for new offset.
         for (size_t i = 0; i < param_ptrs; ++i)
         {
             size_t offset = i * sizeof (void *);
@@ -706,8 +710,11 @@ bool generate_new_pcb(const char *name,
         }
     }
 
+    //Adjust the stack pointer to account for initial context.
     new_pcb->stack_ptr = (void *) (new_pcb->stack_ptr - sizeof (struct context) - sizeof(int));
     struct context *pcb_context = (struct context *)new_pcb->stack_ptr;
+
+    //Initialize the context to its appropriate values.
     pcb_context->cs = 0x08;
     pcb_context->ds = 0x10;
     pcb_context->fs = 0x10;

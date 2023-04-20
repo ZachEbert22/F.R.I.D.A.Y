@@ -38,7 +38,7 @@ sys_call_isr:
 	pop ds
 	pop ss
 	popa
-	mov eax, 0
+	mov eax, 0          ; Move 0 into the EAX register to return 0.
 	sti                 ; Set the interrupts.
 	iret
 
