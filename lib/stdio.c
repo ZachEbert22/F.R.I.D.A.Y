@@ -134,9 +134,15 @@ void clearscr(void)
 
 void println(const char *s)
 {
+    size_t str_len = strlen(s);
+    char buffer[str_len + 2];
+    memset(buffer, 0, str_len + 2);
+    buffer[str_len] = '\n';
+    memcpy(buffer, s, str_len);
+    buffer[str_len + 1] = '\0';
+
     if(FUNNY_MODE)
-        print_funny(s);
+        print_funny(buffer);
     else
-        print(s);
-    sys_req(WRITE, COM1, "\n", 1);
+        print(buffer);
 }

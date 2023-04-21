@@ -429,9 +429,13 @@ void handle_new_char(char read, dcb_t *dcb)
         //Try to find a match for operation.
         if(dcb->escape_buffer[1] == 'C' || dcb->escape_buffer[1] == 'D')
         {
-            dcb->line_pos += dcb->escape_buffer[1] == 'C' ? 1 : -1;
-            dcb->line_pos = dcb->line_pos < 0 ? 0 : dcb->line_pos;
-            dcb->line_pos = (dcb->line_pos > dcb->io_bytes) ? dcb->io_bytes : dcb->line_pos;
+            int diff = dcb->escape_buffer[1] == 'C' ? 1 : -1;
+            if(dcb->line_pos > 0 || (diff != -1))
+            {
+                dcb->line_pos += diff;
+                dcb->line_pos = dcb->line_pos < 0 ? 0 : dcb->line_pos;
+                dcb->line_pos = (dcb->line_pos > dcb->io_bytes) ? dcb->io_bytes : dcb->line_pos;
+            }
         }
 
         memset(dcb->escape_buffer, 0, sizeof (dcb->escape_buffer));
@@ -573,13 +577,13 @@ int input_isr(dcb_t *dcb)
     handle_new_char(read, dcb);
 
     //Echo the character.
-    echo_line(dcb->io_buffer, dcb, original);
+    echo_line(dcb->io_buffer, dcb, (int) original);
     if(dcb->io_bytes < dcb->io_requested)
         return 0;
 
     dcb->operation = IDLING;
     dcb->event = true;
-    return dcb->io_bytes;
+    return (int) dcb->io_bytes;
 }
 
 int output_isr(dcb_t *dcb)
@@ -596,7 +600,7 @@ int output_isr(dcb_t *dcb)
 
     dcb->event = true;
     dcb->operation = IDLING;
-    return dcb->io_requested;
+    return (int) dcb->io_requested;
 }
 
 struct pcb *check_completed(void)
@@ -619,11 +623,14 @@ struct pcb *check_completed(void)
 
         iocb_t *iocb = (iocb_t *) remove_item_unsafe(dcb->pending_iocb, 0);
 
-        dcb->operation = iocb->operation;
-        dcb->io_buffer = iocb->buffer;
-        dcb->io_requested = iocb->buf_len;
-        dcb->io_bytes = 0;
+        int bytes_transferred = -1;
+        if(iocb->operation == READING)
+            bytes_transferred = serial_read(dcb->dev, iocb->buffer, iocb->buf_len);
+        else
+            bytes_transferred = serial_write(dcb->dev, iocb->buffer, iocb->buf_len);
+
         dcb->pcb = iocb->pcb;
+        (void) bytes_transferred;
         return active_pcb; // This is the PCB that needs to now run as its operation was completed.
     }
     return NULL;
@@ -645,7 +652,7 @@ io_req_result io_request(struct pcb *pcb, op_code operation, device dev, char *b
     if(!dcb->allocated)
         return DEVICE_CLOSED;
 
-    if(dcb->operation != IDLING && operation != WRITE)
+    if(dcb->operation != IDLING)
     {
         //Create an IOCB and add it to the pending list.
         iocb_t *iocb = sys_alloc_mem(sizeof (iocb_t));
@@ -654,6 +661,7 @@ io_req_result io_request(struct pcb *pcb, op_code operation, device dev, char *b
         iocb->buffer = buffer;
         iocb->device = dcb;
         iocb->operation = operation == WRITE ? WRITING : READING;
+        iocb->pcb = pcb;
 
         add_item(dcb->pending_iocb, iocb);
         return DEVICE_BUSY;
