@@ -144,4 +144,11 @@ bool cmd_alarm(const char *comm);
   * @return true if it was handled, false if not.
   */
  bool cmd_dragonmaze(const char *comm);
+
+ /**
+  * @brief The minesweeper command, used to start the minesweeper game.
+  * @param comm the command string.
+  * @return true if it was handled, false if not.
+  */
+ bool cmd_minesweeper(const char *comm);
 #endif //F_R_I_D_A_Y_COMMANDS_H

@@ -31,6 +31,7 @@ USER_OBJECTS =\
 user/system.o\
 user/commands.o\
 user/games/bomb_catcher.o\
+user/games/mine_sweeper.o\
 user/games/dragon_maze.o
 
 ########################################################################

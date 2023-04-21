@@ -41,7 +41,8 @@ bool (*comm_funcs[])(const char *comm) = {
         &cmd_allocate_memory,
         &cmd_show_allocate,
         &cmd_show_free,
-        &cmd_dragonmaze
+        &cmd_dragonmaze,
+        &cmd_minesweeper
 };
 
 /// Used to denote if the comm hand should stop.

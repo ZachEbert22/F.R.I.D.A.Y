@@ -56,6 +56,11 @@ double pow(double a, double b)
 ///The seed for random number generation.
 static unsigned long long rand_seed = 0L;
 
+unsigned long long get_seed(void)
+{
+    return rand_seed;
+}
+
 void s_rand(unsigned long long seed)
 {
     //Apply the initial scramble of the seed.
