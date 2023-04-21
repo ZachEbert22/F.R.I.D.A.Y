@@ -856,9 +856,13 @@ int serial_read(device dev, char *buf, size_t len)
         char read = dcb->r_buffer_start[dcb->read_index];
         dcb->read_index = (dcb->read_index + 1) % RING_BUFFER_LEN;
 
-        dcb->io_buffer[dcb->io_bytes++] = read;
+        handle_new_char(read, dcb);
         dcb->r_buffer_size--;
     }
+
+    if(dcb->io_bytes > 0)
+        echo_line(dcb->io_buffer, dcb, 0);
+
     //Check if we're done.
     if(dcb->io_bytes == dcb->io_requested || is_newline(dcb->io_buffer[dcb->io_bytes]))
     {
