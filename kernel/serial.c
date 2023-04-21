@@ -664,7 +664,6 @@ extern void serial_isr(void*);
  */
 void serial_isr_intern(void)
 {
-    cli();
     device dev = COM1; //FIXME make this actually work with other COM types.
     int dcb_ind = serial_devno(dev);
     dcb_t *dcb = device_controllers + dcb_ind;
@@ -701,7 +700,6 @@ void serial_isr_intern(void)
     }
 
     outb(0x20, 0x20);
-    sti();
 }
 
 /**
@@ -850,7 +848,6 @@ int serial_read(device dev, char *buf, size_t len)
         dcb->operation = READING;
     }
     
-    cli();
     //Read all available things from ring buffer.
     while(dcb->r_buffer_size > 0 &&
           dcb->io_bytes < dcb->io_requested &&
@@ -862,7 +859,6 @@ int serial_read(device dev, char *buf, size_t len)
         dcb->io_buffer[dcb->io_bytes++] = read;
         dcb->r_buffer_size--;
     }
-    sti();
     //Check if we're done.
     if(dcb->io_bytes == dcb->io_requested || is_newline(dcb->io_buffer[dcb->io_bytes]))
     {
