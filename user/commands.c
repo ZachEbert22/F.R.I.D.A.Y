@@ -2,6 +2,7 @@
 #include "string.h"
 #include "stdio.h"
 #include "dragon_maze.h"
+#include "mine_sweeper.h"
 #include "sys_req.h"
 #include "bomb_catcher.h"
 #include "mpx/comhand.h"
@@ -394,7 +395,7 @@ struct help_info help_messages[] = {
         {.str_label = {CMD_COLOR_LABEL},
                 .help_message = "The '%s' command sets the color of text output.\nto change your color, enter 'color'"},
         {.str_label = {CMD_PCB_LABEL},
-                .help_message = "The '%s' command shows all the pcb commands available to the user. the help commands are listed below\n=> enter 'help pcb delete'\n=> enter 'help pcb block'\n=> enter 'help pcb unblock'\n=> enter 'help pcb suspend'\n=> enter 'help pcb resume'\n=> enter 'help pcb priority'\n=> enter 'help pcb show'\n=> enter 'help pcb show-ready'\n=> enter 'help pcb show-blocked'\n=> enter 'help pcb show-all'"},
+                .help_message = "The '%s' command shows all the pcb commands available to the user. the help commands are listed below\n=> enter 'help pcb delete'\n=> enter 'help pcb suspend'\n=> enter 'help pcb resume'\n=> enter 'help pcb priority'\n=> enter 'help pcb show'\n=> enter 'help pcb show-ready'\n=> enter 'help pcb show-blocked'\n=> enter 'help pcb show-all'"},
         {.str_label = {CMD_PCB_LABEL, "delete"},
                 .help_message = "The '%s' Command Deletes the process and frees all associated memory"},
         {.str_label = {CMD_PCB_LABEL, "suspend"},
@@ -819,6 +820,16 @@ bool cmd_free_memory(const char* comm){
         println("Successfully freed memory");
     }
 
+    return true;
+}
+
+bool cmd_minesweeper(const char *comm)
+{
+    const char *label = "minesweeper";
+    if(!first_label_matches(comm, label))
+        return false;
+
+    start_minesweeper_game(194914L);
     return true;
 }
 

@@ -36,6 +36,14 @@ unsigned int ui_realmod(int x, int mod);
 double pow(double a, double b);
 
 /**
+ * @brief Gets the current seed for the random.
+ *
+ * @return the seed.
+ * @authors Andrew Bowie
+ */
+unsigned long long get_seed(void);
+
+/**
  * @brief Seeds the random number generator.
  * @param seed the seed.
  */
