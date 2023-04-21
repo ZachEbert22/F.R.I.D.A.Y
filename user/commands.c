@@ -805,6 +805,9 @@ bool cmd_free_memory(const char* comm){
         println("Hex value not provided please input value as 54 not 0x54");
         return true;
     }
+    if(*hex == '0' && *(hex+1) == 'x'){
+        hex+=2;
+    } 
     int address = atox(hex);
     int err = free_memory((void *) address);
     if(err != 0)
