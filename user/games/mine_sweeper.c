@@ -10,15 +10,28 @@
 #include "stdio.h"
 #include "print_format.h"
 #include "stdlib.h"
+#include "linked_list.h"
 
 #define MINE_WIDTH 40
 #define MINE_HEIGHT 10
 #define MINE_GENERATION_FACTOR 0.1
 
+#define HORIZ_WALL "\u2501"
+#define VERT_WALL "\u2503"
+
+#define TL_CORNER "\u250F"
+#define TR_CORNER "\u2513"
+#define BL_CORNER "\u2517"
+#define BR_CORNER "\u251B"
+
 ///The mine bitmap, 1 signifies mine, 0 signifies empty space.
 static bool mine_bitmap[MINE_WIDTH][MINE_HEIGHT];
 ///The revealed map, 1 signifies a revealed square, 2 signifies a flagged square. You cannot reveal a flagged square.
 static char revealed_map[MINE_WIDTH][MINE_HEIGHT];
+///The total amount of free squares.
+static int free_squares;
+///The total amount of revealed squares.
+static int revealed_squares;
 ///The total amount of mines in the current game.
 static int mines;
 ///The total amount of mines flagged.
@@ -58,6 +71,75 @@ int get_nearby_mines(int x, int y)
 }
 
 /**
+ * @brief Encodes the two coordinates as a single integer.
+ * @param x the x coordinate.
+ * @param y the y coordinate.
+ * @return the encoded coordinate.
+ */
+int encode_coordinates(int x, int y)
+{
+    return ((x & 0xFF) << 8) | (y & 0xFF);
+}
+
+/**
+ * @brief Reveals all nearby 0 spaces.
+ * @authors Andrew Bowie
+ */
+void reveal_all_nearby(int x, int y)
+{
+    //Don't reveal anything more if no nearby mines.
+    if(get_nearby_mines(x, y) > 0)
+    {
+        revealed_map[pc_x][pc_y] = 1;
+        revealed_squares++;
+        return;
+    }
+
+    linked_list *node = nl_unbounded();
+    int full_word = encode_coordinates(x, y);
+
+    add_item(node,  (void *) full_word);
+
+    while(list_size(node) > 0)
+    {
+        int item = (int) remove_item_unsafe(node, 0);
+        int x_part = (item & 0xFF00) >> 8;
+        int y_part = item & 0xFF;
+
+        if(x_part < 0 || x_part >= MINE_WIDTH || y_part < 0 || y_part >= MINE_HEIGHT)
+            continue;
+
+        //Get the nearby mines.
+        bool revealed = revealed_map[x_part][y_part] == 1;
+        int nearby_mines = get_nearby_mines(x_part, y_part);
+        if(nearby_mines == 0 && revealed_map[x_part][y_part] == 0)
+        {
+            //Add neighbors.
+            for (int xn = x_part - 1; xn <= x_part + 1; ++xn)
+            {
+                if(xn < 0 || xn >= MINE_WIDTH)
+                    continue;
+
+                for (int yn = y_part - 1; yn <= y_part + 1; ++yn)
+                {
+                    if(yn < 0 || yn >= MINE_HEIGHT)
+                        continue;
+
+                    add_item(node, (void *) encode_coordinates(xn, yn));
+                }
+            }
+        }
+
+        if(!revealed)
+        {
+            revealed_squares++;
+            revealed_map[x_part][y_part] = 1;
+        }
+    }
+    destroy_list(node, false);
+}
+
+/**
  * @brief Ticks the game, waiting for user input to do something.
  */
 void ms_game_tick(void)
@@ -75,25 +157,40 @@ void ms_game_tick(void)
             break;
         case 'S':
         case 's':
-            pc_y = pc_y + 1 == MINE_HEIGHT ? 0 : pc_y + 1;
+            pc_y = pc_y + 1 == MINE_HEIGHT ? pc_y : pc_y + 1;
             break;
         case 'D':
         case 'd':
-            pc_x = pc_x + 1 == MINE_WIDTH ? 0 : pc_x + 1;
+            pc_x = pc_x + 1 == MINE_WIDTH ? pc_x : pc_x + 1;
             break;
         case ' ':
             if(revealed_map[pc_x][pc_y] == 2)
                 return;
 
-            revealed_map[pc_x][pc_y] = 1;
             if(mine_bitmap[pc_x][pc_y])
                 game_running = false;
+            else
+                reveal_all_nearby(pc_x, pc_y);
             break;
         case 'F':
         case 'f':
-            revealed_map[pc_x][pc_y] = (char) (revealed_map[pc_x][pc_y] == 2 ? 0 : 2);
+            if(revealed_map[pc_x][pc_y] == 2)
+            {
+                if(mine_bitmap[pc_x][pc_y])
+                    mines_flagged--;
+                revealed_map[pc_x][pc_y] = (char) 0;
+            }
+            else if(revealed_map[pc_x][pc_y] == 0)
+            {
+                if(mine_bitmap[pc_x][pc_y])
+                    mines_flagged++;
+                revealed_map[pc_x][pc_y] = (char) 2;
+            }
             break;
     }
+
+    if(mines == mines_flagged && revealed_squares == free_squares)
+        game_running = false;
 }
 
 /**
@@ -103,8 +200,16 @@ void ms_game_tick(void)
 void print_mine(void)
 {
     clearscr();
+    print(TL_CORNER);
+    for (int i = 0; i < MINE_WIDTH; ++i)
+    {
+        print(HORIZ_WALL);
+    }
+    print(TR_CORNER);
+    print("\n");
     for (int y = 0; y < MINE_HEIGHT; ++y)
     {
+        print(VERT_WALL);
         for (int x = 0; x < MINE_WIDTH; ++x)
         {
             bool pc_pos = pc_x == x && pc_y == y;
@@ -144,8 +249,17 @@ void print_mine(void)
                     set_output_color(clr);
                     continue;
                 }
-                char buf[10] = {0};
+
+                //Get the mines and check if we should even print the number.
                 int nearby_mines = get_nearby_mines(x, y);
+                if(nearby_mines == 0)
+                {
+                    print("-");
+                    set_output_color(clr);
+                    continue;
+                }
+
+                char buf[10] = {0};
                 itoa(nearby_mines, buf, 10);
 
                 if(!pc_pos)
@@ -161,8 +275,16 @@ void print_mine(void)
             }
             set_output_color(clr);
         }
+        print(VERT_WALL);
         print("\n");
     }
+    print(BL_CORNER);
+    for (int i = 0; i < MINE_WIDTH; ++i)
+    {
+        print(HORIZ_WALL);
+    }
+    print(BR_CORNER);
+    print("\n");
 }
 
 /**
@@ -175,6 +297,7 @@ void generate_mines(unsigned long long game_seed)
     unsigned long long previous_seed = get_seed();
 
     s_rand(game_seed);
+    free_squares = MINE_WIDTH * MINE_HEIGHT;
     for (int x = 0; x < MINE_WIDTH; ++x)
     {
         for (int y = 0; y < MINE_HEIGHT; ++y)
@@ -182,7 +305,11 @@ void generate_mines(unsigned long long game_seed)
             //Generate random number for mine generation.
             double factor = next_random_lim(100) / 100.0;
             if(factor < MINE_GENERATION_FACTOR)
+            {
                 mine_bitmap[x][y] = true;
+                mines++;
+                free_squares--;
+            }
         }
     }
 
@@ -194,7 +321,7 @@ void start_minesweeper_game(unsigned long long game_seed)
     memset(mine_bitmap, 0, sizeof (mine_bitmap));
     memset(revealed_map, 0, sizeof (revealed_map));
     game_running = true;
-    pc_x = pc_y = mines = mines_flagged = 0;
+    pc_x = pc_y = mines = mines_flagged = free_squares = revealed_squares = 0;
     generate_mines(game_seed);
     print_mine();
     while(game_running)
@@ -205,5 +332,15 @@ void start_minesweeper_game(unsigned long long game_seed)
     memset(revealed_map, 1, sizeof (revealed_map));
     pc_x = pc_y = -1;
     print_mine();
+
+    if(mines == mines_flagged && free_squares == revealed_squares)
+    {
+        println("You win!");
+    }
+    else
+    {
+        println("You lose!");
+    }
+
     game_running = false;
 }

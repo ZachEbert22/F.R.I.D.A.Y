@@ -463,6 +463,22 @@ void handle_new_char(char read, dcb_t *dcb)
         dcb->io_buffer[dcb->io_bytes] = '\0';
     }
 
+    if(read == TAB)
+    {
+        //Find the best match.
+        const char *best = find_best_match(dcb->io_buffer);
+        if(best != NULL)
+        {
+            size_t best_len = strlen(best);
+            dcb->io_bytes = best_len;
+            dcb->line_pos = (int) dcb->io_bytes;
+
+            //Empty the buffer.
+            memset(dcb->io_buffer, 0, dcb->io_requested);
+            strcpy(dcb->io_buffer, best, -1);
+        }
+    }
+
     //If we've reached an escape character, start placing things into the buffer.
     if(read == ESCAPE)
     {

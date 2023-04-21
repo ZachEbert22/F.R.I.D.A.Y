@@ -14,6 +14,7 @@
 #include "mpx/io.h"
 #include "mpx/alarm.h"
 #include "mpx/heap.h"
+#include "math.h"
 
 #define CMD_HELP_LABEL "help"
 #define CMD_VERSION_LABEL "version"
@@ -36,6 +37,7 @@
 #define CMD_SHOW_FREE "show-free"
 
 #define CMD_DRAGONMAZE "dragonmaze"
+#define CMD_MINESWEEPER "minesweeper"
 
 
 ///An array of all command labels, terminated with null.
@@ -57,6 +59,7 @@ static const char *CMD_LABELS[] = {
         CMD_SHOW_ALLOCATE,
         CMD_SHOW_FREE,
         CMD_DRAGONMAZE,
+        CMD_MINESWEEPER,
         NULL,
 };
 
@@ -825,11 +828,11 @@ bool cmd_free_memory(const char* comm){
 
 bool cmd_minesweeper(const char *comm)
 {
-    const char *label = "minesweeper";
+    const char *label = CMD_MINESWEEPER;
     if(!first_label_matches(comm, label))
         return false;
 
-    start_minesweeper_game(194914L);
+    start_minesweeper_game(next_random());
     return true;
 }
 
