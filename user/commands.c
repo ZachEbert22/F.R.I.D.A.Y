@@ -162,7 +162,7 @@ bool cmd_set_date(const char *comm)
         return true;
     }
     // buffer to save numbers
-    char date_array[3][3] = {0};
+    char date_array[3][3] = {{0}};
     str_strip_whitespace(date_token, NULL, 0);
     // if part after set time is not valid with form hh:mm:ss returns with invalid date
     if (split(date_token, '/', 3, date_array, 3) || !is_valid_date_or_time(3, date_array, 3))
@@ -262,7 +262,7 @@ bool cmd_set_time(const char *comm)
     }
     str_strip_whitespace(time_token, NULL, 0);
     // buffer to save numbers
-    char time_array[3][3] = {0};
+    char time_array[3][3] = {{0}};
     // if part after set time is not valid with form hh:mm:ss returns with invalid date
     if (split(time_token, ':', 3, time_array, 3) < 0 ||
         !is_valid_date_or_time(3, time_array, 3))
@@ -436,7 +436,7 @@ bool cmd_help(const char *comm)
     if ((spl_token = strtok(NULL, split_label)) != NULL)
     {
         int param_index = 0;
-        char param2D[10][50] = {0};
+        char param2D[10][50] = {{0}};
 
         //Tokenize the parameters.
         do {
@@ -674,7 +674,7 @@ bool cmd_alarm(const char *comm)
     str_strip_whitespace(time_token, NULL, 0);
 
     // buffer to save numbers
-    char time_array[3][3] = {0};
+    char time_array[3][3] = {{0}};
     // if part after set time is not valid with form hh:mm:ss returns with invalid date
     if (split(time_token, ':', 3, time_array, 3) < 0 ||
         !is_valid_date_or_time(3, time_array, 3))
