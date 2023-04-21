@@ -15,34 +15,67 @@ static struct pcb *active_pcb_ptr = NULL;
 static struct context *first_context_ptr = NULL;
 
 /**
+ * @brief Gets the next PCB to replace the current one. The PCB can be sourced from one of two locations. They're listed in the order they're checked.
+ * 1. The DCB queues. If a process is loaded from there, it means that its IO operation was finished.
+ * 2. The PCB queue. If no such PCB is done in the DCBs, a PCB is polled from the PCB queue. If no PCB is available, NULL returns.
+ * In either case, the PCB is prepared for running by removing it from wherever it is in the PCB queue and set to a 'RUNNING' state.
+ *
+ * @return the next PCB to load, or NULL if no such PCB exists.
+ */
+struct pcb *get_next_pcb()
+{
+    //First, we need to check for completed IO operations.
+    struct pcb *to_load = check_completed();
+    if (to_load != NULL)
+    {
+        //Check that the PCB wasn't suspended while it was in the queue.
+        if(to_load->dispatch_state == SUSPENDED)
+        {
+            to_load->exec_state = READY; //Set it as ready, but not suspended.
+        }
+        else
+        {
+            //Otherwise, prepare it for running.
+            to_load->exec_state = RUNNING;
+            pcb_remove(to_load);
+            return to_load;
+        }
+    }
+
+    //Otherwise, load one from the PCB queues.
+    struct pcb *queue_pcb = peek_next_pcb();
+    if(queue_pcb == NULL || queue_pcb->exec_state == BLOCKED || queue_pcb->dispatch_state == SUSPENDED)
+        return NULL;
+
+    poll_next_pcb();
+    queue_pcb->exec_state = RUNNING;
+    return queue_pcb;
+}
+
+/**
  * @brief Want to check if next PCB is blocked, unblocked, IDLE, NULL, etc
- * @param ctx the current PCB context.
+ * @param next_pcb the next PCB to load.
+ * @param current_context the current context.
  * @param next_state the new state of the PCB.
  * @return Pointer to the next context struct
  * @author Zachary Ebert
  */
-struct context *next_pcb(struct context *ctx, enum pcb_exec_state next_state)
+struct context *next_pcb(struct pcb *next_pcb, struct context *current_context, enum pcb_exec_state next_state)
 {
-    struct pcb *next = peek_next_pcb();
-    //If this is the case, no PCB is ready to be loaded.
-    if (next == NULL || next->exec_state == BLOCKED || next->dispatch_state == SUSPENDED)
-    {
-        return ctx;
-    }
-    //Peaks and polls the pcb
-    poll_next_pcb();
+    if(next_pcb == NULL)
+        return current_context;
+
     struct pcb *present_pcb = active_pcb_ptr;
-    active_pcb_ptr = next;
-    struct context *new_ctx = (struct context *) next->stack_ptr;
+    active_pcb_ptr = next_pcb;
+    struct context *new_ctx = (struct context *) next_pcb->stack_ptr;
     //Checks to see if the active pointer pcb is null
-    if (present_pcb != NULL)
+    if (present_pcb != NULL && current_context != NULL)
     {
         present_pcb->exec_state = next_state;
         pcb_insert(present_pcb);
         //Update where the PCB's context pointer is pointing.
-        present_pcb->stack_ptr = ctx;
+        present_pcb->stack_ptr = current_context;
     }
-    next->exec_state = RUNNING;
     return new_ctx;
 }
 
@@ -65,23 +98,8 @@ struct context *sys_call(op_code action, struct context *ctx)
     __asm__ volatile("mov %%ecx,%0" : "=r"(ecx));
     __asm__ volatile("mov %%edx,%0" : "=r"(edx));
 
-    //First, we need to check for completed IO operations.
-    struct pcb *to_load = check_completed(); //TODO Perform operation properly
-    if (to_load != NULL)
-    {
-        //We need to context switch to this PCB.
-        to_load->exec_state = RUNNING;
-        pcb_remove(to_load);
-        active_pcb_ptr->exec_state = READY;
-        active_pcb_ptr->stack_ptr = ctx;
-
-        //Throw the current PCB back onto the queue.
-        pcb_insert(active_pcb_ptr);
-        active_pcb_ptr = to_load;
-        return (struct context *) to_load->stack_ptr;
-    }
-
     //Handle different actions in their own way.
+    struct pcb *next_to_load = get_next_pcb();
     switch (action)
     {
         case READ:
@@ -92,12 +110,12 @@ struct context *sys_call(op_code action, struct context *ctx)
             io_req_result result = io_request(active_pcb_ptr, action, dev, buffer, bytes);
 
             if (result == INVALID_PARAMS || result == SERVICED)
-                return ctx;
+                return next_pcb(next_to_load, ctx, BLOCKED);
 
             //In this case, we need to move this device to a blocked state and CTX switch.
             if (result == PARTIALLY_SERVICED || result == DEVICE_BUSY)
             {
-                return next_pcb(ctx, BLOCKED);
+                return next_pcb(next_to_load, ctx, BLOCKED);
             }
             return ctx;
         }
@@ -109,37 +127,20 @@ struct context *sys_call(op_code action, struct context *ctx)
             io_req_result result = io_request(active_pcb_ptr, action, dev, buffer, bytes);
 
             if (result == INVALID_PARAMS || result == SERVICED)
-                return ctx;
+            {
+                return next_pcb(next_to_load, ctx, BLOCKED);
+            }
 
             //In this case, we need to move this device to a blocked state and CTX switch.
             if (result == PARTIALLY_SERVICED || result == DEVICE_BUSY)
             {
-                return next_pcb(ctx, BLOCKED);
+                return next_pcb(next_to_load, ctx, BLOCKED);
             }
             return ctx;
         }
         case IDLE:
         {
-            struct pcb *next = peek_next_pcb();
-            //If this is the case, no PCB is ready to be loaded.
-            if (next == NULL || next->exec_state == BLOCKED || next->dispatch_state == SUSPENDED)
-            {
-                return ctx;
-            }
-
-            poll_next_pcb();
-            struct pcb *current = active_pcb_ptr;
-            active_pcb_ptr = next;
-            struct context *new_ctx = (struct context *) next->stack_ptr;
-            if (current != NULL)
-            {
-                current->exec_state = READY;
-                pcb_insert(current);
-                //Update where the PCB's context pointer is pointing.
-                current->stack_ptr = ctx;
-            }
-            next->exec_state = RUNNING;
-            return new_ctx;
+            return next_pcb(next_to_load, ctx, READY);
         }
         case EXIT:
         {
@@ -149,21 +150,14 @@ struct context *sys_call(op_code action, struct context *ctx)
                 return ctx;
 
             pcb_remove(exiting_pcb);
-            struct pcb *next_to_load = peek_next_pcb();
-            if (next_to_load == NULL || next_to_load->exec_state == BLOCKED ||
-                next_to_load->dispatch_state == SUSPENDED) //No next process to load? Try loading the global one.
+            if (next_to_load == NULL) //No next process to load? Try loading the global one.
                 return first_context_ptr;
-
-            //Ready the next process.
-            poll_next_pcb();
-            next_to_load->exec_state = RUNNING;
-            active_pcb_ptr = next_to_load;
 
             //Free the old one.
             pcb_free(exiting_pcb);
-            return (struct context *) next_to_load->stack_ptr;
+            return next_pcb(next_to_load, NULL, 0);
         }
         default:
-            return ctx;
+            return next_pcb(next_to_load, ctx, READY);
     }
 }

@@ -1,3 +1,4 @@
 target create kernel.bin
 gdb-remote localhost:1234
 b kpanic
+breakpoint set -y alarm.c:95

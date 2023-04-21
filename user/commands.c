@@ -715,7 +715,8 @@ bool cmd_alarm(const char *comm)
     gets(message_buf, 50);
 
     //print users alarm with attached message
-    int *now_time = get_time(NULL);
+    int now_time[7];
+    get_time(now_time);
     adj_timezone(now_time, get_clock_timezone()->tz_hour_offset, get_clock_timezone()->tz_minute_offset);
     now_time[4] = hour_dec;
     now_time[5] = minute_dec;

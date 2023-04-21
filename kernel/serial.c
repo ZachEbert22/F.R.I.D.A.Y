@@ -560,7 +560,7 @@ int input_isr(dcb_t *dcb)
             return 0;
 
         dcb->r_buffer_start[dcb->write_index] = read;
-        dcb->write_index = (dcb->write_index + 1) % dcb->r_buffer_len;
+        dcb->write_index = (dcb->write_index + 1) % (int) dcb->r_buffer_len;
         dcb->r_buffer_size++;
         return 0;
     }

@@ -35,7 +35,7 @@ typedef struct alarm_params
 bool is_time_after(const int *now, const int *check)
 {
     //Hours.
-    if(now[0] < check[1])
+    if(now[0] < check[0])
         return false;
 
     //Minutes.
@@ -51,7 +51,8 @@ bool is_time_after(const int *now, const int *check)
 bool shouldAlarm(const int *time_array, time_zone_t *tz)
 {
     // get current time
-    int *time_buf = get_time(NULL);
+    int time_buf[7];
+    get_time(time_buf);
     adj_timezone(time_buf, tz->tz_hour_offset, tz->tz_minute_offset);
     //Check the years.
     if(time_array[0] > time_buf[0])
@@ -66,10 +67,13 @@ bool shouldAlarm(const int *time_array, time_zone_t *tz)
         return false;
 
     // index 4-6 is hours - seconds
-    if (time_array[4] < time_buf[4]) return true;
+    if (time_array[4] < time_buf[4])
+        return true;
     // printf("alarm time is %d:%d:%d current time is %d:%d:%d\n", time_array[0], time_array[1], time_array[2], time_buf[4], time_buf[5], time_buf[6]);
-    if (time_array[4] == time_buf[4] && time_array[5] < time_buf[5]) return true;
-    if (time_array[4] == time_buf[4] && time_array[5] == time_buf[5] && time_array[6] <= time_buf[6]) return true;
+    if (time_array[4] == time_buf[4] && time_array[5] < time_buf[5])
+        return true;
+    if (time_array[4] == time_buf[4] && time_array[5] == time_buf[5] && time_array[6] <= time_buf[6])
+        return true;
 
     return false;
 }
