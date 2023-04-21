@@ -1,2 +1,3 @@
 target create kernel.bin
 gdb-remote localhost:1234
+b kpanic

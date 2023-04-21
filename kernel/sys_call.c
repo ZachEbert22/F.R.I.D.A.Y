@@ -66,7 +66,7 @@ struct context *sys_call(op_code action, struct context *ctx)
     __asm__ volatile("mov %%edx,%0" : "=r"(edx));
 
     //First, we need to check for completed IO operations.
-    struct pcb *to_load = check_completed();
+    struct pcb *to_load = check_completed(); //TODO Perform operation properly
     if (to_load != NULL)
     {
         //We need to context switch to this PCB.

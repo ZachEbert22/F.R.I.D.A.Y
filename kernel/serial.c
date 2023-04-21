@@ -326,7 +326,7 @@ typedef enum {
     IDLING,
     READING,
     WRITING,
-    READ_AND_WRITE,
+//    READ_AND_WRITE,
 } dcb_status_t;
 
 ///A descriptor for a device.
@@ -631,6 +631,7 @@ struct pcb *check_completed(void)
 
         dcb->pcb = iocb->pcb;
         (void) bytes_transferred;
+        sys_free_mem(iocb);
         return active_pcb; // This is the PCB that needs to now run as its operation was completed.
     }
     return NULL;
@@ -866,11 +867,7 @@ int serial_read(device dev, char *buf, size_t len)
     dcb->io_bytes = dcb->line_pos = 0;
     dcb->io_requested = len;
     // setting status to 'reading'
-    if (dcb->operation == WRITING){
-        dcb->operation = READ_AND_WRITE;
-    }else{
-        dcb->operation = READING;
-    }
+    dcb->operation = READING;
     
     //Read all available things from ring buffer.
     while(dcb->r_buffer_size > 0 &&
@@ -896,7 +893,7 @@ int serial_read(device dev, char *buf, size_t len)
             dcb->operation = WRITING;
         }  
         dcb->event = true;
-        return dcb->io_bytes;
+        return (int) dcb->io_bytes;
     }
 
     return 0; //Signifies we need more characters.
@@ -931,11 +928,7 @@ int serial_write(device dev, char *buf, size_t len)
     dcb->io_bytes = 1;
     dcb->io_requested = len;
     dcb->event = false;
-    if (dcb->operation == READING){
-        dcb->operation = READ_AND_WRITE;
-    } else{
-        dcb->operation = WRITING;
-    }
+    dcb->operation = WRITING;
    
     // get first character from request buff and store it in output register
     outb(dev, buf[0]);
