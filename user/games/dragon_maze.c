@@ -196,7 +196,7 @@ static maze_board_t board;
 static linked_list *inform_list;
 
 ///The map to use for visited tiles in maze generation. It's also used for the 'discovered' tiles in harder difficulties.
-static bool visited_map[MAZE_HEIGHT][MAZE_LENGTH] = {0};
+static bool visited_map[MAZE_HEIGHT][MAZE_LENGTH] = {{0}};
 
 /**
  * @brief Sets the given piece at the given location.
@@ -706,7 +706,7 @@ void move_dragon(void)
 void start_dragonmaze_game(void)
 {
     //Initialize all the values.
-    board = (maze_board_t) {0};
+    memset(&board, 0, sizeof(maze_board_t));
     dragon_alive = true;
     holding_princess = false;
     hero_symbol = HERO_NO_PRINCESS;
