@@ -49,6 +49,7 @@ static bool game_running;
  * @param x the x coordinate.
  * @param y the y coordinate.
  * @return the number of mines touching the space.
+ * @authors Andrew Bowie
  */
 int get_nearby_mines(int x, int y)
 {
@@ -75,6 +76,7 @@ int get_nearby_mines(int x, int y)
  * @param x the x coordinate.
  * @param y the y coordinate.
  * @return the encoded coordinate.
+ * @authors Andrew Bowie
  */
 int encode_coordinates(int x, int y)
 {
@@ -141,6 +143,7 @@ void reveal_all_nearby(int x, int y)
 
 /**
  * @brief Ticks the game, waiting for user input to do something.
+ * @authors Andrew Bowie
  */
 void ms_game_tick(void)
 {
@@ -285,6 +288,7 @@ void print_mine(void)
     }
     print(BR_CORNER);
     print("\n");
+    println("Use 'W' 'A' 'S' 'D' to move. Use 'F' to flag a mine.");
 }
 
 /**
@@ -318,9 +322,11 @@ void generate_mines(unsigned long long game_seed)
 
 void start_minesweeper_game(unsigned long long game_seed)
 {
+    //Clear out memory for the maps.
     memset(mine_bitmap, 0, sizeof (mine_bitmap));
     memset(revealed_map, 0, sizeof (revealed_map));
     game_running = true;
+    //Reset some flags.
     pc_x = pc_y = mines = mines_flagged = free_squares = revealed_squares = 0;
     generate_mines(game_seed);
     print_mine();
