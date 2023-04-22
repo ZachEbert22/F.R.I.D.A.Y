@@ -37,14 +37,20 @@ bool is_time_after(const int *now, const int *check)
     //Hours.
     if(now[0] < check[0])
         return false;
+    else if(now[0] > check[0])
+        return true;
 
     //Minutes.
     if(now[1] < check[1])
         return false;
+    else if(now[1] > check[1])
+        return true;
 
     //Seconds.
     if(now[2] < check[2])
         return false;
+    else if(now[2] > check[2])
+        return true;
     return true;
 }
 
