@@ -747,22 +747,22 @@ int find_com_iv(device dev)
     return dev == COM1 || dev == COM3 ? 0x24 : 0x23;
 }
 
-/**
- * @brief Opens the given device on the PIC.
- *
- * @param dev the device to open.
- * @param speed the speed of the device.
- * @return 0 on success, -101 null event flag pointer, -102 invalid baud divisor, -103 already open, -104
- */
 int serial_open(device dev, int speed)
 {
     int dcb_index = serial_devno(dev);
     if(dcb_index == -1)
         return -1;
 
-    
-
     dcb_t *dcb = device_controllers + dcb_index;
+
+    if(dcb->allocated){
+        return code_selection(-103);
+    }
+
+    if (speed == 0){
+        return code_selection(-102);
+    }
+
     dcb->dev = dev;
     dcb->allocated = true;
     dcb->event = false;
@@ -795,26 +795,9 @@ int serial_open(device dev, int speed)
     outb(dev + MCR, 0x08);
     outb(dev + IER, 0x01);
     initialized[dcb_index] = 1;
-    if(dcb->allocated){
-        return code_selection(-103);
-    }
-    if (speed == 0){
-        return code_selection(-102);
-    }
-    if(dcb->event == false){
-        return code_selection(-101);
-    }
-        
-
     return 0;
 }
 
-/**
- * @brief Closes the given device.
- *
- * @param dev the device to close.
- * @return 0 on success, negative values on error.
- */
 int serial_close(device dev)
 {
     int dev_ind = serial_devno(dev);
@@ -858,7 +841,7 @@ int serial_read(device dev, char *buf, size_t len)
         return code_selection(-303);
 
     // ensure the status is idle, if not return error -304
-    if((dcb->operation != IDLING) && (dcb->operation != WRITING))
+    if(dcb->operation != IDLING)
         return code_selection(-304);
 
     //Initialize values for reading, but not the ring buffer
@@ -887,11 +870,7 @@ int serial_read(device dev, char *buf, size_t len)
     //Check if we're done.
     if(dcb->io_bytes == dcb->io_requested || is_newline(dcb->io_buffer[dcb->io_bytes]))
     {
-        if(dcb->operation == READING){
-            dcb->operation = IDLING;
-        } else {
-            dcb->operation = WRITING;
-        }  
+        dcb->operation = IDLING;
         dcb->event = true;
         return (int) dcb->io_bytes;
     }
@@ -918,7 +897,7 @@ int serial_write(device dev, char *buf, size_t len)
         return code_selection(-403);
 
     //ensure port is idle
-    if((dcb->operation != IDLING) && (dcb->operation != READING)){
+    if(dcb->operation != IDLING){
         return code_selection(-404);
     }
         

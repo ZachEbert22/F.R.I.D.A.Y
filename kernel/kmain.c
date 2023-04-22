@@ -107,6 +107,8 @@ void kmain(void)
 
 	// 10) System Shutdown -- *headers to be determined by your design*
 	// After your command handler returns, take care of any clean up that is necessary.
+    serial_close(COM1);
+    serial_close(COM2);
 	klogv(COM1, "Starting system shutdown procedure...");
 
 	// System shutdown -- Nothing remains to change below here.

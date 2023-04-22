@@ -58,6 +58,14 @@ int serial_init(device dev);
 int serial_open(device dev, int speed);
 
 /**
+ * @brief Closes the given device.
+ *
+ * @param dev the device to close.
+ * @return 0 on success, negative values on error.
+ */
+int serial_close(device dev);
+
+/**
  Writes a buffer to a serial port
  @param device The serial port to output to
  @param buffer A pointer to an array of characters to output
