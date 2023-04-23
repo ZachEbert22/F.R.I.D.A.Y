@@ -806,7 +806,7 @@ int serial_close(device dev)
 
     dcb_t *dcb = device_controllers + dev_ind;
     if(!dcb->allocated)
-        return -201; //Throw Error Serial port not open
+        return code_selection(-201); //Throw Error Serial port not open
 
     destroy_list(dcb->pending_iocb, true);
     dcb->allocated = 0;
