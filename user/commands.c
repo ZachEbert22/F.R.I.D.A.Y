@@ -415,7 +415,11 @@ struct help_info help_messages[] = {
                 .help_message = "The '%s' Command displays the process's info including name, class, state, status, and priority when in the blocked state"},
         {.str_label = {CMD_PCB_LABEL, "show-all"},
                 .help_message = "The '%s' Command displays the process's info including name, class, state, status, and priority no matter what state its in"},
-        
+        {.str_label = {CMD_DRAGONMAZE},
+            .help_message = "The '%s' Command will start up the dragonmaze game. Using W A S D you can manuver the character to try and save the princess, but beware of the dragon."},
+        {.str_label = {CMD_MINESWEEPER},
+            .help_message = "The '%s' Command will start up a fresh game of classic minesweeper. \nUsing W A S D to move, you can use the spacebar to blow up squares, and [f] to flag potential mines."},
+
 };
 
 bool cmd_help(const char *comm)
@@ -501,6 +505,8 @@ bool cmd_help(const char *comm)
     println("=> enter 'help free-memory'");
     println("=> enter 'help show-allocate'");
     println("=> enter 'help show-free");
+    println("=> enter 'help dragonmaze'");
+    println("=> enter 'help minesweeper'");
     return true;
 }
 
