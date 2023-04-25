@@ -110,7 +110,7 @@ struct context *sys_call(op_code action, struct context *ctx)
             io_req_result result = io_request(active_pcb_ptr, action, dev, buffer, bytes);
 
             if (result == INVALID_PARAMS || result == SERVICED)
-                return next_pcb(next_to_load, ctx, BLOCKED);
+                return next_pcb(next_to_load, ctx, READY);
 
             //In this case, we need to move this device to a blocked state and CTX switch.
             if (result == PARTIALLY_SERVICED || result == DEVICE_BUSY)
@@ -128,7 +128,7 @@ struct context *sys_call(op_code action, struct context *ctx)
 
             if (result == INVALID_PARAMS || result == SERVICED)
             {
-                return next_pcb(next_to_load, ctx, BLOCKED);
+                return next_pcb(next_to_load, ctx, READY);
             }
 
             //In this case, we need to move this device to a blocked state and CTX switch.
